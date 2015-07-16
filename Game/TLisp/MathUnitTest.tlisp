@@ -1,0 +1,140 @@
+;	MathUnitTest.tlisp
+;
+;	Regression tests for math operations
+;	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved
+
+(setq TEST_SUITE (list
+
+	;	Equality
+
+	{	code: '(= 3 2)			result: Nil		}
+	{	code: '(= 2 2)			result: True	}
+	{	code: '(= 2.2 2)		result: Nil		}
+	{	code: '(= 2.2 2.2)		result: True	}
+	{	code: '(= 2.0 2)		result: True	}
+	{	code: '(= 2.1 2)		result: Nil		}
+	{	code: '(= "2" 2)		result: True	}
+
+	{	code: '(eq "2" 2)		result: Nil		}
+
+	{	code: '(!= 2.1 2)		result: True	}
+	{	code: '(!= 2.0 2)		result: Nil		}
+
+	;	Original Integer Math
+
+	{	code: '(add 2 2)		result: 4	}
+	{	code: '(subtract 2 2)	result: 0	}
+	{	code: '(multiply 2 2)	result: 4	}
+	{	code: '(divide 4 2)		result: 2	}
+	{	code: '(divide 5 2)		result: 2	}
+
+	;	New Math
+
+	{	code: '(+ 2 2)			result: 4	}
+	{	code: '(+ 2.5 2)		result: 4.5	}
+	{	code: '(+ 2.5 2.5)		result: 5.0	}
+	{	code: '(- 2.5 2.5)		result: 0	}
+	{	code: '(- 2.5 2.0)		result: 0.5	}
+	{	code: '(* 25 5 0.2)		result: 25.0	}
+	{	code: '(/ 25 5)			result: 5.0	}
+	{	code: '(/ 5 2)			result: 2.5	}
+
+	;	Functions
+
+	{	code: '(abs 5)			result: 5 }
+	{	code: '(abs -5)			result: 5 }
+	{	code: '(abs 5.5)		result: 5.5 }
+	{	code: '(abs -5.5)		result: 5.5 }
+
+	{	code: '(find (list 1 2 2.5 3) 2.5)		result: 2 }
+	{	code: '(find (list 1 2 2.5 3) 2.4)		result: Nil }
+	{	code: '(find (list 1 2 2.5 3) 1.0)		result: 0 }
+
+	{	code: '(min 1 2 4)			result: 1 }
+	{	code: '(min 1 20.5 -4.5)	result: -4.5 }
+	{	code: '(max 1 2 4)			result: 4 }
+	{	code: '(max 1 20.5 4)		result: 20.5 }
+
+	{	code: '(mod 4 4)		result: 0 }
+	{	code: '(mod 6 5)		result: 1 }
+	{	code: '(mod 6.0 5.0)	result: 1.0 }
+
+	{	code: '(pow 2 2)		result: 4 }
+
+	{	code: '(sqrt 4)			result: 2 }
+	{	code: '(sqrtn 4)		result: 2 }
+	{	code: '(sqrtn 0.25)		result: 0.5 }
+
+	;	Types
+
+	{	code: '(typeof 1.5)		result: 'real }
+	
+	;	Vectors: testing vector equality and construction
+	
+	{	code: '(v= (vector (list 1 2)) (vector (list 1 2)))		result: True}
+	{	code: '(v= (vector (list 1 2)) (vector (list 1 2 3)))		result: Nil}
+	{	code: '(v= (vector (list 1 2.0)) (vector (list 1 2)))		result: True}
+	{	code: '(v= (vector (list (list 1 1) (list 1 1))) (vfilled 1.0 (list 2 2)))		result: True}
+	{	code: '(v= (vector (list (list 1 2) (list 3 4))) (vfilled -1.0 (list 2 2)))	result: Nil}
+	
+	;	Vectors: testing vector indexing
+	
+	{	code: '(= 3 (v-> (vector (list (list 1 3 2) (list 1 2 3))) (list 0 1)))		result: True}
+	{	code: '(v= (vector (list (list 1 2) (list 1 3))) (v-> (vector (list (list 1 3 2) (list 1 2 3))) (list nil (list 0 2))))		result: True}
+	{	code: '(v= (vector (list 1 2)) (v<- (vfilled 0 (list 2)) (list Nil) (list 1 2)))	result: True}
+	{	code: '(v= (vector (list (list 0 0 0 0) (list 0 0 0 0) (list 0 0 1 2) (list 0 0 3 4))) (v<- (vfilled 0 (list 4 4)) (list (list 2 3) (list 2 3)) (list 1 2 3 4)))	result: True}
+	
+	;	Vectors: testing vector math operations
+	
+	{	code: '(v= (vector (list (list 0 0 0 0) (list 0 0 0 0) (list 0 0 0 0))) (v+ (vfilled (- 0 1) (list 3 4)) (vfilled 1 (list 3 4))))		result: True}
+	{	code: '(v= (vector (list (list 0 4) (list 0 9))) (v+ (vector (list (list 1 2) (list 3 4.5))) (vector (list (list (- 0 1) 2) (list (- 0 3) 4.5))) ))		result: True}
+	{	code: '(= 11.25 (vdot (vector (list 2 3.5 (- 0 1.5))) (vector (list 1 2 (- 0 1.5)))))		result: True}
+	{	code: '(v= (vector (list 0.25 9)) (v^ (vector (list 0.5 3)) (vector (list 0.5 3))))		result: True}
+	{	code: '(v= (vector (list (list (- 0 1) (- 0 2)) (list (- 0 3) (- 0 4)))) (v* (- 0 1) (vector (list (list 1 2) (list 3 4)))))	result: True}
+	
+	))
+
+(block (
+	(testNum 0)
+	(successTests 0)
+	(failedTests 0)
+	)
+	(print "Math Unit Test")
+
+	(enum TEST_SUITE theTest
+		(errblock (errorResult result)
+			(setq testNum (add testNum 1))
+			(setq result (eval (@ theTest 'code)))
+			(switch
+				(eq result (@ theTest 'result))
+					(block ()
+						(print "[" testNum "] PASS")
+						(setq successTests (add successTests 1))
+						)
+
+				(block ()
+					(print "[" testNum "] FAIL: " (@ theTest 'code) " -> " result " (expected " (@ theTest 'result) ")")
+					(setq failedTests (add failedTests 1))
+					)
+				)
+
+			;	Error
+
+			(block ()
+				(print "[" testNum "] ERROR: " errorResult)
+				(setq failedTests (add failedTests 1))
+				)
+			)
+		)
+
+	;	Print final results
+
+	(if (eq testNum successTests)
+		(print "COMPLETED " testNum " " (if (eq testNum 1) "test" "tests") " successfully.")
+		(print "FAILED " failedTests " " (if (eq failedTests 1) "test" "tests") " out of " testNum ".")
+		)
+
+	;	Return empty string
+
+	""
+	)

@@ -1,0 +1,59 @@
+RELEASE
+-------------------------------------------------------------------------------
+
+[ ] Set version number in resource file
+[ ] Set version number in TransData and TransCompiler, if necessary
+[ ] Set apiVersion number, if necessary (TSEUtil.h)
+[ ] Set apiVersion number in Transcendence.xml
+[ ] Set TRANSCENDENCE_STABLE_RELEASE in TSE.h
+[ ] Set engine version in Multiverse
+[ ] Make sure Help screen is up-to-date
+[ ] Make sure Readme is up-to-date
+[ ] Increment saved game version, if necessary (TSEUtil.h)
+[ ] Build all for release mode
+[ ] Build tdb with /digest
+[ ] Add digest to CExtensionCollection.cpp
+[ ] Rebuild
+[ ] Sign executables (signall.bat)
+[ ] Test with tdb (/useTDB)
+
+[ ] Generate .zip file and copy to Releases
+[ ] Rename Transcendence.zip or TranscendenceNext.zip
+[ ] Upload .zip to hosting server (and publish)
+[ ] Update Engine version in Multiverse (people will start downloading at this point)
+
+[ ] Post announcement to Multiverse (work on this ahead of time)
+[ ] Post announcement to Forums, Facebook, Twitter
+
+[ ] Check in new version to GitHub
+
+
+NEW APPLICATION (UI)
+-------------------------------------------------------------------------------
+
+[ ] Create new Win32 project under /Dev/Transcendence
+[ ] Properties - All Configurations - General: Platform Toolset = "Visual Studio 2012 - Windows XP (v110_xp)"
+[ ] Properties - All Configurations - General: Character Set = "Use Multi-Byte Character Set"
+[ ] Properties - All Configurations - C++/General: Additional Include Directories = "..\..\Includes"
+[ ] Properties - All Configurations - C++/General: Detect 64-bit Compatibility Issues = "No"
+[ ] Properties - All Configurations - Linker/Input: Additional Dependencies = "dxguid.lib version.lib vfw32.lib winmm.lib dsound.lib ddraw.lib odbc32.lib odbccp32.lib ws2_32.lib"
+[ ] Properties - Debug - C++/Code Generation: Runtime Library = "Multithreaded Debug (/MTd)"
+[ ] Properties - Release - C++/Code Generation: Runtime Library = "Multithreaded (/MT)"
+[ ] Properties - Release - C++/Optimization: Whole Program Optimization = "/GL"
+[ ] For new libraries: Properties - Release - Librarian - General: Link Time Code Generation = "Yes (/LTCG)"
+[ ] Add Kernel as a dependency
+[ ] Add Graphics as a dependency
+[ ] Add DirectXUtil as a dependency
+[ ] Add IntelJPEGLib as a dependency
+[ ] Add TSUI as a dependency
+[ ] Add TransMain.cpp to project
+[ ] Add TransMain.h to project
+[ ] stdafx.h: Remove definition of WIN32_LEAN_AND_MEAN
+[ ] stdafx.h: Include "TransMain.h"
+[ ] TransMain.h: Set TRANS_APP_TITLE
+[ ] TransMain.h: Set TRANS_APP_WINDOW_CLASS
+[ ] TransMain.h: Include application header (e.g., TransExplorer.h)
+[ ] Remove content from main application .cpp file, except include of stdafx.h
+[ ] Add declaration of CTranscendenceController in application header
+[ ] Implement CTranscendenceController
+[ ] Add DXFN (DirectX fonts) to resource file
