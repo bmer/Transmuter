@@ -121,14 +121,6 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		if (m_Universe.Init(Ctx, retsError) != NOERROR)
 			return false;
 
-		//	Initialize TSUI CodeChain primitives
-
-		if (m_HI.InitCodeChainPrimitives(m_Universe.GetCC()) != NOERROR)
-			{
-			if (retsError) *retsError = CONSTLIT("Unable to load CodeChain primitives.");
-			return false;
-			}
-
 		//	Initialize application primitives
 
 		if (!m_UILibrary.RegisterCCPrimitives(m_Universe.GetCC()))

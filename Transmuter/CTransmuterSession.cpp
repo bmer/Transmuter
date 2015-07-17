@@ -19,11 +19,11 @@ void CTransmuterSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	
 	CG32bitPixel textColor = CG32bitPixel(224, 224, 224);
 
-	int i = 0;
-	for (int i; i < extensionFolderStrings.GetCount(); i++) 
-		{
-		Screen.DrawText(10, 10 + i*20, CG16bitFont(), textColor, extensionFolderStrings[i]);
-		};
+	//int i = 0;
+	//for (int i; i < extensionFolderStrings.GetCount(); i++) 
+	//	{
+	//	Screen.DrawText(10, 10 + i*20, CG16bitFont(), textColor, extensionFolderStrings[i]);
+	//	};
 
 	}
 
