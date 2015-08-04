@@ -40,7 +40,7 @@ class CTransmuterController :
 
 		//	IHost virtuals
 
-		virtual const CG16bitFont *GetFont (const CString &sFont);
+		// virtual const CG16bitFont *GetFont (const CString &sFont);
 
 	private:
 		enum EStates

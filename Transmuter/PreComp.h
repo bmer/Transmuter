@@ -1,5 +1,3 @@
-// Optimization during compile tile -- what it does is that you put you 
-
 //	PreComp.h
 
 #ifndef _WIN32_WINNT		// Allow use of features specific to Windows XP or later.                   

@@ -9,10 +9,9 @@ const DWORD UNID_DEFAULT_CAMPAIGN =					0x02110000;
 
 CTransmuterModel::CTransmuterModel (CHumanInterface &HI, CTransmuterController *pController) :
 		m_HI(HI),
-		m_pController(pController),
-		m_UILibrary(HI, *this)
+		m_pController(pController)
 
-//	CAmericaModel constructor
+//	CTransmuterModel constructor
 
 	{
 	}
@@ -121,14 +120,6 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		if (m_Universe.Init(Ctx, retsError) != NOERROR)
 			return false;
 
-		//	Initialize application primitives
-
-		if (!m_UILibrary.RegisterCCPrimitives(m_Universe.GetCC()))
-			{
-			if (retsError) *retsError = CONSTLIT("Unable to load CSC America primitives.");
-			return false;
-			}
-
 		return true;
 		}
 	catch (...)
@@ -136,4 +127,22 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		if (retsError) *retsError = CONSTLIT("Crash loading universe.");
 		return false;
 		}
+	}
+
+TArray<CString> CTransmuterModel::GetExtensionNames()
+	{
+		CExtensionCollection &ExtensionCollection = m_Universe.GetExtensionCollection();
+
+		TArray<CExtension *> ExtensionsArray = ExtensionCollection.GetAllExtensions();
+		int x = ExtensionsArray.GetCount();
+
+		TArray<CString> ExtensionNames;
+
+		for (int i = 0; i < ExtensionsArray.GetCount(); i++)
+			{
+				const CString &ExtensionName = ExtensionsArray[i]->GetName();
+				ExtensionNames.Insert(ExtensionName);
+			};
+
+		return ExtensionNames;
 	}

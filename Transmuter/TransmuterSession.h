@@ -14,28 +14,30 @@ class CCommandRibbonSession;
 class CTransmuterSession : public IHISession, public CUniverse::INotifications
 	{
 	public:
-		CTransmuterSession (CHumanInterface &HI, CTransmuterModel m_Model);
+		CTransmuterSession (CHumanInterface &HI, CTransmuterModel &model);
 
 		//	IHISession virtuals
 
-		virtual void OnChar (char chChar, DWORD dwKeyData);
-		virtual void OnCleanUp (void);
-		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
-		virtual ALERROR OnInit (CString *retsError);
-		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnChar (char chChar, DWORD dwKeyData);
+		//virtual void OnCleanUp (void);
+		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		//virtual ALERROR OnInit (CString *retsError);
+		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
+		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnUpdate (bool bTopMost);
+
+
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
-		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnUpdate (bool bTopMost);
 
 	private:
 		CTextEditorSession *m_textEditorSession;
 		CNavigationSession *m_navigationSession;
 		CCommandRibbonSession *m_commandRibbonSession;
-		CTransmuterModel m_Model;
+		CTransmuterModel &m_Model;
 		int iFocus;
 	};
 
@@ -46,18 +48,18 @@ class CTextEditorSession : public IHISession
 
 		//	IHISession virtuals
 
-		virtual void OnChar (char chChar, DWORD dwKeyData);
-		virtual void OnCleanUp (void);
-		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
-		virtual ALERROR OnInit (CString *retsError);
-		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnMouseMove (int x, int y, DWORD dwFlags);
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
-		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnUpdate (bool bTopMost);
+		//virtual void OnChar (char chChar, DWORD dwKeyData);
+		//virtual void OnCleanUp (void);
+		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		//virtual ALERROR OnInit (CString *retsError);
+		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
+		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		//virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnUpdate (bool bTopMost);
 
 	private:
 		CTransmuterSession &m_mainTransmuterSession;
@@ -73,18 +75,18 @@ class CTextEditorTabSession : public IHISession
 
 		//	IHISession virtuals
 
-		virtual void OnChar (char chChar, DWORD dwKeyData);
-		virtual void OnCleanUp (void);
-		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
-		virtual ALERROR OnInit (CString *retsError);
-		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnMouseMove (int x, int y, DWORD dwFlags);
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
-		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnUpdate (bool bTopMost);
+		//virtual void OnChar (char chChar, DWORD dwKeyData);
+		//virtual void OnCleanUp (void);
+		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		//virtual ALERROR OnInit (CString *retsError);
+		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
+		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		//virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnUpdate (bool bTopMost);
 	private:
 		CTextEditorSession &m_parentTextEditorSession;
 	};
@@ -96,18 +98,18 @@ class CNavigationSession : public IHISession
 
 		//	IHISession virtuals
 
-		virtual void OnChar (char chChar, DWORD dwKeyData);
-		virtual void OnCleanUp (void);
-		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
-		virtual ALERROR OnInit (CString *retsError);
-		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnMouseMove (int x, int y, DWORD dwFlags);
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
-		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnUpdate (bool bTopMost);
+		//virtual void OnChar (char chChar, DWORD dwKeyData);
+		//virtual void OnCleanUp (void);
+		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		//virtual ALERROR OnInit (CString *retsError);
+		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
+		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		//virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnUpdate (bool bTopMost);
 
 	private:
 		CTransmuterSession &m_mainTransmuterSession;
@@ -120,18 +122,18 @@ class CCommandRibbonSession : public IHISession
 
 		//	IHISession virtuals
 
-		virtual void OnChar (char chChar, DWORD dwKeyData);
-		virtual void OnCleanUp (void);
-		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
-		virtual ALERROR OnInit (CString *retsError);
-		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnMouseMove (int x, int y, DWORD dwFlags);
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
-		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
-		virtual void OnUpdate (bool bTopMost);
+		//virtual void OnChar (char chChar, DWORD dwKeyData);
+		//virtual void OnCleanUp (void);
+		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		//virtual ALERROR OnInit (CString *retsError);
+		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
+		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
+		//virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		//virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+		//virtual void OnUpdate (bool bTopMost);
 
 	private:
 		CTransmuterSession &m_mainTransmuterSession;

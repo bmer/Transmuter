@@ -45,24 +45,6 @@ class CDialogDesc
 		TArray<SActionDesc> m_Actions;
 	};
 
-//	CodeChain Primitive Libraries ----------------------------------------------
-
-class CUILibrary : public IPrimitiveImpl
-	{
-	public:
-		CUILibrary (CHumanInterface &HI, CTransmuterModel &Model) : 
-				m_HI(HI),
-				m_Model(Model)
-			{ }
-
-		virtual ICCItem *InvokeCCPrimitive (CEvalContext *pEvalCtx, ICCItem *pArgs, DWORD dwData);
-		virtual bool RegisterCCPrimitives (CCodeChain &CC);
-
-	private:
-		CHumanInterface &m_HI;
-		CTransmuterModel &m_Model;
-	};
-
 //	CTransmuterModel --------------------------------------------------------------
 
 class CTransmuterModel
@@ -90,7 +72,8 @@ class CTransmuterModel
 		bool Init (const SInitDesc &Ctx, CString *retsError = NULL);
 		bool InitBackground (CString *retsError = NULL);
 		void InvokeCode (ICCItem *pCode);
-		inline TArray<CString> GetExtensionFolderStrings() { return m_ExtensionFolders; }
+
+		TArray<CString> GetExtensionNames(void);
 
 	private:
 		inline CString GetSaveFilePath (void) const { return (m_SaveFileFolders.GetCount() == 0 ? NULL_STR : m_SaveFileFolders[0]); }
@@ -105,8 +88,6 @@ class CTransmuterModel
 
 		CUniverse m_Universe;
 		SEditorSettings m_CampaignSettings;
-		CGameFile m_GameFile;
-		CUILibrary m_UILibrary;				//	UI CC primitives
 
 		bool m_bDebugMode;
 		bool m_bForceTDB;
