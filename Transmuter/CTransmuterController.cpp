@@ -13,9 +13,7 @@
 
 #define CMD_INTRO_SHOW_UI						CONSTLIT("cmdIntroShowUI")
 
-#define CMD_MODEL_EDITOR_CREATED				CONSTLIT("cmdModelEditorCreated")
 #define CMD_MODEL_INIT_DONE						CONSTLIT("cmdModelInitDone")
-#define CMD_MODEL_INVOKE_CODE					CONSTLIT("cmdModelInvokeCode")
 
 #define CMD_UI_LOAD_GAMEWORLD					CONSTLIT("cmdUILoadGameWorld")
 #define CMD_UI_EXIT								CONSTLIT("cmdUIExit")
@@ -72,7 +70,7 @@ bool CTransmuterController::OnClose (void)
 //	the app; FALSE otherwise.
 
 	{
-	return true;
+	return TRUE;
 	}
 
 ALERROR CTransmuterController::OnCommand (const CString &sCmd, void *pData)
@@ -89,6 +87,8 @@ ALERROR CTransmuterController::OnCommand (const CString &sCmd, void *pData)
 	if (strEquals(sCmd, CMD_MODEL_INIT_DONE))
 		OnModelInitDone((CInitModelTask *)pData);
 
+	else if (strEquals(sCmd, CMD_INTRO_SHOW_UI))
+		m_HI.ShowSession(new CTransmuterSession(m_HI, m_Model));
 
 	return NOERROR;
 	}
@@ -100,20 +100,20 @@ ALERROR CTransmuterController::OnInit (CString *retsError)
 //	Initialize after HI has booted.
 
 	{
-	//	Initialize the model
+	// Show loading screen while we do initialization
+	m_HI.ShowSession(new CLoadingSession(m_HI));
 
+	//	Initialize the model
 	CTransmuterModel::SInitDesc Ctx;
 	Ctx.bDebugMode = m_Settings.GetValueBoolean(SETTING_DEBUG_MODE);
 	Ctx.bForceTDB = m_Settings.GetValueBoolean(SETTING_FORCE_TDB);
 
-	Ctx.sCollectionFolder = pathAddComponent(m_Settings.GetUserFolder(), FOLDER_COLLECTION);
-	Ctx.ExtensionFolders.Insert(pathAddComponent(m_Settings.GetUserFolder(), FOLDER_EXTENSIONS));
-	Ctx.SaveFileFolders.Insert(pathAddComponent(m_Settings.GetUserFolder(), FOLDER_SAVE_FILES));
+	// Ctx.sCollectionFolder = pathAddComponent(m_Settings.GetUserFolder(), FOLDER_COLLECTION);
 
 	if (!m_Model.Init(Ctx, retsError))
 		return ERR_FAIL;
 
-	m_HI.ShowSession(new CTransmuterSession(m_HI, m_Model));
+	m_HI.AddBackgroundTask(new CInitModelTask(m_HI, m_Model), 0, this, CMD_MODEL_INIT_DONE);
 
 	return NOERROR;
 	}
@@ -138,7 +138,23 @@ void CTransmuterController::OnModelInitDone (CInitModelTask *pTask)
 
 	//	Tell the session that we're done loading.
 
-	m_HI.GetSession()->HICommand(CMD_INTRO_SHOW_UI);
+	m_HI.HICommand(CMD_INTRO_SHOW_UI);
+	}
+
+const CG16bitFont *CTransmuterController::GetFont (const CString &sFont)
+
+//	GetFont
+//
+//	Returns the given font (or NULL if not found)
+
+	{
+	bool bFound;
+
+	const CG16bitFont &TheFont = m_HI.GetVisuals().GetFont(sFont, &bFound);
+	if (!bFound)
+		return NULL;
+
+	return &TheFont;
 	}
 
 void CTransmuterController::OnShutdown (EHIShutdownReasons iShutdownCode)

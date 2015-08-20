@@ -73,7 +73,8 @@ class CTransmuterModel
 		bool InitBackground (CString *retsError = NULL);
 		void InvokeCode (ICCItem *pCode);
 
-		TArray<CString> GetExtensionNames(void);
+		TArray<CExtension *> GetExtensionsArray(void);
+		TArray<CDesignTable> GetExtensionDesignTables(void);
 
 	private:
 		inline CString GetSaveFilePath (void) const { return (m_SaveFileFolders.GetCount() == 0 ? NULL_STR : m_SaveFileFolders[0]); }

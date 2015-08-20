@@ -11,6 +11,6 @@
 #include "DirectXUtil.h"
 #include "XMLUtil.h"
 #include "Resource.h"
-#include "Transmuter.h"
-#include "TransmuterSession.h"
+#include "TransmuterController.h"
+#include "TransmuterSessions.h"
 #include "UserSettingsDef.h"

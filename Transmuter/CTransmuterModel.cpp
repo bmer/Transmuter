@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-const DWORD UNID_DEFAULT_CAMPAIGN =					0x02110000;
+const DWORD UNID_DEFAULT_CAMPAIGN =	DEFAULT_ADVENTURE_EXTENSION_UNID;
 
 CTransmuterModel::CTransmuterModel (CHumanInterface &HI, CTransmuterController *pController) :
 		m_HI(HI),
@@ -25,24 +25,24 @@ bool CTransmuterModel::Init (const SInitDesc &Ctx, CString *retsError)
 	{
 	//	Save file path
 
-	m_SaveFileFolders = Ctx.SaveFileFolders;
+	//m_SaveFileFolders = Ctx.SaveFileFolders;
 
-	//	Make sure the first path (default) exists so we can save files there.
+	////	Make sure the first path (default) exists so we can save files there.
 
-	if (m_SaveFileFolders.GetCount() == 0)
-		{
-		if (retsError) *retsError = CONSTLIT("No save file path defined.");
-		return false;
-		}
+	//if (m_SaveFileFolders.GetCount() == 0)
+	//	{
+	//	if (retsError) *retsError = CONSTLIT("No save file path defined.");
+	//	return false;
+	//	}
 
-	if (!pathExists(m_SaveFileFolders[0]))
-		{
-		if (!pathCreate(m_SaveFileFolders[0]))
-			{
-			if (retsError) *retsError = strPatternSubst(CONSTLIT("Cannot create default save file path: %s."), m_SaveFileFolders[0]);
-			return false;
-			}
-		}
+	//if (!pathExists(m_SaveFileFolders[0]))
+	//	{
+	//	if (!pathCreate(m_SaveFileFolders[0]))
+	//		{
+	//		if (retsError) *retsError = strPatternSubst(CONSTLIT("Cannot create default save file path: %s."), m_SaveFileFolders[0]);
+	//		return false;
+	//		}
+	//	}
 
 	//	Other folders
 
@@ -107,8 +107,8 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		//	Load the Transcendence Data Definition file that describes the universe.
 
 		CUniverse::SInitDesc Ctx;
-		Ctx.sFilespec = CONSTLIT("Transcendence.tdb");
-		Ctx.sSourceFilespec = CONSTLIT("..\\TransCore\\Transcendence.xml");
+		// Ctx.sFilespec = CONSTLIT("");
+		Ctx.sFilespec = CONSTLIT("A:\\transdev\\Transcendence\\TransCore\\Transcendence.xml");
 		Ctx.sCollectionFolder = m_sCollectionFolder;
 		Ctx.ExtensionFolders = m_ExtensionFolders;
 		Ctx.pHost = m_pController;
@@ -129,20 +129,36 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		}
 	}
 
-TArray<CString> CTransmuterModel::GetExtensionNames()
+TArray<CExtension *> CTransmuterModel::GetExtensionsArray()
+//	GetExtensionsArray
+//
+//	Gets all extensions in universe's extension collection, in array format.
 	{
-		CExtensionCollection &ExtensionCollection = m_Universe.GetExtensionCollection();
+	CExtensionCollection &ExtensionCollection = m_Universe.GetExtensionCollection();
 
-		TArray<CExtension *> ExtensionsArray = ExtensionCollection.GetAllExtensions();
-		int x = ExtensionsArray.GetCount();
+	TArray<CExtension *> ExtensionsArray = ExtensionCollection.GetAllExtensions();
 
-		TArray<CString> ExtensionNames;
+	return ExtensionsArray;
+	}
 
-		for (int i = 0; i < ExtensionsArray.GetCount(); i++)
-			{
-				const CString &ExtensionName = ExtensionsArray[i]->GetName();
-				ExtensionNames.Insert(ExtensionName);
-			};
 
-		return ExtensionNames;
+
+TArray<CDesignTable> CTransmuterModel::GetExtensionDesignTables()
+//	GetExtensionNames
+//
+//	Loops over CExtension objects in array and gets associated name strings.
+	{
+	TArray<CExtension *> ExtensionsArray = GetExtensionsArray();
+
+	int x = ExtensionsArray.GetCount();
+
+	TArray<CDesignTable> DesignTables;
+
+	for (int i = 0; i < ExtensionsArray.GetCount(); i++)
+		{
+		CDesignTable ExtensionDesignTable = ExtensionsArray[i]->GetDesignTypes();
+		DesignTables.Insert(ExtensionDesignTable);
+		};
+
+	return DesignTables;
 	}
