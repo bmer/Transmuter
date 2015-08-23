@@ -26,22 +26,22 @@ class CPanel
 		int GetSpaceHeight (void) { return m_SpaceHeight; }
 
 		CPanel* AddInternalPanel (int xO, int yO, int SpaceWidth, int SpaceHeight, double Rigidity);
+		CPanel* AddInternalPanel (int xO, int yO, int SpaceWidth, int SpaceHeight);
 
 		TArray <CPanel *> GetInternalPanels (void);
 
-		bool MatchesRequirements(int RequiredSpaceWidth, int RequiredSpaceHeight);
 		void AssociateSession(CSubSession *Session);
 
-		TArray <CSubSession *> GetAllAssociatedSessions (void);
+		TArray <CSubSession *> GetInternalPanelSessions (void);
 
-		void ResizePanels (void);
+		void ExpandInternalPanels (void);
 
-		void SetFocus (void) { m_IsFocus = TRUE; }
-		void RemoveFocus (void) { m_IsFocus = FALSE; }
+		void FocusOnInternalPanel (int PanelIndex);
+		void RemoveFocusFromInternalPanel (int PanelIndex);
 
 		TArray <CSubSession *> CreateErrorSessions(CHumanInterface &HI);
 
-		TArray <int> GetRectCoords(void);
+		TArray <int> GetRectDefinition(void);
 
 		inline bool ErrorOccurred(void) {return m_ErrorOccurred; }
 
@@ -51,17 +51,10 @@ class CPanel
 		int m_SpaceWidth;					//  width of panel
 		int m_SpaceHeight;					//	height of panel
 
-		bool m_SeparatorExists;
-		bool m_MaintainSeparatorFactor;
-		int m_SeparatorDirection;			//  0 for separator parallel to x-direction, 1 for y-direction
-		double m_SeparatorFactor;			//  fraction of SpaceWidth or SpaceHeight, depending on direction
-		int m_SeparatorLocation;			//	SeparatorFactor*SpaceWidth or SeparatorFactor*SpaceHeight depending on direction
-		
+		TArray <CPanel *> InternalPanels;
+
 		bool m_ErrorOccurred;
 		CString m_ErrorString;
-
-		CElasticPanel *m_SubEPAlpha;
-		CElasticPanel *m_SubEPBeta;
 
 		CSubSession *m_AssociatedSession;
 
