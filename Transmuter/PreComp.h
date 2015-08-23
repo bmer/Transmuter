@@ -13,4 +13,6 @@
 #include "Resource.h"
 #include "TransmuterController.h"
 #include "TransmuterSessions.h"
+#include "Panel.h"
 #include "UserSettingsDef.h"
+#include "SimpleGeometry.h"
