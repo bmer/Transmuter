@@ -47,7 +47,19 @@
     <ClCompile Include="Transmuter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CTransmuterSessions.cpp">
+    <ClCompile Include="CElasticPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLoadingSession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTransmuterSession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CSubSession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CExtensionNavigator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
