@@ -19,16 +19,24 @@ class CPanel
 		~CPanel (void);
 
 		void SetPanelOrigin (int xO, int yO);
-		void SetPanelSpace (int SpaceWidth, int SpaceHeight);
-		int GetOriginX (void) { return m_xO; }
-		int GetOriginY (void) { return m_yO; }
-		int GetSpaceWidth (void) { return m_SpaceWidth; }
-		int GetSpaceHeight (void) { return m_SpaceHeight; }
+		void SetPanelSpace (int width, int height);
 
-		CPanel* AddInternalPanel (int xO, int yO, int SpaceWidth, int SpaceHeight, double Rigidity);
-		CPanel* AddInternalPanel (int xO, int yO, int SpaceWidth, int SpaceHeight);
+		inline int SetOriginX (int xO) { m_xO = xO; }
+		inline int SetOriginY (int yO) { m_yO = yO; }
+		inline int SetPanelWidth (int width) { m_Width = width; }
+		inline int SetPanelHeight (int height) { m_Height = height; }
 
-		TArray <CPanel *> GetInternalPanels (void);
+		inline int GetOriginX (void) { return m_xO; }
+		inline int GetOriginY (void) { return m_yO; }
+		inline int GetPanelWidth (void) { return m_Width; }
+		inline int GetPanelHeight (void) { return m_Height; }
+
+		inline double GetPanelRigidity (void) { return m_Rigidity; }
+
+		CPanel* AddInternalPanel (int xO, int yO, int width, int height, double rigidity);
+		CPanel* AddInternalPanel (int xO, int yO, int width, int height);
+
+		TArray <CPanel &> GetInternalPanels (void);
 
 		void AssociateSession(CSubSession *Session);
 
@@ -48,10 +56,13 @@ class CPanel
 	private:
 		int m_xO;							//  top left corner x-coordinate
 		int m_yO;							//	top left corner y-coordinate
-		int m_SpaceWidth;					//  width of panel
-		int m_SpaceHeight;					//	height of panel
+		int m_Width;					//  width of panel
+		int m_Height;					//	height of panel
 
-		TArray <CPanel *> InternalPanels;
+		double m_Rigidity;					//  rigidity of panel
+
+		CPanel *m_ParentPanel;
+		TArray <CPanel &> m_InternalPanels;
 
 		bool m_ErrorOccurred;
 		CString m_ErrorString;

@@ -126,21 +126,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
+    <ClInclude Include="Panel.h" />
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SimpleGeometry.h" />
     <ClInclude Include="TransmuterController.h" />
     <ClInclude Include="TransmuterModel.h" />
     <ClInclude Include="TransmuterSessions.h" />
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CElasticPanel.cpp" />
+    <ClCompile Include="CPanel.cpp" />
     <ClCompile Include="CExtensionNavigator.cpp" />
     <ClCompile Include="CLoadingSession.cpp" />
     <ClCompile Include="CSubSession.cpp" />
     <ClCompile Include="CTransmuterController.cpp" />
     <ClCompile Include="CTransmuterModel.cpp" />
     <ClCompile Include="CTransmuterSession.cpp" />
+    <ClCompile Include="SimpleGeometry.cpp" />
     <ClCompile Include="Transmuter.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreComp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
