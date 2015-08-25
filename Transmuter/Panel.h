@@ -5,6 +5,7 @@
 
 #pragma once
 
+class CSubSession;
 class CPanel;
 
 //  =======================================================================
@@ -44,7 +45,7 @@ class CPanel
 		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, double rigidity);
 		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height);
 
-		inline TArray <CPanel &> GetInternalPanels (void) { return m_InternalPanels; }
+		inline TArray <CPanel *> GetInternalPanels (void) { return m_InternalPanels; }
 
 		inline void AssociateSession(CSubSession *Session) { m_AssociatedSession = Session; }
 		inline CSubSession *GetAssociatedSession(void) { return m_AssociatedSession; }
@@ -59,8 +60,8 @@ class CPanel
 		void ExpandInternalPanel (int PanelIndex);
 		void ExpandAllInternalPanels (void);
 
-		inline void FocusOnInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex].m_Focus = 1; }
-		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex].m_Focus = 0; }
+		inline void FocusOnInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 1; }
+		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 0; }
 
 		TArray <int> GetRectDefinition(void);
 
@@ -68,6 +69,9 @@ class CPanel
 
 		inline bool HidePanel(void) { m_HidePanel = TRUE; }
 		inline bool ShowPanel(void) { m_HidePanel = FALSE; }
+
+		inline bool IsEmpty(void) { if (m_AssociatedSession == NULL) { return true; } else { return false; } }
+		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
 		int m_xO;							//  top left corner x-coordinate
@@ -78,7 +82,7 @@ class CPanel
 		double m_Rigidity;					//  rigidity of panel
 
 		CPanel *m_ParentPanel;
-		TArray <CPanel &> m_InternalPanels;
+		TArray <CPanel *> m_InternalPanels;
 
 		bool m_ErrorOccurred;
 		CString m_ErrorString;

@@ -62,8 +62,8 @@ void CPanel::SetPanelSpace(int width, int height)
 
 	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
 		{
-		CPanel &CurrentPanel = m_InternalPanels[i];
-		CurrentPanel.SetPanelSpace(CurrentPanel.GetWidth()*WidthDelta, CurrentPanel.GetHeight()*HeightDelta);
+		CPanel *CurrentPanel = m_InternalPanels[i];
+		CurrentPanel->SetPanelSpace(CurrentPanel->GetWidth()*WidthDelta, CurrentPanel->GetHeight()*HeightDelta);
 		}
 	}
 
@@ -99,13 +99,13 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 
 		for (int i = 0; i < m_InternalPanels.GetCount(); i++)
 			{
-			CPanel &CurrentInternalPanel = m_InternalPanels[i];
+			CPanel *CurrentInternalPanel = m_InternalPanels[i];
 			
-			int cxO = CurrentInternalPanel.GetOriginX();
-			int cyO = CurrentInternalPanel.GetOriginY();
-			int cwidth = CurrentInternalPanel.GetWidth();
-			int cheight = CurrentInternalPanel.GetHeight();
-			double crigidity = CurrentInternalPanel.GetRigidity();
+			int cxO = CurrentInternalPanel->GetOriginX();
+			int cyO = CurrentInternalPanel->GetOriginY();
+			int cwidth = CurrentInternalPanel->GetWidth();
+			int cheight = CurrentInternalPanel->GetHeight();
+			double crigidity = CurrentInternalPanel->GetRigidity();
 
 			TArray <bool> NewRectCornerStatus = DoesRect1ClashRect2(xO, yO, width, height, cxO, cyO, cwidth, cheight);
 
@@ -127,7 +127,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				if (DeltaH > 0 && (DeltaH > DeltaW))
 					{
 					//  shifting bottom edge of existing panel UP
-					CurrentInternalPanel.ShiftBottomEdge(-1*DeltaH*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftBottomEdge(-1*DeltaH*(1 - RelativeRigidity));
 
 					//  shifting top edge of new rectangle DOWN
 					NewPanel->ShiftTopEdge(DeltaH*RelativeRigidity);
@@ -135,7 +135,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				else if (DeltaW > 0)
 					{
 					//  shifting right edge of existing panel LEFT
-					CurrentInternalPanel.ShiftRightEdge(-1*DeltaW*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftRightEdge(-1*DeltaW*(1 - RelativeRigidity));
 
 					//  shifting left edge of new panel RIGHT
 					NewPanel->ShiftLeftEdge(DeltaW*RelativeRigidity);
@@ -156,7 +156,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				if (DeltaH > 0 && (DeltaH > DeltaW))
 					{
 					//  shift bottom edge of existing rectangle UP
-					CurrentInternalPanel.ShiftBottomEdge(-1*DeltaH*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftBottomEdge(-1*DeltaH*(1 - RelativeRigidity));
 
 					//  shift top edge of new rectangle DOWN
 					NewPanel->ShiftTopEdge(DeltaH*RelativeRigidity);
@@ -164,7 +164,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				else if (DeltaW > 0)
 					{
 					//  shift left edge of existing rectangle RIGHT
-					CurrentInternalPanel.ShiftLeftEdge(DeltaW*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftLeftEdge(DeltaW*(1 - RelativeRigidity));
 
 					//  shift right edge of new rectangle LEFT
 					NewPanel->ShiftRightEdge(-1*DeltaW*RelativeRigidity);
@@ -185,7 +185,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				if (DeltaH > 0 && (DeltaH > DeltaW))
 					{
 					//  shift top edge of existing rectangle DOWN
-					CurrentInternalPanel.ShiftTopEdge(DeltaH*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftTopEdge(DeltaH*(1 - RelativeRigidity));
 
 					//  shift bottom edge of new rectangle UP
 					NewPanel->ShiftBottomEdge(-DeltaH*RelativeRigidity);
@@ -193,7 +193,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				else if (DeltaW > 0)
 					{
 					//  shift left edge of existing rectangle RIGHT
-					CurrentInternalPanel.ShiftLeftEdge(DeltaW*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftLeftEdge(DeltaW*(1 - RelativeRigidity));
 
 					//  shift right edge of new rectangle LEFT
 					NewPanel->ShiftRightEdge(-1*DeltaW*RelativeRigidity);
@@ -214,7 +214,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				if (DeltaH > 0 && (DeltaH > DeltaW))
 					{
 					//  shift top edge of existing rectangle DOWN
-					CurrentInternalPanel.ShiftTopEdge(DeltaH*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftTopEdge(DeltaH*(1 - RelativeRigidity));
 
 					//  shift bottom edge of new rectangle UP
 					NewPanel->ShiftBottomEdge(-DeltaH*RelativeRigidity);
@@ -222,7 +222,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				else if (DeltaW > 0)
 					{
 					//  shift right edge of existing rectangle LEFT
-					CurrentInternalPanel.ShiftRightEdge(-1*DeltaW*(1 - RelativeRigidity));
+					CurrentInternalPanel->ShiftRightEdge(-1*DeltaW*(1 - RelativeRigidity));
 
 					//  shift left edge of new rectangle RIGHT
 					NewPanel->ShiftLeftEdge(DeltaW*RelativeRigidity);
@@ -230,7 +230,7 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 				}
 			}
 
-		m_InternalPanels.Insert(*NewPanel);
+		m_InternalPanels.Insert(NewPanel);
 		}
 
 	return NewPanel;
@@ -269,7 +269,7 @@ TArray <CSubSession *> CPanel::GetInternalPanelSessions(void)
 
 	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
 		{
-		InternalSessions.Insert(m_InternalPanels[i].GetAssociatedSession());
+		InternalSessions.Insert(m_InternalPanels[i]->GetAssociatedSession());
 		}
 
 	return InternalSessions;
@@ -277,7 +277,7 @@ TArray <CSubSession *> CPanel::GetInternalPanelSessions(void)
 
 void CPanel::ExpandInternalPanel(int PanelIndex)
 	{
-	CPanel &FocusPanel = m_InternalPanels[PanelIndex];
+	CPanel *FocusPanel = m_InternalPanels[PanelIndex];
 
 	int RelevantLeftEdgePanel = -1;
 	int RelevantRightEdgePanel = -1;
@@ -289,11 +289,11 @@ void CPanel::ExpandInternalPanel(int PanelIndex)
 	int TopEdgeSpace = 0;
 	int BottomEdgeSpace = 0;
 
-	int xO = FocusPanel.GetOriginX();
-	int yO = FocusPanel.GetOriginY();
-	int width = FocusPanel.GetWidth();
-	int height = FocusPanel.GetHeight();
-	double rigidity = FocusPanel.GetRigidity();
+	int xO = FocusPanel->GetOriginX();
+	int yO = FocusPanel->GetOriginY();
+	int width = FocusPanel->GetWidth();
+	int height = FocusPanel->GetHeight();
+	double rigidity = FocusPanel->GetRigidity();
 
 	int DeltaX;
 	int DeltaY;
@@ -302,30 +302,30 @@ void CPanel::ExpandInternalPanel(int PanelIndex)
 		{
 		if (i != PanelIndex)
 			{
-			CPanel &InternalPanel = m_InternalPanels[i];
+			CPanel *InternalPanel = m_InternalPanels[i];
 
-			DeltaX = InternalPanel.GetXDisplacementToLeftEdge(xO + width);
+			DeltaX = InternalPanel->GetXDisplacementToLeftEdge(xO + width);
 			if (DeltaX > 0 && DeltaX > RightEdgeSpace)
 				{
 				RightEdgeSpace = DeltaX;
 				RelevantRightEdgePanel = i;
 				}
 			
-			DeltaX = InternalPanel.GetXDisplacementToRightEdge(xO);
+			DeltaX = InternalPanel->GetXDisplacementToRightEdge(xO);
 			if (DeltaX > 0 && DeltaX > LeftEdgeSpace)
 				{
 				LeftEdgeSpace = DeltaX;
 				RelevantLeftEdgePanel = i;
 				}
 
-			DeltaY = InternalPanel.GetYDisplacementToTopEdge(yO + height);
+			DeltaY = InternalPanel->GetYDisplacementToTopEdge(yO + height);
 			if (DeltaY > 0 && DeltaY > BottomEdgeSpace)
 				{
 				BottomEdgeSpace = DeltaY;
 				RelevantBottomEdgePanel = i;
 				}
 
-			DeltaY = InternalPanel.GetYDisplacementToBottomEdge(yO);
+			DeltaY = InternalPanel->GetYDisplacementToBottomEdge(yO);
 			if (DeltaY > 0 && DeltaY > TopEdgeSpace)
 				{
 				TopEdgeSpace = DeltaY;
@@ -337,57 +337,58 @@ void CPanel::ExpandInternalPanel(int PanelIndex)
 	double TotalRigidity;
 	double RelativeRigidity;
 	double OtherPanelRigidity;
+	CPanel *OtherPanel;
 
 	if (RelevantLeftEdgePanel != -1)
 		{
-		CPanel &OtherPanel = m_InternalPanels[RelevantLeftEdgePanel];
-		OtherPanelRigidity = OtherPanel.GetRigidity();
+		OtherPanel = m_InternalPanels[RelevantLeftEdgePanel];
+		OtherPanelRigidity = OtherPanel->GetRigidity();
 		TotalRigidity = (OtherPanelRigidity + rigidity);
 		RelativeRigidity = OtherPanelRigidity/TotalRigidity;
 
 		//  shift left edge LEFT
-		FocusPanel.ShiftLeftEdge(-1*LeftEdgeSpace*RelativeRigidity);
+		FocusPanel->ShiftLeftEdge(-1*LeftEdgeSpace*RelativeRigidity);
 		//  shift other panel's right edge RIGHT
-		OtherPanel.ShiftRightEdge(LeftEdgeSpace*(1-RelativeRigidity));
+		OtherPanel->ShiftRightEdge(LeftEdgeSpace*(1-RelativeRigidity));
 		}
 
 	if (RelevantRightEdgePanel != -1)
 		{
-		CPanel &OtherPanel = m_InternalPanels[RelevantRightEdgePanel];
-		OtherPanelRigidity = OtherPanel.GetRigidity();
+		OtherPanel = m_InternalPanels[RelevantRightEdgePanel];
+		OtherPanelRigidity = OtherPanel->GetRigidity();
 		TotalRigidity = (OtherPanelRigidity + rigidity);
 		RelativeRigidity = OtherPanelRigidity/TotalRigidity;
 
 		//  shift right edge RIGHT
-		FocusPanel.ShiftRightEdge(RightEdgeSpace*RelativeRigidity);
+		FocusPanel->ShiftRightEdge(RightEdgeSpace*RelativeRigidity);
 		//  shift other panel's left edge LEFT
-		OtherPanel.ShiftLeftEdge(-1*RightEdgeSpace*(1-RelativeRigidity));
+		OtherPanel->ShiftLeftEdge(-1*RightEdgeSpace*(1-RelativeRigidity));
 		}
 
 	if (RelevantBottomEdgePanel != -1)
 		{
-		CPanel &OtherPanel = m_InternalPanels[RelevantBottomEdgePanel];
-		OtherPanelRigidity = OtherPanel.GetRigidity();
+		OtherPanel = m_InternalPanels[RelevantBottomEdgePanel];
+		OtherPanelRigidity = OtherPanel->GetRigidity();
 		TotalRigidity = (OtherPanelRigidity + rigidity);
 		RelativeRigidity = OtherPanelRigidity/TotalRigidity;
 
 		//  shift bottom edge DOWN
-		FocusPanel.ShiftBottomEdge(BottomEdgeSpace*RelativeRigidity);
+		FocusPanel->ShiftBottomEdge(BottomEdgeSpace*RelativeRigidity);
 		//  shift other panel's top edge UP
-		OtherPanel.ShiftTopEdge(-1*BottomEdgeSpace*(1-RelativeRigidity));
+		OtherPanel->ShiftTopEdge(-1*BottomEdgeSpace*(1-RelativeRigidity));
 		}
 
 	if (RelevantTopEdgePanel != -1)
 		{
-		CPanel &OtherPanel = m_InternalPanels[RelevantTopEdgePanel];
-		OtherPanelRigidity = OtherPanel.GetRigidity();
+		OtherPanel = m_InternalPanels[RelevantTopEdgePanel];
+		OtherPanelRigidity = OtherPanel->GetRigidity();
 		TotalRigidity = (OtherPanelRigidity + rigidity);
 		RelativeRigidity = OtherPanelRigidity/TotalRigidity;
 
 		//  shift top edge UP
-		FocusPanel.ShiftTopEdge(-1*TopEdgeSpace*RelativeRigidity);
+		FocusPanel->ShiftTopEdge(-1*TopEdgeSpace*RelativeRigidity);
 		//  shift other panel's bottom edge DOWN
-		OtherPanel.ShiftBottomEdge(TopEdgeSpace*(1-RelativeRigidity));
+		OtherPanel->ShiftBottomEdge(TopEdgeSpace*(1-RelativeRigidity));
 		}
 	}
 
@@ -409,4 +410,17 @@ TArray <int> CPanel::GetRectDefinition(void)
 	RectDefinition.Insert(m_Height);
 
 	return RectDefinition;
+	}
+
+void CPanel::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+	{
+	if (!IsEmpty())
+		{
+		m_AssociatedSession->OnPaint(Screen, rcInvalid);
+		}
+
+	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+		{
+		m_InternalPanels[i]->OnPaint(Screen, rcInvalid);
+		}
 	}

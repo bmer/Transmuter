@@ -7,13 +7,13 @@
 
 CTransmuterSession::CTransmuterSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_ElasticPanelling(0, 0, (HI.GetScreen()).GetWidth(), (HI.GetScreen()).GetHeight()),
+	m_Panel(*(new CPanel(0, 0, (HI.GetScreen()).GetWidth(), (HI.GetScreen()).GetHeight()))),
 	m_IsRButtonDown(0)
 	//	CTransmuterSession constructor
 	{
-	CElasticPanel &EmptyPanel = *(m_ElasticPanelling.RequestEmptyPanel(-1, -1, -1));
+	CPanel *EmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetHeight());
 
-	CExtensionNavigator *pExtensionNavigatorSession = new CExtensionNavigator(HI, EmptyPanel, m_Model.GetExtensionsArray());
+	CExtensionNavigator *pExtensionNavigatorSession = new CExtensionNavigator(HI, *EmptyPanel, m_Model.GetExtensionsArray());
 	m_SubSessions.Insert(pExtensionNavigatorSession);
 	}
 
@@ -23,6 +23,8 @@ CTransmuterSession::~CTransmuterSession(void)
 		{
 		delete m_SubSessions[i];
 		}
+
+	delete &m_Panel;
 	}
 
 void CTransmuterSession::OnRButtonDown(int x, int y, DWORD dwFlags)
@@ -39,8 +41,6 @@ void CTransmuterSession::OnRButtonUp(int x, int y, DWORD dwFlags)
 
 void CTransmuterSession::UpdateSubSessionsList(void)
 	{
-	TArray <CSubSession *> ErrorSessions = m_ElasticPanelling.CreateErrorSessions(m_HI);
-	m_SubSessions.Insert(ErrorSessions);
 	}
 
 void CTransmuterSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)

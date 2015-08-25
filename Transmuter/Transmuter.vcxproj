@@ -136,6 +136,7 @@
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CButton.cpp" />
     <ClCompile Include="CPanel.cpp" />
     <ClCompile Include="CExtensionNavigator.cpp" />
     <ClCompile Include="CLoadingSession.cpp" />

@@ -40,7 +40,7 @@ void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	for (int i = 0; i < m_NavigatorMenuItems.GetCount(); i++)
 		{
-		m_NavigatorMenuItems[i].OnPaint(Screen, rcInvalid);
+		m_NavigatorMenuItems[i]->OnPaint(Screen, rcInvalid);
 		}
 	}
 
@@ -57,8 +57,11 @@ CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPane
 CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *m_ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight());
+	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight());
+	CButton *Button = new CButton(HI, *ButtonPanel);
+	Button->SetBGColor(CG32bitPixel(100, 100, 100));
 
+	ButtonPanel->AssociateSession(Button);
 	}
 
 void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)

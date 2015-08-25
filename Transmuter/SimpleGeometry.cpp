@@ -11,7 +11,7 @@ bool IsPointInRect(int px, int py, int rx, int ry, int w, int h)
 //  Checks to see if given point is inside given rectangle. 
 //  rx and ry are the coordinates of the TOP LEFT HAND CORNER of the rectangle.
 	{
-	return ((rx <= px <= rx + w) && (ry <= py <= ry + h));
+	return ((rx <= px) && (px <= rx + w) && (ry <= py) && (py <= ry + h));
 	}
 
 bool IsPointInRect(int px, int py, TArray <int> RectDefinition)

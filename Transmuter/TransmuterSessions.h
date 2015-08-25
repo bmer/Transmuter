@@ -6,6 +6,7 @@
 #pragma once
 
 class CLoadingSession;
+class CPanel;
 class CSubSession;
 class CExtensionDetails;
 class CExtensionNavigator;
@@ -128,7 +129,7 @@ class CExtensionNavigator : public CSubSession
 
 	private:
 		TArray <CExtension *> m_Extensions;
-		TArray <CExtensionMenuItem> m_NavigatorMenuItems;
+		TArray <CExtensionMenuItem *> m_NavigatorMenuItems;
 		int m_MenuSlotHeight;
 	};
 
@@ -147,8 +148,8 @@ class CTransmuterSession : public IHISession, public CUniverse::INotifications
 		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
 		//virtual ALERROR OnInit (CString *retsError);
 		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
-		//virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		//virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		void OnLButtonUp (int x, int y, DWORD dwFlags);
 		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
 		void OnRButtonDown (int x, int y, DWORD dwFlags);
 		void OnRButtonUp (int x, int y, DWORD dwFlags);
@@ -162,6 +163,6 @@ class CTransmuterSession : public IHISession, public CUniverse::INotifications
 	private:
 		TArray <CSubSession *> m_SubSessions;
 		CTransmuterModel &m_Model;
-		CPanel m_ElasticPanelling;
+		CPanel &m_Panel;
 		int m_IsRButtonDown;
 	};
