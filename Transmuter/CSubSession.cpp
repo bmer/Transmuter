@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-CSubSession::CSubSession(CHumanInterface &HI, CElasticPanel &AssociatedPanel) : IHISession(HI),
+CSubSession::CSubSession(CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
 	m_AssociatedPanel(AssociatedPanel),
 	m_HeadingFont((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy)),
 	m_HeadingColor(CG32bitPixel(160, 160, 160)),
@@ -22,22 +22,22 @@ void CSubSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 void CSubSession::DrawPanelOutline(CG32bitImage &Screen)
 	{
-	TArray <int> PanelOutline = m_AssociatedPanel.GetRectCoords();
+	TArray <int> PanelOutline = m_AssociatedPanel.GetRectDefinition();
 
-	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[0], PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
-	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[2], PanelOutline[1], m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[0], PanelOutline[1] + PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[0] + PanelOutline[2], PanelOutline[1], m_PanelOutlineWidth, m_PanelOutlineColor);
 	Screen.DrawLine(PanelOutline[2], PanelOutline[3], PanelOutline[0], PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
-	Screen.DrawLine(PanelOutline[2], PanelOutline[3], PanelOutline[2], PanelOutline[1], m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(PanelOutline[2], PanelOutline[3], PanelOutline[0] + PanelOutline[2], PanelOutline[1] + PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
 	}
 
 //  =======================================================================
 
-CErrorSession::CErrorSession(CHumanInterface &HI, CElasticPanel &AssociatedPanel, CString ErrorString) : CSubSession(HI, AssociatedPanel),
+CError::CError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString) : CSubSession(HI, AssociatedPanel),
 	m_ErrorString(ErrorString)
 	{
 	}
 
-void CErrorSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+void CError::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	DrawPanelOutline(Screen);
 

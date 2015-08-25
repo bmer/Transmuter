@@ -6,23 +6,23 @@
 #include "PreComp.h"
 
 
-CExtensionNavigator::CExtensionNavigator(CHumanInterface &HI, CElasticPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CSubSession(HI, AssociatedPanel),
+CExtensionNavigator::CExtensionNavigator(CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CSubSession(HI, AssociatedPanel),
 	m_Extensions(Extensions),
-	m_InternalPanelling(CElasticPanel(AssociatedPanel.GetOriginX(), AssociatedPanel.GetOriginY() + 40, AssociatedPanel.GetSpaceWidth(), AssociatedPanel.GetSpaceHeight() - 20))
+	m_MenuSlotHeight(40)
 	{
 	CreateExtensionNavigatorMenuItems();
 	}
 
 void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
+	CPanel *MenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetWidth(), m_AssociatedPanel.GetHeight() - m_MenuSlotHeight, TRUE);
+	int MenuPanelWidth = MenuPanel->GetWidth();
+	
 	for (int i = 0; i < m_Extensions.GetCount(); i++)
 		{
-		CElasticPanel *EmptyPanel = m_InternalPanelling.RequestEmptyPanel(-1, 40, 0);
-		int xO = EmptyPanel->GetOriginX();
-		int yO = EmptyPanel->GetOriginY();
-		int SpaceWidth = EmptyPanel->GetSpaceWidth();
-		int SpaceHeight = EmptyPanel->GetSpaceHeight();
-		m_NavigatorMenuItems.Insert(CExtensionNavigatorMenuItem(m_HI, *EmptyPanel, m_Extensions[i]));
+		CPanel *MenuSlot = MenuPanel->AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight*i, MenuPanelWidth, 40);
+		CExtensionMenuItem *MenuItem = new CExtensionMenuItem(m_HI, *MenuSlot, m_Extensions[i]);
+		MenuSlot->AssociateSession(MenuItem);
 		};
 	}
 
@@ -47,27 +47,20 @@ void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 //  =======================================================================
 
 
-CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CElasticPanel &AssociatedPanel) : CSubSession(HI, AssociatedPanel)
+CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPanel) : CSubSession(HI, AssociatedPanel)
 	{
 	}
 
 
 //  =======================================================================
 
-CExtensionNavigatorMenuItem::CExtensionNavigatorMenuItem(CHumanInterface &HI, CElasticPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
+CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
+	CPanel *m_ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight());
+
 	}
 
-void CExtensionNavigatorMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	//  may remove panel outlining in future
-	DrawPanelOutline(Screen);
-
-	int xO = m_AssociatedPanel.GetOriginX();
-	int yO = m_AssociatedPanel.GetOriginY();
-	int SpaceWidth = m_AssociatedPanel.GetSpaceWidth();
-	int SpaceHeight = m_AssociatedPanel.GetSpaceHeight();
-
-	Screen.DrawText(m_AssociatedPanel.GetOriginX() + 10, m_AssociatedPanel.GetOriginY() + 10, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
 	}

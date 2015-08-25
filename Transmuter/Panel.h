@@ -18,7 +18,8 @@ class CPanel
 
 		~CPanel (void);
 
-		void SetPanelOrigin (int xO, int yO);
+		inline void SetPanelOrigin (int xO, int yO) { m_xO = xO; m_yO = yO; }
+		inline void ShiftPanelOrigin (int DeltaX, int DeltaY) { m_xO = m_xO + DeltaX; m_yO = m_yO + DeltaY; }
 		void SetPanelSpace (int width, int height);
 
 		inline int SetOriginX (int xO) { m_xO = xO; }
@@ -28,36 +29,51 @@ class CPanel
 
 		inline int GetOriginX (void) { return m_xO; }
 		inline int GetOriginY (void) { return m_yO; }
-		inline int GetPanelWidth (void) { return m_Width; }
-		inline int GetPanelHeight (void) { return m_Height; }
+		inline int GetWidth (void) { return m_Width; }
+		inline int GetHeight (void) { return m_Height; }
 
-		inline double GetPanelRigidity (void) { return m_Rigidity; }
+		inline double GetRigidity (void) { return m_Rigidity; }
+
+		void ShiftTopEdge (int Delta);
+		void ShiftRightEdge (int Delta);
+		void ShiftBottomEdge (int Delta);
+		void ShiftLeftEdge (int Delta);
 
 		CPanel* AddInternalPanel (int xO, int yO, int width, int height, double rigidity);
 		CPanel* AddInternalPanel (int xO, int yO, int width, int height);
+		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, double rigidity);
+		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height);
 
-		TArray <CPanel &> GetInternalPanels (void);
+		inline TArray <CPanel &> GetInternalPanels (void) { return m_InternalPanels; }
 
-		void AssociateSession(CSubSession *Session);
+		inline void AssociateSession(CSubSession *Session) { m_AssociatedSession = Session; }
+		inline CSubSession *GetAssociatedSession(void) { return m_AssociatedSession; }
 
 		TArray <CSubSession *> GetInternalPanelSessions (void);
 
-		void ExpandInternalPanels (void);
+		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_xO); }
+		inline int GetXDisplacementToRightEdge(int x) { return (x - (m_xO + m_Width)); }
+		inline int GetYDisplacementToTopEdge(int y) { return (y - m_yO); }
+		inline int GetYDisplacementToBottomEdge(int y) { return (y - (m_yO + m_Height)); }
+		
+		void ExpandInternalPanel (int PanelIndex);
+		void ExpandAllInternalPanels (void);
 
-		void FocusOnInternalPanel (int PanelIndex);
-		void RemoveFocusFromInternalPanel (int PanelIndex);
-
-		TArray <CSubSession *> CreateErrorSessions(CHumanInterface &HI);
+		inline void FocusOnInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex].m_Focus = 1; }
+		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex].m_Focus = 0; }
 
 		TArray <int> GetRectDefinition(void);
 
-		inline bool ErrorOccurred(void) {return m_ErrorOccurred; }
+		inline bool ErrorOccurred(void) { return m_ErrorOccurred; }
+
+		inline bool HidePanel(void) { m_HidePanel = TRUE; }
+		inline bool ShowPanel(void) { m_HidePanel = FALSE; }
 
 	private:
 		int m_xO;							//  top left corner x-coordinate
 		int m_yO;							//	top left corner y-coordinate
-		int m_Width;					//  width of panel
-		int m_Height;					//	height of panel
+		int m_Width;						//  width of panel
+		int m_Height;						//	height of panel
 
 		double m_Rigidity;					//  rigidity of panel
 
@@ -69,6 +85,7 @@ class CPanel
 
 		CSubSession *m_AssociatedSession;
 
-		bool m_IsFocus;
+		int m_Focus;
+		bool m_HidePanel;
 	};
 

@@ -9,7 +9,7 @@ class CLoadingSession;
 class CSubSession;
 class CExtensionDetails;
 class CExtensionNavigator;
-class CExtensionNavigatorMenuItem;
+class CExtensionMenuItem;
 class CTransmuterSession;
 
 //  =======================================================================
@@ -44,25 +44,49 @@ class CSubSession : public IHISession
 
 //  =======================================================================
 
-class CErrorSession : public CSubSession
+class CButton : public CSubSession
 	{
 	public:
-		CErrorSession(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString);
+		CButton(CHumanInterface &HI, CPanel &AssociatedPanel);
+
+		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
+
+		void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		void OnLButtonUp (int x, int y, DWORD dwFlags);
+
+		void OnRButtonDown (int x, int y, DWORD dwFlags);
+		void OnRButtonUp (int x, int y, DWORD dwFlags);
+
+		inline void SetBGColor(CG32bitPixel BGColor) { m_BGColor = BGColor; }
+		inline void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = TRUE; }
+
+		inline bool CheckIfLPressed(void) { bool ReturnValue = m_IsLPressed; m_IsLPressed = FALSE; return ReturnValue; }
+		inline bool CheckIfRPressed(void) { bool ReturnValue = m_IsRPressed; m_IsRPressed = FALSE; return ReturnValue; }
+
+	private:
+		CG32bitPixel m_BGColor;
+
+		bool m_HasText;
+		CString m_TextString;
+
+		bool m_IsLDown;
+		bool m_IsLPressed;
+
+		bool m_IsRDown;
+		bool m_IsRPressed;
+	};
+
+//  =======================================================================
+
+class CError : public CSubSession
+	{
+	public:
+		CError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString);
 
 		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
 		CString m_ErrorString;
-	};
-
-//  =======================================================================
-
-class CMenuSession : public CSubSession
-	{
-	public:
-		CMenuSession(CHumanInterface &HI, CPanel &AssociatedPanel);
-
-		void OnPaint(CG32bitImage &Screen, const RECT &rcINvalid);
 	};
 
 //  =======================================================================
@@ -80,10 +104,10 @@ class CExtensionDetails : public CSubSession
 
 //  =======================================================================
 
-class CExtensionNavigatorMenuItem : public CSubSession
+class CExtensionMenuItem : public CSubSession
 	{
 	public:
-		CExtensionNavigatorMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension);
+		CExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension);
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
@@ -104,8 +128,8 @@ class CExtensionNavigator : public CSubSession
 
 	private:
 		TArray <CExtension *> m_Extensions;
-		TArray <CExtensionNavigatorMenuItem> m_NavigatorMenuItems;
-		CPanel m_InternalPanelling;
+		TArray <CExtensionMenuItem> m_NavigatorMenuItems;
+		int m_MenuSlotHeight;
 	};
 
 
