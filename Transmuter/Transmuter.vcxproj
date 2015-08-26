@@ -130,6 +130,7 @@
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleGeometry.h" />
+    <ClInclude Include="SimpleSorting.h" />
     <ClInclude Include="TransmuterController.h" />
     <ClInclude Include="TransmuterModel.h" />
     <ClInclude Include="TransmuterSessions.h" />
@@ -145,6 +146,7 @@
     <ClCompile Include="CTransmuterModel.cpp" />
     <ClCompile Include="CTransmuterSession.cpp" />
     <ClCompile Include="SimpleGeometry.cpp" />
+    <ClCompile Include="SimpleSorting.cpp" />
     <ClCompile Include="Transmuter.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreComp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
