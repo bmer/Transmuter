@@ -11,7 +11,8 @@ CButton::CButton(CHumanInterface &HI, CPanel &AssociatedPanel) : CSubSession(HI,
 
 void CButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
-	if (IsPointInRect(x, y, m_AssociatedPanel.GetRectDefinition()))
+	//  check if click was in "active area" of button session (80% scale inner rectangle)
+	if (IsPointInRect(x, y, m_AssociatedPanel.GetScaledInnerRect(0.8)))
 		{
 		m_IsLDown = true;
 		}
@@ -19,11 +20,14 @@ void CButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 		{
 		m_IsLDown = false;
 		}
+
+	HIInvalidate();
 	}
 
 void CButton::OnLButtonUp(int x, int y, DWORD dwFlags)
 	{
-	if (IsPointInRect(x, y, m_AssociatedPanel.GetRectDefinition()))
+	// check if click was in "active area" of button session (80% scale inner rectangle)
+	if (IsPointInRect(x, y, m_AssociatedPanel.GetScaledInnerRect(0.8)))
 		{
 		if (m_IsLDown)
 			{
@@ -40,11 +44,13 @@ void CButton::OnLButtonUp(int x, int y, DWORD dwFlags)
 		m_IsLDown = false;
 		m_IsLPressed = false;
 		}
+
+	HIInvalidate();
 	}
 
 void CButton::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	if (IsPointInRect(x, y, m_AssociatedPanel.GetRectDefinition()))
+	if (IsPointInRect(x, y, m_AssociatedPanel.GetScaledInnerRect(0.8)))
 		{
 		m_IsRDown = true;
 		}
@@ -56,7 +62,7 @@ void CButton::OnRButtonDown(int x, int y, DWORD dwFlags)
 
 void CButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	if (IsPointInRect(x, y, m_AssociatedPanel.GetRectDefinition()))
+	if (IsPointInRect(x, y, m_AssociatedPanel.GetScaledInnerRect(0.8)))
 		{
 		if (m_IsRDown)
 			{
@@ -75,3 +81,18 @@ void CButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 		}
 	}
 
+void CButton::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+	{
+	int width = m_AssociatedPanel.GetWidth();
+	int height = m_AssociatedPanel.GetHeight();
+
+	//  paint "active" area of button (80% scaled inner rectangle)
+	if (m_IsLDown)
+		{
+		Screen.Fill(m_AssociatedPanel.GetOriginX() + 0.1*width, m_AssociatedPanel.GetOriginY() + 0.1*height, 0.8*width, 0.8*height, CG32bitPixel(0, 255, 0));
+		}
+	else
+		{
+		Screen.Fill(m_AssociatedPanel.GetOriginX() + 0.1*width, m_AssociatedPanel.GetOriginY() + 0.1*height, 0.8*width, 0.8*height, CG32bitPixel(255, 0, 0));
+		}
+	}

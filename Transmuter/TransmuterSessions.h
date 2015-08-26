@@ -29,10 +29,17 @@ class CSubSession : public IHISession
 	{
 	public:
 		CSubSession(CHumanInterface &HI, CPanel &AssociatedPanel);
+		
+		virtual void OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture) {};
+		virtual void OnLButtonUp(int x, int y, DWORD dwFlags) {};
+		virtual void OnRButtonDown(int x, int y, DWORD dwFlags) {};
+		virtual void OnRButtonUp(int x, int y, DWORD dwFlags) {};
 
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid) {};
 
 		void DrawPanelOutline (CG32bitImage &Screen);
+
+		inline CPanel &GetAssociatedPanel(void) { return m_AssociatedPanel; }
 
 	protected:
 		const CG16bitFont &m_HeadingFont;
@@ -59,10 +66,10 @@ class CButton : public CSubSession
 		void OnRButtonUp (int x, int y, DWORD dwFlags);
 
 		inline void SetBGColor(CG32bitPixel BGColor) { m_BGColor = BGColor; }
-		inline void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = TRUE; }
+		inline void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = true; }
 
-		inline bool CheckIfLPressed(void) { bool ReturnValue = m_IsLPressed; m_IsLPressed = FALSE; return ReturnValue; }
-		inline bool CheckIfRPressed(void) { bool ReturnValue = m_IsRPressed; m_IsRPressed = FALSE; return ReturnValue; }
+		inline bool CheckIfLPressed(void) { bool ReturnValue = m_IsLPressed; m_IsLPressed = false; return ReturnValue; }
+		inline bool CheckIfRPressed(void) { bool ReturnValue = m_IsRPressed; m_IsRPressed = false; return ReturnValue; }
 
 	private:
 		CG32bitPixel m_BGColor;
@@ -109,17 +116,19 @@ class CExtensionMenuItem : public CSubSession
 	{
 	public:
 		CExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension);
-
+		~CExtensionMenuItem (void);
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
 		CExtension &m_Extension;
+		CButton *m_Button;
 	};
 
 class CExtensionNavigator : public CSubSession
 	{
 	public:
 		CExtensionNavigator (CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions);
+		~CExtensionNavigator(void);
 
 		void CreateExtensionNavigatorMenuItems (void);
 

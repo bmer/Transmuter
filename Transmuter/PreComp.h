@@ -16,3 +16,4 @@
 #include "Panel.h"
 #include "UserSettingsDef.h"
 #include "SimpleGeometry.h"
+#include "SimpleSorting.h"
