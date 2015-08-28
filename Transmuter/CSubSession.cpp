@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-CSubSession::CSubSession(CHumanInterface &HI, CElasticPanel &AssociatedPanel) : IHISession(HI),
+CSubSession::CSubSession(CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
 	m_AssociatedPanel(AssociatedPanel),
 	m_HeadingFont((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy)),
 	m_HeadingColor(CG32bitPixel(160, 160, 160)),
@@ -16,31 +16,38 @@ CSubSession::CSubSession(CHumanInterface &HI, CElasticPanel &AssociatedPanel) : 
 	m_AssociatedPanel.AssociateSession(this);
 	}
 
-void CSubSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
-	{
-	}
-
 void CSubSession::DrawPanelOutline(CG32bitImage &Screen)
 	{
-	TArray <int> PanelOutline = m_AssociatedPanel.GetRectCoords();
+	RECT PanelRect = m_AssociatedPanel.GetPanelRect();
 
-	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[0], PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
-	Screen.DrawLine(PanelOutline[0], PanelOutline[1], PanelOutline[2], PanelOutline[1], m_PanelOutlineWidth, m_PanelOutlineColor);
-	Screen.DrawLine(PanelOutline[2], PanelOutline[3], PanelOutline[0], PanelOutline[3], m_PanelOutlineWidth, m_PanelOutlineColor);
-	Screen.DrawLine(PanelOutline[2], PanelOutline[3], PanelOutline[2], PanelOutline[1], m_PanelOutlineWidth, m_PanelOutlineColor);
+	//  corners are numbered starting from top left hand corner being zero, and then going counter clockwise
+
+	int c0x = PanelRect.left;
+	int c0y = PanelRect.top;
+	
+	int c1x = PanelRect.right;
+	int c1y = c0y;
+
+	int c2x = c1x;
+	int c2y = PanelRect.bottom;
+
+	int c3x = c0x;
+	int c3y = c2y;
+
+	Screen.DrawLine(c0x, c0y, c1x, c1y, m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(c1x, c1y, c2x, c2y, m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(c2x, c2y, c3x, c3y, m_PanelOutlineWidth, m_PanelOutlineColor);
+	Screen.DrawLine(c3x, c3y, c0x, c0y, m_PanelOutlineWidth, m_PanelOutlineColor);
 	}
 
 //  =======================================================================
 
-CErrorSession::CErrorSession(CHumanInterface &HI, CElasticPanel &AssociatedPanel, CString ErrorString) : CSubSession(HI, AssociatedPanel),
+CError::CError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString) : CSubSession(HI, AssociatedPanel),
 	m_ErrorString(ErrorString)
 	{
 	}
 
-void CErrorSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+void CError::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	DrawPanelOutline(Screen);
-
-	Screen.DrawText(m_AssociatedPanel.GetOriginX() + 10, m_AssociatedPanel.GetOriginY() + 10, m_HeadingFont, m_HeadingColor, m_ErrorString);
 	}
 
