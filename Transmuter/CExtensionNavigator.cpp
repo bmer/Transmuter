@@ -6,34 +6,23 @@
 #include "PreComp.h"
 
 
-CExtensionNavigator::CExtensionNavigator(CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CSubSession(HI, AssociatedPanel),
+CExtensionNavigator::CExtensionNavigator(CHumanInterface &HI, CElasticPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CSubSession(HI, AssociatedPanel),
 	m_Extensions(Extensions),
-	m_MenuSlotHeight(40)
+	m_InternalPanelling(CElasticPanel(AssociatedPanel.GetOriginX(), AssociatedPanel.GetOriginY() + 40, AssociatedPanel.GetSpaceWidth(), AssociatedPanel.GetSpaceHeight() - 20))
 	{
 	CreateExtensionNavigatorMenuItems();
 	}
 
-CExtensionNavigator::~CExtensionNavigator(void)
-	{
-	for (int i = 0; i < m_NavigatorMenuItems.GetCount(); i++)
-		{
-		delete m_NavigatorMenuItems[i];
-		}
-	}
-
 void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetWidth(), m_AssociatedPanel.GetHeight() - m_MenuSlotHeight, false, false, true);
-	CPanel *pMenuSlot;
-	int MenuPanelWidth = pMenuPanel->GetWidth();
-	
-	int iNumExtensions = m_Extensions.GetCount();
-	for (int i = 0; i < iNumExtensions; i++)
+	for (int i = 0; i < m_Extensions.GetCount(); i++)
 		{
-		pMenuSlot = pMenuPanel->AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight*i, MenuPanelWidth, 40, false, false, false);
-		CExtensionMenuItem *MenuItem = new CExtensionMenuItem(m_HI, *pMenuSlot, m_Extensions[i]);
-		m_NavigatorMenuItems.Insert(MenuItem);
-		pMenuSlot->AssociateSession(MenuItem);
+		CElasticPanel *EmptyPanel = m_InternalPanelling.RequestEmptyPanel(-1, 40, 0);
+		int xO = EmptyPanel->GetOriginX();
+		int yO = EmptyPanel->GetOriginY();
+		int SpaceWidth = EmptyPanel->GetSpaceWidth();
+		int SpaceHeight = EmptyPanel->GetSpaceHeight();
+		m_NavigatorMenuItems.Insert(CExtensionNavigatorMenuItem(m_HI, *EmptyPanel, m_Extensions[i]));
 		};
 	}
 
@@ -49,54 +38,36 @@ void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	DrawTitleBar(Screen);
 
-	int iNumNavigatorMenuItems = m_NavigatorMenuItems.GetCount();
-	for (int i = 0; i < iNumNavigatorMenuItems; i++)
+	for (int i = 0; i < m_NavigatorMenuItems.GetCount(); i++)
 		{
-		m_NavigatorMenuItems[i]->OnPaint(Screen, rcInvalid);
+		m_NavigatorMenuItems[i].OnPaint(Screen, rcInvalid);
 		}
 	}
 
 //  =======================================================================
 
 
-CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPanel) : CSubSession(HI, AssociatedPanel)
+CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CElasticPanel &AssociatedPanel) : CSubSession(HI, AssociatedPanel)
 	{
 	}
 
 
 //  =======================================================================
 
-CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
+CExtensionNavigatorMenuItem::CExtensionNavigatorMenuItem(CHumanInterface &HI, CElasticPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight(), false, false, true);
-	m_Button = new CButton(HI, *ButtonPanel);
-	m_Button->SetBGColor(CG32bitPixel(100, 100, 100));
-
-	ButtonPanel->AssociateSession(m_Button);
 	}
 
-CExtensionMenuItem::~CExtensionMenuItem(void)
+void CExtensionNavigatorMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	delete m_Button;
-	}
+	//  may remove panel outlining in future
+	DrawPanelOutline(Screen);
 
-void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
-	{
-	if (!m_AssociatedPanel.IsHidden())
-		{
-		if (m_Button->CheckIfLPressed())
-			{
-			m_AssociatedPanel.Hide();
-			}
-		else
-			{
-			m_Button->OnPaint(Screen, rcInvalid);
-			CPanel &ButtonPanel = m_Button->GetAssociatedPanel();
+	int xO = m_AssociatedPanel.GetOriginX();
+	int yO = m_AssociatedPanel.GetOriginY();
+	int SpaceWidth = m_AssociatedPanel.GetSpaceWidth();
+	int SpaceHeight = m_AssociatedPanel.GetSpaceHeight();
 
-			int TextX = ButtonPanel.GetOriginX() + ButtonPanel.GetWidth();
-			int TextY = ButtonPanel.GetOriginY();
-			Screen.DrawText(TextX + 10, TextY + 10, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
-			}
-		}
+	Screen.DrawText(m_AssociatedPanel.GetOriginX() + 10, m_AssociatedPanel.GetOriginY() + 10, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
 	}
