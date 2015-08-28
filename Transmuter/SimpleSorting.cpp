@@ -30,6 +30,8 @@ int PickPivot(int FirstValue, int MiddleValue, int LastValue)
 			}
 		}
 	}
+
+
 TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray)
 	{
 	int ArrayLength = IntegerArray.GetCount();
@@ -94,4 +96,77 @@ TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray)
 	SortedIntegerArray.Insert(GreaterThanPivotValue);
 
 	return SortedIntegerArray;
+	}
+
+TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray, TArray <int> AuxiliaryArray)
+	{
+	int ArrayLength = IntegerArray.GetCount();
+
+	if (!(ArrayLength > 0))
+		{
+		return IntegerArray;
+		}
+
+	int FirstValue = IntegerArray[0];
+	int MiddleValue = IntegerArray[ArrayLength/2];
+	int LastValue = IntegerArray[ArrayLength - 1];
+
+	int PivotNumber = PickPivot(FirstValue, MiddleValue, LastValue);
+
+	int PivotIndex;
+	int PivotValue;
+	int PivotValueAuxiliary;
+
+	if (PivotNumber = 0)
+		{
+		PivotIndex = 0;
+		PivotValue = FirstValue;
+		}
+	else if (PivotNumber = 2)
+		{
+		PivotIndex = (ArrayLength/2);
+		PivotValue = MiddleValue;
+		}
+	else
+		{
+		PivotIndex = ArrayLength - 1;
+		PivotValue = LastValue;
+		}
+
+	PivotValueAuxiliary = AuxiliaryArray[PivotIndex];
+
+	TArray <int> LesserThanPivotValue;
+	TArray <int> LesserThanPivotValueAuxiliary;
+	TArray <int> GreaterThanPivotValue;
+	TArray <int> GreaterThanPivotValueAuxiliary;
+
+	int CurrentIndexValue;
+
+	for (int i = 0; i < ArrayLength; i++)
+		{
+		if (i != PivotIndex)
+			{
+			CurrentIndexValue = IntegerArray[i];
+			if (CurrentIndexValue < PivotValue)
+				{
+				LesserThanPivotValue.Insert(CurrentIndexValue);
+				LesserThanPivotValueAuxiliary.Insert(AuxiliaryArray[i]);
+				}
+			else
+				{
+				GreaterThanPivotValue.Insert(CurrentIndexValue);
+				GreaterThanPivotValueAuxiliary.Insert(AuxiliaryArray[i]);
+				}
+			}
+		}
+
+	LesserThanPivotValueAuxiliary = QuickSortIntegerArray(LesserThanPivotValue, LesserThanPivotValueAuxiliary);
+	GreaterThanPivotValueAuxiliary = QuickSortIntegerArray(GreaterThanPivotValue, GreaterThanPivotValueAuxiliary);
+
+	TArray <int> SortedIntegerArrayAuxiliary;
+	SortedIntegerArrayAuxiliary.Insert(LesserThanPivotValueAuxiliary);
+	SortedIntegerArrayAuxiliary.Insert(PivotValueAuxiliary);
+	SortedIntegerArrayAuxiliary.Insert(GreaterThanPivotValueAuxiliary);
+
+	return SortedIntegerArrayAuxiliary;
 	}

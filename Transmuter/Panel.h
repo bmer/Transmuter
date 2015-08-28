@@ -19,14 +19,14 @@ class CPanel
 
 		~CPanel (void);
 
-		inline void SetPanelOrigin (int xO, int yO) { m_xO = xO; m_yO = yO; }
-		inline void ShiftPanelOrigin (int DeltaX, int DeltaY) { m_xO = m_xO + DeltaX; m_yO = m_yO + DeltaY; }
+		void SetPanelOrigin (int xO, int yO);
+		void ShiftPanelOrigin (int DeltaX, int DeltaY);
 		void SetPanelSpace (int width, int height);
 
-		inline void SetOriginX (int xO) { m_xO = xO; }
-		inline void SetOriginY (int yO) { m_yO = yO; }
-		inline void SetPanelWidth (int width) { m_Width = width; }
-		inline void SetPanelHeight (int height) { m_Height = height; }
+		void SetOriginX (int xO);
+		void SetOriginY (int yO);
+		void SetPanelWidth (int width);
+		void SetPanelHeight (int height);
 
 		inline int GetOriginX (void) { return m_xO; }
 		inline int GetOriginY (void) { return m_yO; }
@@ -41,11 +41,25 @@ class CPanel
 		void ShiftLeftEdge (int Delta);
 
 		inline void SetParentPanel(CPanel *Panel) { m_ParentPanel = Panel; }
-		void MakeSpaceForPanel (CPanel *FocusPanel, bool ExpandInPlace);
-		CPanel* AddInternalPanel (int xO, int yO, int width, int height, double rigidity, bool hidden, bool ExpandInPlace);
-		CPanel* AddInternalPanel (int xO, int yO, int width, int height, bool hidden, bool ExpandInPlace);
-		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, double rigidity, bool hidden, bool ExpandInPlace);
-		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, bool hidden, bool ExpandInPlace);
+
+		TArray <int> LeftEdgeLocationInternalPanelSort (void);
+		TArray <int> TopEdgeLocationInternalPanelSort (void);
+		TArray <int> RightEdgeLocationInternalPanelSort (void);
+		TArray <int> BottomEdgeLocationInternalPanelSort (void);
+
+		inline void UpdateNumInternalPanels (void) { m_NumInternalPanels = m_InternalPanels.GetCount(); }
+		inline void SetAsFixed (int Relative_xO, int Relative_yO ) { if (m_ParentPanel != NULL) { m_Fixed = true; m_Relative_xO = Relative_xO; m_Relative_yO = Relative_yO; } };
+		inline bool IsFixed (void) { return m_Fixed; }
+		inline int GetFixedDeltaX (void) { return m_Relative_xO; }
+		inline int GetFixedDeltaY (void) { return m_Relative_yO; }
+		inline void RemoveAsFixed (void) { m_Fixed = false; }
+		
+		void SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth);
+
+		CPanel* AddInternalPanel (int xO, int yO, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
+		CPanel* AddInternalPanel (int xO, int yO, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
 
 		inline TArray <CPanel *> GetInternalPanels (void) { return m_InternalPanels; }
 
@@ -58,9 +72,6 @@ class CPanel
 		inline int GetXDisplacementToRightEdge(int x) { return (x - (m_xO + m_Width)); }
 		inline int GetYDisplacementToTopEdge(int y) { return (y - m_yO); }
 		inline int GetYDisplacementToBottomEdge(int y) { return (y - (m_yO + m_Height)); }
-		
-		void SnuglyFitInternalPanel (int PanelIndex, bool ExpandInPlace);
-		void RearrangeAllPanelsToSnuglyFit(int MaxAttempts, bool ExpandInPlace);
 
 		inline void FocusOnInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 1; }
 		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 0; }
@@ -94,6 +105,11 @@ class CPanel
 
 		CPanel *m_ParentPanel;
 		TArray <CPanel *> m_InternalPanels;
+		int m_NumInternalPanels;
+
+		bool m_Fixed;
+		int m_Relative_xO;
+		int m_Relative_yO;
 
 		bool m_ErrorOccurred;
 		CString m_ErrorString;

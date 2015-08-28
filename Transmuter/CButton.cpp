@@ -89,10 +89,10 @@ void CButton::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	//  paint "active" area of button (80% scaled inner rectangle)
 	if (m_IsLDown)
 		{
-		Screen.Fill(m_AssociatedPanel.GetOriginX() + 0.1*width, m_AssociatedPanel.GetOriginY() + 0.1*height, 0.8*width, 0.8*height, CG32bitPixel(0, 255, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetOriginX() + 0.1*width), int(m_AssociatedPanel.GetOriginY() + 0.1*height), int(0.8*width), int(0.8*height), CG32bitPixel(0, 255, 0));
 		}
 	else
 		{
-		Screen.Fill(m_AssociatedPanel.GetOriginX() + 0.1*width, m_AssociatedPanel.GetOriginY() + 0.1*height, 0.8*width, 0.8*height, CG32bitPixel(255, 0, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetOriginX() + 0.1*width), int(m_AssociatedPanel.GetOriginY() + 0.1*height), int(0.8*width), int(0.8*height), CG32bitPixel(255, 0, 0));
 		}
 	}

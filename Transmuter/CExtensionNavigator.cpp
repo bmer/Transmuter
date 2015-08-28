@@ -23,15 +23,17 @@ CExtensionNavigator::~CExtensionNavigator(void)
 
 void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *MenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetWidth(), m_AssociatedPanel.GetHeight() - m_MenuSlotHeight, false, false);
-	int MenuPanelWidth = MenuPanel->GetWidth();
+	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetWidth(), m_AssociatedPanel.GetHeight() - m_MenuSlotHeight, false, false, true);
+	CPanel *pMenuSlot;
+	int MenuPanelWidth = pMenuPanel->GetWidth();
 	
-	for (int i = 0; i < m_Extensions.GetCount(); i++)
+	int iNumExtensions = m_Extensions.GetCount();
+	for (int i = 0; i < iNumExtensions; i++)
 		{
-		CPanel *MenuSlot = MenuPanel->AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight*i, MenuPanelWidth, 40, false, false);
-		CExtensionMenuItem *MenuItem = new CExtensionMenuItem(m_HI, *MenuSlot, m_Extensions[i]);
+		pMenuSlot = pMenuPanel->AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight*i, MenuPanelWidth, 40, false, false, false);
+		CExtensionMenuItem *MenuItem = new CExtensionMenuItem(m_HI, *pMenuSlot, m_Extensions[i]);
 		m_NavigatorMenuItems.Insert(MenuItem);
-		MenuSlot->AssociateSession(MenuItem);
+		pMenuSlot->AssociateSession(MenuItem);
 		};
 	}
 
@@ -47,7 +49,8 @@ void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	DrawTitleBar(Screen);
 
-	for (int i = 0; i < m_NavigatorMenuItems.GetCount(); i++)
+	int iNumNavigatorMenuItems = m_NavigatorMenuItems.GetCount();
+	for (int i = 0; i < iNumNavigatorMenuItems; i++)
 		{
 		m_NavigatorMenuItems[i]->OnPaint(Screen, rcInvalid);
 		}
@@ -66,7 +69,7 @@ CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPane
 CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight(), false, false);
+	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight(), false, false, true);
 	m_Button = new CButton(HI, *ButtonPanel);
 	m_Button->SetBGColor(CG32bitPixel(100, 100, 100));
 
@@ -85,7 +88,6 @@ void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 		if (m_Button->CheckIfLPressed())
 			{
 			m_AssociatedPanel.Hide();
-			HIInvalidate();
 			}
 		else
 			{
