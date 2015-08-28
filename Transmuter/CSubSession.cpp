@@ -25,11 +25,11 @@ void CSubSession::DrawPanelOutline(CG32bitImage &Screen)
 	int c0x = PanelRect.left;
 	int c0y = PanelRect.top;
 	
-	int c1x = c0x + PanelRect.right;
+	int c1x = PanelRect.right;
 	int c1y = c0y;
 
 	int c2x = c1x;
-	int c2y = c0y + PanelRect.bottom;
+	int c2y = PanelRect.bottom;
 
 	int c3x = c0x;
 	int c3y = c2y;

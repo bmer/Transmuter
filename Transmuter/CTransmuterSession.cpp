@@ -11,7 +11,7 @@ CTransmuterSession::CTransmuterSession (CHumanInterface &HI, CTransmuterModel &m
 	m_IsRButtonDown(0)
 	//	CTransmuterSession constructor
 	{
-	CPanel *EmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetHeight(), false, false);
+	CPanel *EmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetHeight(), false, false, false);
 
 	CExtensionNavigator *pExtensionNavigatorSession = new CExtensionNavigator(HI, *EmptyPanel, m_Model.GetExtensionsArray());
 	m_SubSessions.Insert(pExtensionNavigatorSession);
