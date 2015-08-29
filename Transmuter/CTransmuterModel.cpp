@@ -136,9 +136,9 @@ TArray<CExtension *> CTransmuterModel::GetExtensionsArray()
 	{
 	CExtensionCollection &ExtensionCollection = m_Universe.GetExtensionCollection();
 
-	TArray<CExtension *> ExtensionsArray = ExtensionCollection.GetAllExtensions();
+	TArray<CExtension *> aExtensions = ExtensionCollection.GetLoadedExtensions();
 
-	return ExtensionsArray;
+	return aExtensions;
 	}
 
 
@@ -148,17 +148,16 @@ TArray<CDesignTable> CTransmuterModel::GetExtensionDesignTables()
 //
 //	Loops over CExtension objects in array and gets associated name strings.
 	{
-	TArray<CExtension *> ExtensionsArray = GetExtensionsArray();
+	TArray<CExtension *> aExtensions = GetExtensionsArray();
 
-	int x = ExtensionsArray.GetCount();
+	TArray<CDesignTable> aDesignTables;
+	CDesignTable ExtensionDesignTable;
 
-	TArray<CDesignTable> DesignTables;
-
-	for (int i = 0; i < ExtensionsArray.GetCount(); i++)
+	for (int i = 0; i < aExtensions.GetCount(); i++)
 		{
-		CDesignTable ExtensionDesignTable = ExtensionsArray[i]->GetDesignTypes();
-		DesignTables.Insert(ExtensionDesignTable);
+		ExtensionDesignTable = aExtensions[i]->GetDesignTypes();
+		aDesignTables.Insert(ExtensionDesignTable);
 		};
 
-	return DesignTables;
+	return aDesignTables;
 	}

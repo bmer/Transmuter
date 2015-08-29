@@ -5,5 +5,5 @@
 
 #pragma once
 
-TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray);
-TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray, TArray <int> AuxiliaryArray);
+TArray <int> QuickSortIntegerArray(TArray <int> aIntegers);
+TArray <int> QuickSortIntegerArray(TArray <int> aIntegers, TArray <int> aAuxiliaries);

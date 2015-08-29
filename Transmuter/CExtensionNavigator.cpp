@@ -8,7 +8,8 @@
 
 CExtensionNavigator::CExtensionNavigator(CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CSubSession(HI, AssociatedPanel),
 	m_Extensions(Extensions),
-	m_MenuSlotHeight(40)
+	m_iMenuSlotHeight(40),
+	m_iHeaderBarHeight(40)
 	{
 	CreateExtensionNavigatorMenuItems();
 	}
@@ -23,14 +24,14 @@ CExtensionNavigator::~CExtensionNavigator(void)
 
 void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetPanelRight(), m_AssociatedPanel.GetPanelBottom() - m_MenuSlotHeight, false, false, true);
+	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + m_iHeaderBarHeight, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_RIGHT), m_AssociatedPanel.GetPanelEdgeLocation(EDGE_BOTTOM) - m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) - m_iHeaderBarHeight, false, false, true);
 	CPanel *pMenuSlot;
-	int MenuPanelWidth = pMenuPanel->GetPanelRight();
+	int iMenuPanelWidth = pMenuPanel->GetPanelWidth();
 	
 	int iNumExtensions = m_Extensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
 		{
-		pMenuSlot = pMenuPanel->AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight*i, MenuPanelWidth, 40, false, false, false);
+		pMenuSlot = pMenuPanel->AddInternalPanelRelativeToOrigin(0, m_iMenuSlotHeight*i, iMenuPanelWidth, 40, false, false, false);
 		CExtensionMenuItem *MenuItem = new CExtensionMenuItem(m_HI, *pMenuSlot, m_Extensions[i]);
 		m_NavigatorMenuItems.Insert(MenuItem);
 		pMenuSlot->AssociateSession(MenuItem);
@@ -39,7 +40,7 @@ void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 
 void CExtensionNavigator::DrawTitleBar(CG32bitImage &Screen)
 	{
-	Screen.DrawText(m_AssociatedPanel.GetPanelLeft() + 10, m_AssociatedPanel.GetPanelTop() + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
+	Screen.DrawText(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_LEFT) + 10, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
 	}
 
 void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
@@ -69,9 +70,8 @@ CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPane
 CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetPanelBottom(), false, false, true);
-	m_Button = new CButton(HI, *ButtonPanel);
-	m_Button->SetBGColor(CG32bitPixel(100, 100, 100));
+	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_BOTTOM) - m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP), false, false, true);
+	m_Button = new CButton(HI, *ButtonPanel, CG32bitPixel(100, 100, 100));
 
 	ButtonPanel->AssociateSession(m_Button);
 	}
@@ -94,9 +94,9 @@ void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 			m_Button->OnPaint(Screen, rcInvalid);
 			CPanel &ButtonPanel = m_Button->GetAssociatedPanel();
 
-			int TextX = ButtonPanel.GetPanelLeft() + ButtonPanel.GetPanelRight();
-			int TextY = ButtonPanel.GetPanelTop();
-			Screen.DrawText(TextX + 10, TextY + 10, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
+			int TextX = ButtonPanel.GetPanelEdgeLocation(EDGE_RIGHT) + 10;
+			int TextY = ButtonPanel.GetPanelEdgeLocation(EDGE_TOP) + 10;
+			Screen.DrawText(TextX, TextY, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
 			}
 		}
 	}

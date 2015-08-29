@@ -7,21 +7,21 @@
 
 CTransmuterSession::CTransmuterSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_Panel(*(new CPanel(0, 0, (HI.GetScreen()).GetPanelRight(), (HI.GetScreen()).GetPanelBottom()))),
+	m_Panel(*(new CPanel(0, 0, (HI.GetScreen()).GetWidth(), (HI.GetScreen()).GetHeight()))),
 	m_IsRButtonDown(0)
 	//	CTransmuterSession constructor
 	{
-	CPanel *EmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetPanelBottom(), false, false, false);
+	CPanel *pEmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetHeight(), false, false, false);
 
-	CExtensionNavigator *pExtensionNavigatorSession = new CExtensionNavigator(HI, *EmptyPanel, m_Model.GetExtensionsArray());
-	m_SubSessions.Insert(pExtensionNavigatorSession);
+	CExtensionNavigator *pExtensionNavigatorSession = new CExtensionNavigator(HI, *pEmptyPanel, m_Model.GetExtensionsArray());
+	m_aSubSessions.Insert(pExtensionNavigatorSession);
 	}
 
 CTransmuterSession::~CTransmuterSession(void)
 	{
-	for (int i = 0; i < m_SubSessions.GetCount(); i++)
+	for (int i = 0; i < m_aSubSessions.GetCount(); i++)
 		{
-		delete m_SubSessions[i];
+		delete m_aSubSessions[i];
 		}
 
 	delete &m_Panel;
@@ -67,21 +67,14 @@ void CTransmuterSession::OnRButtonUp(int x, int y, DWORD dwFlags)
 		}
 	}
 
-void CTransmuterSession::UpdateSubSessionsList(void)
-	{
-	}
-
 void CTransmuterSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	//	paint the background
-	Screen.Fill(0, 0, Screen.GetPanelRight(), Screen.GetPanelBottom(), CG32bitPixel(32, 32, 32));
-
-	//	make sure m_SubSessions is up-to-date with any error sessions
-	UpdateSubSessionsList();
+	Screen.Fill(0, 0, Screen.GetWidth(), Screen.GetHeight(), CG32bitPixel(32, 32, 32));
 
 	//	call paint functions of all subsessions
-	for (int i = 0; i < m_SubSessions.GetCount(); i++)
+	for (int i = 0; i < m_aSubSessions.GetCount(); i++)
 		{
-		m_SubSessions[i]->OnPaint(Screen, rcInvalid);
+		m_aSubSessions[i]->OnPaint(Screen, rcInvalid);
 		}
 	}

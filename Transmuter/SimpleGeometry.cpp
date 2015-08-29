@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-bool IsPointInRect(int px, int py, RECT rc)
+bool IsPointInRect (int px, int py, RECT rc)
 //  IsPointInRect
 // 
 //  Checks to see if given point is inside given rectangle. 
@@ -36,7 +36,7 @@ bool IsRect1InRect2(RECT rc1, RECT rc2)
 			IsPointInRect(r1x1, r1y0, rc2));
 	}
 
-TArray <bool> DoesRect1ClashRect2(RECT rc1, RECT rc2)
+TArray <bool> DoesRect1ClashRect2 (RECT rc1, RECT rc2)
 //  DoesRect1ClashRect2
 //
 //  Checks if any part of Rectangle 1 is in Rectangle 2, by checking if any corner
@@ -60,34 +60,34 @@ TArray <bool> DoesRect1ClashRect2(RECT rc1, RECT rc2)
 	int r2x1 = rc2.right;
 	int r2y1 = rc2.bottom;
 
-	TArray <bool> CornerStatus;
+	TArray <bool> aCornerStatus;
 
 	for (int i = 0; i < 4; i++)
 		{
-		CornerStatus.Insert(false);
+		aCornerStatus.Insert(false);
 		}
 
 	if (IsPointInRect(r1x0, r1y0, rc2))
 		{
-		CornerStatus[0] = true;
+		aCornerStatus[0] = true;
 		}
 
 	if (IsPointInRect(r1x1, r1y0, rc2))
 		{
-		CornerStatus[1] = true;
+		aCornerStatus[1] = true;
 		}
 
 	if (IsPointInRect(r1x1, r1y1, rc2))
 		{
-		CornerStatus[2] = true;
+		aCornerStatus[2] = true;
 		}
 
 	if (IsPointInRect(r1x0, r1y1, rc2))
 		{
-		CornerStatus[3] = true;
+		aCornerStatus[3] = true;
 		}
 	
-	return CornerStatus;
+	return aCornerStatus;
 	}
 
 int GetSharedTopBottomEdgeLength(RECT *rc1, RECT *rc2)

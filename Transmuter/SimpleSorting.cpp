@@ -5,11 +5,11 @@
 
 #include "PreComp.h"
 
-int PickPivot(int FirstValue, int MiddleValue, int LastValue)
+int PickPivot (int iFirstValue, int iMiddleValue, int iLastValue)
 	{
-	if (FirstValue < MiddleValue)
+	if (iFirstValue < iMiddleValue)
 		{
-		if (MiddleValue < LastValue)
+		if (iMiddleValue < iLastValue)
 			{
 			return 1;
 			}
@@ -20,7 +20,7 @@ int PickPivot(int FirstValue, int MiddleValue, int LastValue)
 		}
 	else
 		{
-		if (FirstValue < LastValue)
+		if (iFirstValue < iLastValue)
 			{
 			return 0;
 			}
@@ -32,141 +32,141 @@ int PickPivot(int FirstValue, int MiddleValue, int LastValue)
 	}
 
 
-TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray)
+TArray <int> QuickSortIntegerArray (TArray <int> aIntegers)
 	{
-	int ArrayLength = IntegerArray.GetCount();
+	int iArrayLength = aIntegers.GetCount();
 
-	if (!(ArrayLength > 0))
+	if (!(iArrayLength > 0))
 		{
-		return IntegerArray;
+		return aIntegers;
 		}
 
-	int FirstValue = IntegerArray[0];
-	int MiddleValue = IntegerArray[ArrayLength/2];
-	int LastValue = IntegerArray[ArrayLength - 1];
+	int iFirstValue = aIntegers[0];
+	int iMiddleValue = aIntegers[iArrayLength/2];
+	int iLastValue = aIntegers[iArrayLength - 1];
 
-	int PivotNumber = PickPivot(FirstValue, MiddleValue, LastValue);
+	int iPivotSelection = PickPivot(iFirstValue, iMiddleValue, iLastValue);
 
-	int PivotIndex;
-	int PivotValue;
+	int iPivotIndex;
+	int iPivotValue;
 
-	if (PivotNumber = 0)
+	if (iPivotSelection = 0)
 		{
-		PivotIndex = 0;
-		PivotValue = FirstValue;
+		iPivotIndex = 0;
+		iPivotValue = iFirstValue;
 		}
-	else if (PivotNumber = 2)
+	else if (iPivotSelection = 2)
 		{
-		PivotIndex = (ArrayLength/2);
-		PivotValue = MiddleValue;
+		iPivotIndex = (iArrayLength/2);
+		iPivotValue = iMiddleValue;
 		}
 	else
 		{
-		PivotIndex = ArrayLength - 1;
-		PivotValue = LastValue;
+		iPivotIndex = iArrayLength - 1;
+		iPivotValue = iLastValue;
 		}
 
-	TArray <int> LesserThanPivotValue;
-	TArray <int> GreaterThanPivotValue;
+	TArray <int> aLesserThanPivotValue;
+	TArray <int> aGreaterThanPivotValue;
 
-	int CurrentIndexValue;
+	int iCurrentValue;
 
-	for (int i = 0; i < ArrayLength; i++)
+	for (int i = 0; i < iArrayLength; i++)
 		{
-		if (i != PivotIndex)
+		if (i != iPivotIndex)
 			{
-			CurrentIndexValue = IntegerArray[i];
-			if (CurrentIndexValue < PivotValue)
+			iCurrentValue = aIntegers[i];
+			if (iCurrentValue < iPivotValue)
 				{
-				LesserThanPivotValue.Insert(CurrentIndexValue);
+				aLesserThanPivotValue.Insert(iCurrentValue);
 				}
 			else
 				{
-				GreaterThanPivotValue.Insert(CurrentIndexValue);
+				aGreaterThanPivotValue.Insert(iCurrentValue);
 				}
 			}
 		}
 
-	LesserThanPivotValue = QuickSortIntegerArray(LesserThanPivotValue);
-	GreaterThanPivotValue = QuickSortIntegerArray(GreaterThanPivotValue);
+	aLesserThanPivotValue = QuickSortIntegerArray(aLesserThanPivotValue);
+	aGreaterThanPivotValue = QuickSortIntegerArray(aGreaterThanPivotValue);
 
-	TArray <int> SortedIntegerArray;
-	SortedIntegerArray.Insert(LesserThanPivotValue);
-	SortedIntegerArray.Insert(PivotValue);
-	SortedIntegerArray.Insert(GreaterThanPivotValue);
+	TArray <int> aSortedIntegers;
+	aSortedIntegers.Insert(aLesserThanPivotValue);
+	aSortedIntegers.Insert(iPivotValue);
+	aSortedIntegers.Insert(aGreaterThanPivotValue);
 
-	return SortedIntegerArray;
+	return aSortedIntegers;
 	}
 
-TArray <int> QuickSortIntegerArray(TArray <int> IntegerArray, TArray <int> AuxiliaryArray)
+TArray <int> QuickSortIntegerArray (TArray <int> aIntegers, TArray <int> aAuxiliaries)
 	{
-	int ArrayLength = IntegerArray.GetCount();
+	int iArrayLength = aIntegers.GetCount();
 
-	if (!(ArrayLength > 0))
+	if (!(iArrayLength > 0))
 		{
-		return IntegerArray;
+		return aIntegers;
 		}
 
-	int FirstValue = IntegerArray[0];
-	int MiddleValue = IntegerArray[ArrayLength/2];
-	int LastValue = IntegerArray[ArrayLength - 1];
+	int iFirstValue = aIntegers[0];
+	int iMiddleValue = aIntegers[iArrayLength/2];
+	int iLastValue = aIntegers[iArrayLength - 1];
 
-	int PivotNumber = PickPivot(FirstValue, MiddleValue, LastValue);
+	int iPivotSelection = PickPivot(iFirstValue, iMiddleValue, iLastValue);
 
-	int PivotIndex;
-	int PivotValue;
+	int iPivotIndex;
+	int iPivotValue;
 	int PivotValueAuxiliary;
 
-	if (PivotNumber = 0)
+	if (iPivotSelection = 0)
 		{
-		PivotIndex = 0;
-		PivotValue = FirstValue;
+		iPivotIndex = 0;
+		iPivotValue = iFirstValue;
 		}
-	else if (PivotNumber = 2)
+	else if (iPivotSelection = 2)
 		{
-		PivotIndex = (ArrayLength/2);
-		PivotValue = MiddleValue;
+		iPivotIndex = (iArrayLength/2);
+		iPivotValue = iMiddleValue;
 		}
 	else
 		{
-		PivotIndex = ArrayLength - 1;
-		PivotValue = LastValue;
+		iPivotIndex = iArrayLength - 1;
+		iPivotValue = iLastValue;
 		}
 
-	PivotValueAuxiliary = AuxiliaryArray[PivotIndex];
+	PivotValueAuxiliary = aAuxiliaries[iPivotIndex];
 
-	TArray <int> LesserThanPivotValue;
-	TArray <int> LesserThanPivotValueAuxiliary;
-	TArray <int> GreaterThanPivotValue;
-	TArray <int> GreaterThanPivotValueAuxiliary;
+	TArray <int> aLesserThanPivotValue;
+	TArray <int> aLesserThanPivotValueAuxliary;
+	TArray <int> aGreaterThanPivotValue;
+	TArray <int> aGreaterThanPivotValueAuxiliary;
 
-	int CurrentIndexValue;
+	int iCurrentValue;
 
-	for (int i = 0; i < ArrayLength; i++)
+	for (int i = 0; i < iArrayLength; i++)
 		{
-		if (i != PivotIndex)
+		if (i != iPivotIndex)
 			{
-			CurrentIndexValue = IntegerArray[i];
-			if (CurrentIndexValue < PivotValue)
+			iCurrentValue = aIntegers[i];
+			if (iCurrentValue < iPivotValue)
 				{
-				LesserThanPivotValue.Insert(CurrentIndexValue);
-				LesserThanPivotValueAuxiliary.Insert(AuxiliaryArray[i]);
+				aLesserThanPivotValue.Insert(iCurrentValue);
+				aLesserThanPivotValueAuxliary.Insert(aAuxiliaries[i]);
 				}
 			else
 				{
-				GreaterThanPivotValue.Insert(CurrentIndexValue);
-				GreaterThanPivotValueAuxiliary.Insert(AuxiliaryArray[i]);
+				aGreaterThanPivotValue.Insert(iCurrentValue);
+				aGreaterThanPivotValueAuxiliary.Insert(aAuxiliaries[i]);
 				}
 			}
 		}
 
-	LesserThanPivotValueAuxiliary = QuickSortIntegerArray(LesserThanPivotValue, LesserThanPivotValueAuxiliary);
-	GreaterThanPivotValueAuxiliary = QuickSortIntegerArray(GreaterThanPivotValue, GreaterThanPivotValueAuxiliary);
+	aLesserThanPivotValueAuxliary = QuickSortIntegerArray(aLesserThanPivotValue, aLesserThanPivotValueAuxliary);
+	aGreaterThanPivotValueAuxiliary = QuickSortIntegerArray(aGreaterThanPivotValue, aGreaterThanPivotValueAuxiliary);
 
-	TArray <int> SortedIntegerArrayAuxiliary;
-	SortedIntegerArrayAuxiliary.Insert(LesserThanPivotValueAuxiliary);
-	SortedIntegerArrayAuxiliary.Insert(PivotValueAuxiliary);
-	SortedIntegerArrayAuxiliary.Insert(GreaterThanPivotValueAuxiliary);
+	TArray <int> aSortedAuxliaries;
+	aSortedAuxliaries.Insert(aLesserThanPivotValueAuxliary);
+	aSortedAuxliaries.Insert(PivotValueAuxiliary);
+	aSortedAuxliaries.Insert(aGreaterThanPivotValueAuxiliary);
 
-	return SortedIntegerArrayAuxiliary;
+	return aSortedAuxliaries;
 	}

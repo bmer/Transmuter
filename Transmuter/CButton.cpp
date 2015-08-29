@@ -9,6 +9,11 @@ CButton::CButton(CHumanInterface &HI, CPanel &AssociatedPanel) : CSubSession(HI,
 	{
 	}
 
+CButton::CButton(CHumanInterface &HI, CPanel &AssociatedPanel, CG32bitPixel BGColor) : CSubSession(HI, AssociatedPanel),
+	m_rgbBackColor(BGColor)
+	{
+	}
+
 void CButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
 	//  check if click was in "active area" of button session (80% scale inner rectangle)
@@ -83,16 +88,16 @@ void CButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 
 void CButton::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	int iRight = m_AssociatedPanel.GetPanelRight();
-	int iBottom = m_AssociatedPanel.GetPanelBottom();
+	int iPanelWidth = m_AssociatedPanel.GetPanelWidth();
+	int iPanelHeight = m_AssociatedPanel.GetPanelHeight();
 
 	//  paint "active" area of button (80% scaled inner rectangle)
 	if (m_IsLDown)
 		{
-		Screen.Fill(int(m_AssociatedPanel.GetPanelLeft() + 0.1*iRight), int(m_AssociatedPanel.GetPanelTop() + 0.1*iBottom), int(0.8*iRight), int(0.8*iBottom), CG32bitPixel(0, 255, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_LEFT) + 0.1*iPanelWidth), int(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + 0.1*iPanelHeight), int(0.8*iPanelWidth), int(0.8*iPanelHeight), CG32bitPixel(0, 255, 0));
 		}
 	else
 		{
-		Screen.Fill(int(m_AssociatedPanel.GetPanelLeft() + 0.1*iRight), int(m_AssociatedPanel.GetPanelTop() + 0.1*iBottom), int(0.8*iRight), int(0.8*iBottom), CG32bitPixel(255, 0, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_LEFT) + 0.1*iPanelWidth), int(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + 0.1*iPanelHeight), int(0.8*iPanelWidth), int(0.8*iPanelHeight), CG32bitPixel(255, 0, 0));
 		}
 	}

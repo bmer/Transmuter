@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Graphics", "..\Alchemy\Graphics\Graphics.vcxproj", "{D52D8A0E-FD89-44D9-903D-624AAD7E7155}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -56,6 +56,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Transmuter", "Transmuter\Transmuter.vcxproj", "{0543650F-6D32-4562-B63C-DEE94C01DB1F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeChain", "..\Alchemy\CodeChain\CodeChain.vcxproj", "{39983CCD-095B-4B41-854F-4967A254A07C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug in Program Files|ARM = Debug in Program Files|ARM
@@ -70,6 +72,12 @@ Global
 		ReleaseWithoutAsm|ARM = ReleaseWithoutAsm|ARM
 		ReleaseWithoutAsm|Win32 = ReleaseWithoutAsm|Win32
 		ReleaseWithoutAsm|x64 = ReleaseWithoutAsm|x64
+		SteamDebug|ARM = SteamDebug|ARM
+		SteamDebug|Win32 = SteamDebug|Win32
+		SteamDebug|x64 = SteamDebug|x64
+		SteamRelease|ARM = SteamRelease|ARM
+		SteamRelease|Win32 = SteamRelease|Win32
+		SteamRelease|x64 = SteamRelease|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
@@ -88,6 +96,14 @@ Global
 		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{D52D8A0E-FD89-44D9-903D-624AAD7E7155}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -104,6 +120,14 @@ Global
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{86CE5721-1967-49B7-9EED-3A014171DAF1}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{86CE5721-1967-49B7-9EED-3A014171DAF1}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -120,6 +144,14 @@ Global
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{696AFBF6-CA1A-4302-B9EF-01BDBC483280}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -136,6 +168,14 @@ Global
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{ECAC7E19-ACBC-4C3C-B89A-7BC7049B6F2E}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -152,6 +192,14 @@ Global
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{482B1658-7F28-4E62-94B6-ED71259C5F44}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{482B1658-7F28-4E62-94B6-ED71259C5F44}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug in Program Files|ARM.ActiveCfg = Debug|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug in Program Files|Win32.ActiveCfg = Debug|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug in Program Files|Win32.Build.0 = Debug|Win32
@@ -172,6 +220,16 @@ Global
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|Win32.Build.0 = ReleaseWithoutAsm|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|x64.ActiveCfg = ReleaseWithoutAsm|x64
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|x64.Build.0 = ReleaseWithoutAsm|x64
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamDebug|x64.ActiveCfg = SteamDebug|x64
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamDebug|x64.Build.0 = SteamDebug|x64
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamRelease|x64.ActiveCfg = SteamRelease|x64
+		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.SteamRelease|x64.Build.0 = SteamRelease|x64
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -188,6 +246,14 @@ Global
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{797712EA-A2B5-4E30-A2F9-5998E90AFECC}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
@@ -204,6 +270,14 @@ Global
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{54A735D5-A8EA-4D72-A4B5-593F79080882}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{54A735D5-A8EA-4D72-A4B5-593F79080882}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.Debug in Program Files|ARM.ActiveCfg = Debug|Win32
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.Debug in Program Files|Win32.ActiveCfg = Debug|Win32
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.Debug in Program Files|Win32.Build.0 = Debug|Win32
@@ -220,6 +294,38 @@ Global
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamDebug|ARM.ActiveCfg = Debug|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamDebug|Win32.ActiveCfg = Debug|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamDebug|Win32.Build.0 = Debug|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamDebug|x64.ActiveCfg = Debug|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamRelease|ARM.ActiveCfg = Release|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamRelease|Win32.ActiveCfg = Release|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamRelease|Win32.Build.0 = Release|Win32
+		{0543650F-6D32-4562-B63C-DEE94C01DB1F}.SteamRelease|x64.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug in Program Files|ARM.ActiveCfg = Debug in Program Files|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug in Program Files|Win32.ActiveCfg = Debug in Program Files|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug in Program Files|Win32.Build.0 = Debug in Program Files|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug in Program Files|x64.ActiveCfg = Debug in Program Files|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug|ARM.ActiveCfg = Debug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug|Win32.Build.0 = Debug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Debug|x64.ActiveCfg = Debug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Release|ARM.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Release|Win32.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Release|Win32.Build.0 = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.Release|x64.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.ReleaseWithoutAsm|ARM.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamDebug|ARM.ActiveCfg = SteamDebug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamDebug|Win32.ActiveCfg = SteamDebug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamDebug|Win32.Build.0 = SteamDebug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamDebug|x64.ActiveCfg = SteamDebug|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamRelease|ARM.ActiveCfg = SteamRelease|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamRelease|Win32.ActiveCfg = SteamRelease|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamRelease|Win32.Build.0 = SteamRelease|Win32
+		{39983CCD-095B-4B41-854F-4967A254A07C}.SteamRelease|x64.ActiveCfg = SteamRelease|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

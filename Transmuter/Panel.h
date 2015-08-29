@@ -32,7 +32,8 @@ class CPanel
 		void ShiftPanelEdgeLocation (DWORD dwEdge, int iShift);
 		int GetPanelEdgeLocation (DWORD dwEdge);
 
-		inline 
+		inline int GetPanelWidth (void) { return RectWidth(m_rcPanel); }
+		inline int GetPanelHeight (void) { return RectHeight(m_rcPanel); }
 		inline double GetRigidity (void) { return m_dRigidity; }
 
 		inline void SetParentPanel(CPanel *pPanel) { m_pParentPanel = pPanel; }
@@ -51,8 +52,8 @@ class CPanel
 
 		CPanel* AddInternalPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
 		CPanel* AddInternalPanel (int iLeft, int iTop, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
-		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
-		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iWidth, int iHeight, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iWidth, int iHeight, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
 
 		inline TArray <CPanel *> GetInternalPanels (void) { return m_aInternalPanels; }
 
