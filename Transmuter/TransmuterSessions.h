@@ -94,7 +94,7 @@ class CError : public CSubSession
 		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		CString m_ErrorString;
+		CString m_sErrorString;
 	};
 
 //  =======================================================================

@@ -4,6 +4,13 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #pragma once
+#define EDGE_LEFT			0
+#define EDGE_TOP			1
+#define EDGE_RIGHT			2
+#define EDGE_BOTTOM			3
+
+#define SMOOTH_UPDOWN		4
+#define SMOOTH_LEFTRIGHT	5
 
 class CSubSession;
 class CPanel;
@@ -14,72 +21,58 @@ class CPanel
 	{
 	public:
 		CPanel (void);
-		CPanel (int xO, int yO, int SpaceWidth, int SpaceHeight);
-		CPanel (int xO, int yO, int SpaceWidth, int SpaceHeight, double Rigidity);
+		CPanel (RECT rcPanel);
+		CPanel (int iLeft, int iTop, int iRight, int iBottom);
+		CPanel (RECT rcPanel, double dRigidity);
+		CPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity);
 
 		~CPanel (void);
 
-		void SetPanelOrigin (int xO, int yO);
-		void ShiftPanelOrigin (int DeltaX, int DeltaY);
-		void SetPanelSpace (int width, int height);
+		void SetPanelEdgeLocation (DWORD dwEdge, int iLocation);
+		void ShiftPanelEdgeLocation (DWORD dwEdge, int iShift);
+		int GetPanelEdgeLocation (DWORD dwEdge);
 
-		void SetOriginX (int xO);
-		void SetOriginY (int yO);
-		void SetPanelWidth (int width);
-		void SetPanelHeight (int height);
+		inline 
+		inline double GetRigidity (void) { return m_dRigidity; }
 
-		inline int GetOriginX (void) { return m_xO; }
-		inline int GetOriginY (void) { return m_yO; }
-		inline int GetWidth (void) { return m_Width; }
-		inline int GetHeight (void) { return m_Height; }
+		inline void SetParentPanel(CPanel *Panel) { m_pParentPanel = Panel; }
+		inline CPanel *GetParentPanel(void) { return m_pParentPanel; }
 
-		inline double GetRigidity (void) { return m_Rigidity; }
+		TArray <int> SortInternalPanelsByEdgeLocation (DWORD dwFlag);
 
-		void ShiftTopEdge (int Delta);
-		void ShiftRightEdge (int Delta);
-		void ShiftBottomEdge (int Delta);
-		void ShiftLeftEdge (int Delta);
-
-		inline void SetParentPanel(CPanel *Panel) { m_ParentPanel = Panel; }
-
-		TArray <int> LeftEdgeLocationInternalPanelSort (void);
-		TArray <int> TopEdgeLocationInternalPanelSort (void);
-		TArray <int> RightEdgeLocationInternalPanelSort (void);
-		TArray <int> BottomEdgeLocationInternalPanelSort (void);
-
-		inline void UpdateNumInternalPanels (void) { m_NumInternalPanels = m_InternalPanels.GetCount(); }
-		inline void SetAsFixed (int Relative_xO, int Relative_yO ) { if (m_ParentPanel != NULL) { m_Fixed = true; m_Relative_xO = Relative_xO; m_Relative_yO = Relative_yO; } };
-		inline bool IsFixed (void) { return m_Fixed; }
-		inline int GetFixedDeltaX (void) { return m_Relative_xO; }
-		inline int GetFixedDeltaY (void) { return m_Relative_yO; }
-		inline void RemoveAsFixed (void) { m_Fixed = false; }
+		inline void UpdateNumInternalPanels (void) { m_iNumInternalPanels = m_aInternalPanels.GetCount(); }
+		inline void SetAsFixed (int iRelativeLeft, int iRelativeTop ) { if (m_pParentPanel != NULL) { m_bFixed = true; m_iRelativeLeft = iRelativeLeft; m_iRelativeTop = iRelativeTop; } };
+		inline bool IsFixed (void) { return m_bFixed; }
+		inline int GetFixedDeltaLeft (void) { return m_iRelativeLeft; }
+		inline int GetFixedDeltaTop (void) { return m_iRelativeTop; }
+		inline void RemoveAsFixed (void) { m_bFixed = false; }
 		
-		void SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth);
+		void SmoothOutInternalPanels(bool bExpandInPlace, DWORD dwSmoothType);
 
-		CPanel* AddInternalPanel (int xO, int yO, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
-		CPanel* AddInternalPanel (int xO, int yO, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
-		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
-		CPanel* AddInternalPanelRelativeToOrigin (int DeltaX, int DeltaY, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent);
+		CPanel* AddInternalPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
+		CPanel* AddInternalPanel (int iLeft, int iTop, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
+		CPanel* AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent);
 
-		inline TArray <CPanel *> GetInternalPanels (void) { return m_InternalPanels; }
+		inline TArray <CPanel *> GetInternalPanels (void) { return m_aInternalPanels; }
 
-		inline void AssociateSession(CSubSession *Session) { m_AssociatedSession = Session; }
-		inline CSubSession *GetAssociatedSession(void) { return m_AssociatedSession; }
+		inline void AssociateSession(CSubSession *Session) { m_pAssociatedSession = Session; }
+		inline CSubSession *GetAssociatedSession(void) { return m_pAssociatedSession; }
 
 		TArray <CSubSession *> GetInternalPanelSessions (void);
 
-		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_xO); }
-		inline int GetXDisplacementToRightEdge(int x) { return (x - (m_xO + m_Width)); }
-		inline int GetYDisplacementToTopEdge(int y) { return (y - m_yO); }
-		inline int GetYDisplacementToBottomEdge(int y) { return (y - (m_yO + m_Height)); }
+		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_iLeft); }
+		inline int GetXDisplacementToRightEdge(int x) { return (x - (m_iLeft + m_iRight)); }
+		inline int GetYDisplacementToTopEdge(int y) { return (y - m_iTop); }
+		inline int GetYDisplacementToBottomEdge(int y) { return (y - (m_iTop + m_iBottom)); }
 
-		inline void FocusOnInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 1; }
-		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_InternalPanels[PanelIndex]->m_Focus = 0; }
+		inline void FocusOnInternalPanel (int PanelIndex) { m_aInternalPanels[PanelIndex]->m_bFocus = 1; }
+		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_aInternalPanels[PanelIndex]->m_bFocus = 0; }
 
-		RECT GetPanelRect (void);
+		inline RECT GetPanelRect (void) { return m_rcPanel; }
 		RECT GetScaledInnerRect (double scale);
 
-		inline bool ErrorOccurred (void) { return m_ErrorOccurred; }
+		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
 
 		int GetInternalPanelIndex (CPanel *Panel);
 		void HideInternalPanel (int PanelIndex);
@@ -87,37 +80,34 @@ class CPanel
 
 		void Hide(void);
 		void Show(void);
-		inline void SetHiddenFlag (bool hidden) { m_Hidden = hidden; }
-		inline bool IsHidden (void) { return m_Hidden; }
+		inline void SetHiddenFlag (bool bHidden) { m_bHidden = bHidden; }
+		inline bool IsHidden (void) { return m_bHidden; }
 
-		inline bool IsEmpty(void) { if (m_AssociatedSession == NULL) { return true; } else { return false; } }
+		inline bool IsEmpty(void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
 		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
 		TArray <CSubSession *> ReturnSessionsContainingPoint(int x, int y);
 
 	private:
-		int m_xO;							//  top left corner x-coordinate
-		int m_yO;							//	top left corner y-coordinate
-		int m_Width;						//  width of panel
-		int m_Height;						//	height of panel
+		RECT m_rcPanel;
 
-		double m_Rigidity;					//  rigidity of panel
+		double m_dRigidity;					//  dRigidity of panel
 
-		CPanel *m_ParentPanel;
-		TArray <CPanel *> m_InternalPanels;
-		int m_NumInternalPanels;
+		CPanel *m_pParentPanel;
+		TArray <CPanel *> m_aInternalPanels;
+		int m_iNumInternalPanels;
 
-		bool m_Fixed;
-		int m_Relative_xO;
-		int m_Relative_yO;
+		bool m_bFixed;
+		int m_iRelativeLeft;
+		int m_iRelativeTop;
 
-		bool m_ErrorOccurred;
-		CString m_ErrorString;
+		bool m_bErrorOccurred;
+		CString m_sErrorString;
 
-		CSubSession *m_AssociatedSession;
+		CSubSession *m_pAssociatedSession;
 
-		int m_Focus;
-		bool m_Hidden;
+		int m_bFocus;
+		bool m_bHidden;
 	};
 
 double CalculateRelativeRigidity(double rigidity1, double rigidity2);

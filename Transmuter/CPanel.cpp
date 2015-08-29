@@ -5,257 +5,217 @@
 
 #include "PreComp.h"
 
-double CalculateRelativeRigidity(double rigidity1, double rigidity2)
+double CalculateRelativeRigidity (double dRigidity1, double dRigidity2)
+//  CalculateRelativeRigidity
+//
+//  Calculate the relative dRigidity of the first panel with respect to the second panel.
 	{
-	if ((rigidity1 == rigidity2) || (rigidity1 == 0 && rigidity2 == 0))
+	if ((dRigidity1 == dRigidity2) || (dRigidity1 == 0 && dRigidity2 == 0))
 		{
 		return 0.5;
 		}
 	else
 		{
-		return rigidity1/(rigidity1 + rigidity2);
+		return dRigidity1/(dRigidity1 + dRigidity2);
 		}
 	}
 
-CPanel::CPanel(void) : m_xO(-1),
-	m_yO(-1),
-	m_Width(-1),
-	m_Height(-1),
-	m_Rigidity(0),
-	m_ParentPanel(NULL),
-	m_ErrorOccurred(FALSE),
-	m_ErrorString(CONSTLIT("")),
-	m_AssociatedSession(NULL),
-	m_Focus(0),
-	m_Hidden(false),
-	m_NumInternalPanels(0)
+CPanel::CPanel(void) :
+	m_dRigidity(0),
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	m_iNumInternalPanels(0)
+	{
+	m_rcPanel.bottom = -1;
+	m_rcPanel.left = -1;
+	m_rcPanel.right = -1;
+	m_rcPanel.top = -1;
+	}
+
+CPanel::CPanel (RECT rcPanelRect) : m_rcPanel(rcPanelRect),
+	m_dRigidity(0),
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	m_iNumInternalPanels(0)
 	{
 	}
 
-CPanel::CPanel(int xO, int yO, int SpaceWidth, int SpaceHeight) : m_xO(xO),
-	m_yO(yO),
-	m_Width(SpaceWidth),
-	m_Height(SpaceHeight),
-	m_Rigidity(0),
-	m_ParentPanel(NULL),
-	m_ErrorOccurred(FALSE),
-	m_ErrorString(CONSTLIT("")),
-	m_AssociatedSession(NULL),
-	m_Focus(0),
-	m_Hidden(false),
-	m_NumInternalPanels(0)
+CPanel::CPanel (RECT rcPanel, double dRigidity) : m_rcPanel(rcPanel),
+	m_dRigidity(dRigidity),
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	m_iNumInternalPanels(0)
 	{
 	}
 
-CPanel::CPanel(int xO, int yO, int SpaceWidth, int SpaceHeight, double Rigidity) : m_xO(xO),
-	m_yO(yO),
-	m_Width(SpaceWidth),
-	m_Height(SpaceHeight),
-	m_Rigidity(Rigidity),
-	m_ParentPanel(NULL),
-	m_ErrorOccurred(FALSE),
-	m_ErrorString(CONSTLIT("")),
-	m_AssociatedSession(NULL),
-	m_Focus(0),
-	m_Hidden(false),
-	m_NumInternalPanels(0)
+CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom) :
+	m_dRigidity(0),
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	m_iNumInternalPanels(0)
 	{
+	m_rcPanel.bottom = iBottom;
+	m_rcPanel.left = iLeft;
+	m_rcPanel.right = iRight;
+	m_rcPanel.top = iTop;
 	}
 
-CPanel::~CPanel()
+CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity) :
+	m_dRigidity(dRigidity),
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	m_iNumInternalPanels(0)
 	{
-	for (int i = 0; i < m_NumInternalPanels; i++)
+	m_rcPanel.bottom = iBottom;
+	m_rcPanel.left = iLeft;
+	m_rcPanel.right = iRight;
+	m_rcPanel.top = iTop;
+	}
+
+CPanel::~CPanel ()
+	{
+	for (int i = 0; i < m_iNumInternalPanels; i++)
 		{
-		delete &m_InternalPanels[i];
+		delete &m_aInternalPanels[i];
 		}
 	}
 
-void CPanel::SetPanelOrigin (int xO, int yO)
+void CPanel::ShiftPanelEdgeLocation (DWORD dwEdge, int iShift)
 	{
-	int DeltaX = xO - m_xO;
-	int DeltaY = yO - m_yO;
+	int iLocation; 
 
-	m_xO = xO;
-	m_yO = yO;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	if (dwEdge == EDGE_BOTTOM)
 		{
-		m_InternalPanels[i]->ShiftPanelOrigin(DeltaX, DeltaY);
+		iLocation = iShift + m_rcPanel.bottom;
+		m_rcPanel.bottom = iLocation;
+		}
+	else if (dwEdge == EDGE_LEFT)
+		{
+		iLocation = iShift + m_rcPanel.left;
+		m_rcPanel.left = iLocation;
+		}
+	else if (dwEdge == EDGE_RIGHT)
+		{
+		iLocation = iShift + m_rcPanel.right;
+		m_rcPanel.right = iLocation;
+		}
+	else if (dwEdge == EDGE_TOP)
+		{
+		iLocation = iShift + m_rcPanel.top;
+		m_rcPanel.top = iLocation;
+		}
+
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
+		{
+		m_aInternalPanels[i]->ShiftPanelEdgeLocation (dwEdge, iShift);
 		}
 	}
 
-void CPanel::ShiftPanelOrigin (int DeltaX, int DeltaY)
+void CPanel::SetPanelEdgeLocation (DWORD dwEdge, int iLocation)
+//  SetPanelEdgeLocation
+// 
+//  Set location of panel edge.
 	{
-	m_xO += DeltaX;
-	m_yO += DeltaY;
+	int iShift;
 
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	if (dwEdge == EDGE_BOTTOM)
 		{
-		m_InternalPanels[i]->ShiftPanelOrigin(DeltaX, DeltaY);
+		iShift = iLocation - m_rcPanel.bottom;
+		m_rcPanel.bottom = iLocation;
+		}
+	else if (dwEdge == EDGE_LEFT)
+		{
+		iShift = iLocation - m_rcPanel.left;
+		m_rcPanel.left = iLocation;
+		}
+	else if (dwEdge == EDGE_RIGHT)
+		{
+		iShift = iLocation - m_rcPanel.right;
+		m_rcPanel.right = iLocation;
+		}
+	else if (dwEdge == EDGE_TOP)
+		{
+		iShift = iLocation - m_rcPanel.top;
+		m_rcPanel.top = iLocation;
+		}
+
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
+		{
+		m_aInternalPanels[i]->ShiftPanelEdgeLocation (dwEdge, iShift);
 		}
 	}
 
-void CPanel::SetOriginX (int xO)
+int CPanel::GetPanelEdgeLocation (DWORD dwEdge)
 	{
-	int DeltaX = xO - m_xO;
-
-	ShiftPanelOrigin(DeltaX, 0);
-	}
-
-void CPanel::SetOriginY (int yO)
-	{
-	int DeltaY = yO - m_yO;
-
-	ShiftPanelOrigin(0, DeltaY);
-	}
-
-void CPanel::SetPanelSpace(int width, int height)
-	{
-	double WidthDelta = double(width)/m_Width;
-	double HeightDelta = double(height)/m_Height;
-
-	m_Width = width;
-	m_Height = height;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	if (dwEdge == EDGE_BOTTOM)
 		{
-		CPanel *CurrentPanel = m_InternalPanels[i];
-		CurrentPanel->SetPanelSpace(int(CurrentPanel->GetWidth()*WidthDelta), int(CurrentPanel->GetHeight()*HeightDelta));
+		return m_rcPanel.bottom;
+		}
+	else if (dwEdge == EDGE_LEFT)
+		{
+		return m_rcPanel.left;
+		}
+	else if (dwEdge == EDGE_RIGHT)
+		{
+		return m_rcPanel.right;
+		}
+	else if (dwEdge == EDGE_TOP)
+		{
+		return m_rcPanel.top;
 		}
 	}
 
-void CPanel::SetPanelWidth(int width)
+TArray <int> CPanel::SortInternalPanelsByEdgeLocation (DWORD dwEdge)
+//  SortInternalPanelsByEdgeLocation
+// 
+//  Return an array of integers whose elements correspond with indices of panels
+//  in the m_aInternalPanels array. Panel indices are sorted by edge location
+//  (smallest location value first), where the specific edge is specified by dwEdge .
 	{
-	SetPanelSpace(width, m_Height);
-	}
+	TArray <int> aPanelIndices;
+	TArray <int> aEdgeLocations;
+	CPanel *pInternalPanel;
 
-void CPanel::SetPanelHeight(int height)
-	{
-	SetPanelSpace(m_Width, height);
-	}
-
-void CPanel::ShiftTopEdge(int Delta)
-	{
-	m_yO = m_yO + Delta;
-	SetPanelSpace(m_Width, m_Height + Delta);
-	}
-
-void CPanel::ShiftRightEdge(int Delta)
-	{
-	SetPanelSpace(m_Width + Delta, m_Height);
-	}
-
-void CPanel::ShiftBottomEdge(int Delta)
-	{
-	SetPanelSpace(m_Width, m_Height + Delta);
-	}
-
-void CPanel::ShiftLeftEdge(int Delta)
-	{
-	m_xO = m_xO + Delta;
-	SetPanelSpace(m_Width + Delta, m_Height);
-	}
-
-TArray <int> CPanel::LeftEdgeLocationInternalPanelSort(void)
-	{
-	TArray <int> PanelIndices;
-	TArray <int> LeftEdgeLocations;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		PanelIndices.Insert(i);
-		CPanel *InternalPanel = m_InternalPanels[i];
-		if (InternalPanel->IsHidden())
+		aPanelIndices.Insert(i);
+		pInternalPanel = m_aInternalPanels[i];
+		if (pInternalPanel->IsHidden())
 			{
-			LeftEdgeLocations.Insert(-1);
-			
+			aEdgeLocations.Insert(-1);
 			}
 		else
 			{
-			LeftEdgeLocations.Insert(InternalPanel->GetOriginX());
+			aEdgeLocations.Insert(pInternalPanel->GetPanelEdgeLocation(dwEdge));
 			}
 		}
 
-	TArray <int> SortedPanelIndices = QuickSortIntegerArray(LeftEdgeLocations, PanelIndices);
+	TArray <int> aSortedPanelIndices = QuickSortIntegerArray(aEdgeLocations, aPanelIndices);
 
-	return SortedPanelIndices;
+	return aSortedPanelIndices;
 	}
 
-TArray <int> CPanel::RightEdgeLocationInternalPanelSort(void)
-	{
-	TArray <int> PanelIndices;
-	TArray <int> RightEdgeLocations;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
-		{
-		PanelIndices.Insert(i);
-		CPanel *InternalPanel = m_InternalPanels[i];
-		if (InternalPanel->IsHidden())
-			{
-			RightEdgeLocations.Insert(-1);
-			}
-		else
-			{
-			RightEdgeLocations.Insert(InternalPanel->GetOriginX() + InternalPanel->GetWidth());
-			}
-		}
-
-	TArray <int> SortedPanelIndices = QuickSortIntegerArray(RightEdgeLocations, PanelIndices);
-
-	return SortedPanelIndices;
-	}
-
-TArray <int> CPanel::TopEdgeLocationInternalPanelSort(void)
-	{
-	TArray <int> PanelIndices;
-	TArray <int> TopEdgeLocations;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
-		{
-		PanelIndices.Insert(i);
-		CPanel *InternalPanel = m_InternalPanels[i];
-
-		if (InternalPanel->IsHidden())
-			{
-			TopEdgeLocations.Insert(-1);
-			}
-		else
-			{
-			TopEdgeLocations.Insert(InternalPanel->GetOriginY());
-			}
-		}
-
-	TArray <int> SortedPanelIndices = QuickSortIntegerArray(TopEdgeLocations, PanelIndices);
-
-	return SortedPanelIndices;
-	}
-
-TArray <int> CPanel::BottomEdgeLocationInternalPanelSort(void)
-	{
-	TArray <int> PanelIndices;
-	TArray <int> BottomEdgeLocations;
-
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
-		{
-		PanelIndices.Insert(i);
-		CPanel *InternalPanel = m_InternalPanels[i];
-
-		if (InternalPanel->IsHidden())
-			{
-			BottomEdgeLocations.Insert(-1);
-			}
-		else
-			{
-			BottomEdgeLocations.Insert(InternalPanel->GetOriginY() + InternalPanel->GetHeight());
-			}
-		}
-
-	TArray <int> SortedPanelIndices = QuickSortIntegerArray(BottomEdgeLocations, PanelIndices);
-
-	return SortedPanelIndices;
-	}
-
-void CPanel::SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth)
+void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 	{
 	TArray <int> aSortedPanelIndices;
 	int iProposedChange;
@@ -265,30 +225,30 @@ void CPanel::SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth)
 	RECT rcChangedFocus;
 	RECT rcOther;
 
-	if (bUpDownSmooth)
+	if (dwSmoothType == SMOOTH_LEFTRIGHT)
 		{
-		aSortedPanelIndices = TopEdgeLocationInternalPanelSort();
+		aSortedPanelIndices = SortInternalPanelsByEdgeLocation(EDGE_LEFT);
 		}
-	else
+	else if (dwSmoothType == SMOOTH_UPDOWN)
 		{
-		aSortedPanelIndices = LeftEdgeLocationInternalPanelSort();
+		aSortedPanelIndices = SortInternalPanelsByEdgeLocation(EDGE_TOP);
 		}
 
 	int iFocusIndex;
 	int iOtherIndex;
 
 	int iFocusLocation;
-	int iOtherLocation;
+	int iOtherEdgeLocation;
 
 	int iProspectiveOtherIndex;
 
 	CPanel *pFocusPanel;
 	CPanel *pOtherPanel;
 
-	for (int i = 0; i < m_NumInternalPanels; i++)
+	for (int i = 0; i < m_iNumInternalPanels; i++)
 		{
 		iFocusIndex = aSortedPanelIndices[i];
-		pFocusPanel = m_InternalPanels[iFocusIndex];
+		pFocusPanel = m_aInternalPanels[iFocusIndex];
 
 		if (pFocusPanel->IsHidden())
 			continue;
@@ -302,7 +262,7 @@ void CPanel::SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth)
 			for (int iLoopCount = 0; iLoopCount < i; iLoopCount++)
 				{
 				iProspectiveOtherIndex = aSortedPanelIndices[i - 1 - iLoopCount];
-				pOtherPanel = m_InternalPanels[iProspectiveOtherIndex];
+				pOtherPanel = m_aInternalPanels[iProspectiveOtherIndex];
 
 				if (!(pOtherPanel->IsHidden()))
 					{
@@ -318,107 +278,102 @@ void CPanel::SmoothOutInternalPanels(bool bExpandInPlace, bool bUpDownSmooth)
 			
 		if (iOtherIndex != -1)
 			{
-			pOtherPanel = m_InternalPanels[iOtherIndex];
+			pOtherPanel = m_aInternalPanels[iOtherIndex];
 			rcOther = pOtherPanel->GetPanelRect();
 
-			if (bUpDownSmooth)
+			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherLocation = pOtherPanel->GetOriginY() + pOtherPanel->GetHeight();
+				iOtherEdgeLocation = pOtherPanel->GetPanelEdgeLocation(EDGE_RIGHT);
 				}
-			else
+			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherLocation = pOtherPanel->GetOriginX() + pOtherPanel->GetWidth();
+				iOtherEdgeLocation = pOtherPanel->GetPanelEdgeLocation(EDGE_BOTTOM);
 				}
 			}
 		else
 			{
 			rcOther = this->GetPanelRect();
-			if (bUpDownSmooth)
+			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherLocation = m_yO;
+				iOtherEdgeLocation = m_rcPanel.left;
 				if (pFocusPanel->IsFixed())
 					{
-					iOtherLocation += pFocusPanel->GetFixedDeltaY();
+					iOtherEdgeLocation += pFocusPanel->GetFixedDeltaLeft();
 					}
 				}
-			else
+			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherLocation = m_xO;
+				iOtherEdgeLocation = m_rcPanel.top;
 				if (pFocusPanel->IsFixed())
 					{
-					iOtherLocation += pFocusPanel->GetFixedDeltaX();
+					iOtherEdgeLocation += pFocusPanel->GetFixedDeltaTop();
 					}
 				}
 			}
 
-		if (bUpDownSmooth)
+		if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			iFocusLocation = pFocusPanel->GetOriginY();
+			iFocusLocation = pFocusPanel->GetPanelEdgeLocation(EDGE_LEFT);
 			}
-		else
+		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			iFocusLocation = pFocusPanel->GetOriginX();
+			iFocusLocation = pFocusPanel->GetPanelEdgeLocation(EDGE_TOP);
 			}
 			
-		iProposedChange = (iFocusLocation - iOtherLocation);
+		iProposedChange = (iFocusLocation - iOtherEdgeLocation);
 
 		if (iProposedChange == 0)
 			{
 			continue;
 			}
 
-		if (bUpDownSmooth)
-			{
-			iDelta = rcChangedFocus.bottom - rcChangedFocus.top;
-			rcChangedFocus.top = iOtherLocation;
-			rcChangedFocus.bottom = iOtherLocation + iDelta; 
-			}
-		else
+		 if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
 			iDelta = rcChangedFocus.right - rcChangedFocus.left;
-			rcChangedFocus.left = iOtherLocation;
-			rcChangedFocus.right = iOtherLocation + iDelta;
-			}
+			rcChangedFocus.left = iOtherEdgeLocation;
+			rcChangedFocus.right = iOtherEdgeLocation + iDelta;
 
-		if (bUpDownSmooth)
-			{
-			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&rcChangedFocus, &rcOther);
-			if (iSharedRectBoundary > 0)
-				{
-				pFocusPanel->SetOriginY(iOtherLocation);
-				}
-			}
-		else
-			{
 			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&rcChangedFocus, &rcOther);
 			if (iSharedRectBoundary > 0)
 				{
-				pFocusPanel->SetOriginX(iOtherLocation);
+				pFocusPanel->SetPanelEdgeLocation(EDGE_LEFT, iOtherEdgeLocation);
+				}
+			}
+		else if (dwSmoothType == SMOOTH_UPDOWN)
+			{
+			iDelta = rcChangedFocus.bottom - rcChangedFocus.top;
+			rcChangedFocus.top = iOtherEdgeLocation;
+			rcChangedFocus.bottom = iOtherEdgeLocation + iDelta; 
+
+			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&rcChangedFocus, &rcOther);
+			if (iSharedRectBoundary > 0)
+				{
+				pFocusPanel->SetPanelEdgeLocation(EDGE_TOP, iOtherEdgeLocation);
 				}
 			}
 		}
 	}
 
-CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent)
+CPanel *CPanel::AddInternalPanel(int iLeft, int iTop, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
 	CPanel *NewPanel = NULL;
-	NewPanel = new CPanel(xO, yO, width, height, rigidity);
+	NewPanel = new CPanel(iLeft, iTop, iRight, iBottom, dRigidity);
 	RECT rcNewPanel = NewPanel->GetPanelRect();
 
 	if (IsRect1InRect2(rcNewPanel, this->GetPanelRect()))
 		{
-		NewPanel->SetHiddenFlag(hidden);
+		NewPanel->SetHiddenFlag(bHidden);
 		NewPanel->SetParentPanel(this);
 
-		if (FixedRelativeToParent)
+		if (bFixedRelativeToParent)
 			{
-			NewPanel->SetAsFixed(xO - m_xO, yO - m_yO);
+			NewPanel->SetAsFixed(iLeft - rcNewPanel.left, iTop - rcNewPanel.top);
 			}
-		m_InternalPanels.Insert(NewPanel);
+		m_aInternalPanels.Insert(NewPanel);
 		UpdateNumInternalPanels();
 
-		SmoothOutInternalPanels(ExpandInPlace, true);
-		SmoothOutInternalPanels(ExpandInPlace, false);
+		SmoothOutInternalPanels(bExpandInPlace, SMOOTH_LEFTRIGHT);
+		SmoothOutInternalPanels(bExpandInPlace, SMOOTH_UPDOWN);
 
 		return NewPanel;
 		}
@@ -429,29 +384,29 @@ CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, double r
 		}
 	}
 
-CPanel *CPanel::AddInternalPanel(int xO, int yO, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent)
+CPanel *CPanel::AddInternalPanel(int iLeft, int iTop, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
-	CPanel *NewPanel = AddInternalPanel(xO, yO, width, height, m_Rigidity, hidden, ExpandInPlace, FixedRelativeToParent);
+	CPanel *NewPanel = AddInternalPanel(iLeft, iTop, iRight, iBottom, m_dRigidity, bHidden, bExpandInPlace, bFixedRelativeToParent);
 
 	return NewPanel;
 	}
 
-CPanel *CPanel::AddInternalPanelRelativeToOrigin(int DeltaX, int DeltaY, int width, int height, double rigidity, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent)
+CPanel *CPanel::AddInternalPanelRelativeToOrigin(int iDeltaX, int iDeltaY, int iRight, int iBottom, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
-	int xO = m_xO + DeltaX;
-	int yO = m_yO + DeltaY;
+	int iLeft = m_rcPanel.left + iDeltaX;
+	int iTop = m_rcPanel.top + iDeltaY;
 
-	CPanel *NewPanel = AddInternalPanel(xO, yO, width, height, rigidity, hidden, ExpandInPlace, FixedRelativeToParent);
+	CPanel *NewPanel = AddInternalPanel(iLeft, iTop, iRight, iBottom, dRigidity, bHidden, bExpandInPlace, bFixedRelativeToParent);
 
 	return NewPanel;
 	}
 
-CPanel *CPanel::AddInternalPanelRelativeToOrigin(int DeltaX, int DeltaY, int width, int height, bool hidden, bool ExpandInPlace, bool FixedRelativeToParent)
+CPanel *CPanel::AddInternalPanelRelativeToOrigin(int iDeltaX, int iDeltaY, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
-	int xO = m_xO + DeltaX;
-	int yO = m_yO + DeltaY;
+	int iLeft = m_rcPanel.left + iDeltaX;
+	int iTop = m_rcPanel.top + iDeltaY;
 
-	CPanel *NewPanel = AddInternalPanel(xO, yO, width, height, m_Rigidity, hidden, ExpandInPlace, FixedRelativeToParent);
+	CPanel *NewPanel = AddInternalPanel(iLeft, iTop, iRight, iBottom, m_dRigidity, bHidden, bExpandInPlace, bFixedRelativeToParent);
 
 	return NewPanel;
 	}
@@ -460,37 +415,25 @@ TArray <CSubSession *> CPanel::GetInternalPanelSessions(void)
 	{
 	TArray <CSubSession *> InternalSessions;
 
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		InternalSessions.Insert(m_InternalPanels[i]->GetAssociatedSession());
+		InternalSessions.Insert(m_aInternalPanels[i]->GetAssociatedSession());
 		}
 
 	return InternalSessions;
-	}
-
-RECT CPanel::GetPanelRect(void)
-	{
-	RECT rc;
-
-	rc.left = m_xO;
-	rc.top = m_yO;
-	rc.right = m_xO + m_Width;
-	rc.bottom = m_yO + m_Height;
-
-	return rc;
 	}
 
 RECT CPanel::GetScaledInnerRect(double scale)
 	{
 	RECT rc;
 
-	int iLeft = int(m_xO + m_Width*(1 - scale)*0.5);
-	int iTop = int(m_yO + m_Height*(1 - scale)*0.5);
+	int iLeft = int(m_rcPanel.left + m_rcPanel.right*(1 - scale)*0.5);
+	int iTop = int(m_rcPanel.top + m_rcPanel.bottom*(1 - scale)*0.5);
 
 	rc.left = iLeft;
 	rc.top = iTop; 
-	rc.right = iLeft + int(m_Width*scale);
-	rc.bottom = iTop + int(m_Height*scale);
+	rc.right = iLeft + int(m_rcPanel.right*scale);
+	rc.bottom = iTop + int(m_rcPanel.bottom*scale);
 
 	return rc;
 	}
@@ -499,12 +442,12 @@ void CPanel::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	if (!IsEmpty() && !IsHidden())
 		{
-		m_AssociatedSession->OnPaint(Screen, rcInvalid);
+		m_pAssociatedSession->OnPaint(Screen, rcInvalid);
 		}
 
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		m_InternalPanels[i]->OnPaint(Screen, rcInvalid);
+		m_aInternalPanels[i]->OnPaint(Screen, rcInvalid);
 		}
 	}
 
@@ -516,13 +459,13 @@ TArray <CSubSession *> CPanel::ReturnSessionsContainingPoint(int x, int y)
 		{
 		if (IsPointInRect(x, y, GetPanelRect()))
 			{
-			aRelevantSessions.Insert(m_AssociatedSession);
+			aRelevantSessions.Insert(m_pAssociatedSession);
 			}
 		}
 
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		aRelevantSessions.Insert(m_InternalPanels[i]->ReturnSessionsContainingPoint(x, y));
+		aRelevantSessions.Insert(m_aInternalPanels[i]->ReturnSessionsContainingPoint(x, y));
 		}
 
 	return aRelevantSessions;
@@ -530,11 +473,11 @@ TArray <CSubSession *> CPanel::ReturnSessionsContainingPoint(int x, int y)
 
 int CPanel::GetInternalPanelIndex(CPanel *Panel)
 	{
-	int iDefaultIndex = -1;	//  not found in m_InternalPanels
+	int iDefaultIndex = -1;	//  not found in m_aInternalPanels
 
-	for (int i = 0; i < m_InternalPanels.GetCount(); i++)
+	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		if (m_InternalPanels[i] == Panel)
+		if (m_aInternalPanels[i] == Panel)
 			{
 			return i;
 			}
@@ -546,7 +489,7 @@ int CPanel::GetInternalPanelIndex(CPanel *Panel)
 void CPanel::HideInternalPanel(int PanelIndex)
 	{
 	//  hide the panel first so other panels can take its space during rearrangement
-	m_InternalPanels[PanelIndex]->SetHiddenFlag(true);
+	m_aInternalPanels[PanelIndex]->SetHiddenFlag(true);
 
 	SmoothOutInternalPanels(false, true);
 	SmoothOutInternalPanels(false, false);
@@ -554,7 +497,7 @@ void CPanel::HideInternalPanel(int PanelIndex)
 
 void CPanel::ShowInternalPanel(int PanelIndex)
 	{
-	CPanel *FocusPanel = m_InternalPanels[PanelIndex];
+	CPanel *FocusPanel = m_aInternalPanels[PanelIndex];
 
 	//  unhide the panel so that space can be made for it
 	FocusPanel->SetHiddenFlag(false);
@@ -565,20 +508,20 @@ void CPanel::ShowInternalPanel(int PanelIndex)
 
 void CPanel::Hide(void)
 	{
-	if (m_ParentPanel != NULL)
+	if (m_pParentPanel != NULL)
 		{
-		int iRelevantPanelIndex = m_ParentPanel->GetInternalPanelIndex(this);
-		m_ParentPanel->HideInternalPanel(iRelevantPanelIndex);
+		int iRelevantPanelIndex = m_pParentPanel->GetInternalPanelIndex(this);
+		m_pParentPanel->HideInternalPanel(iRelevantPanelIndex);
 		}
 	//  else, cannot hide since this is a "main panel" and must be shown at all times
 	}                                                                   
 
 void CPanel::Show(void)
 	{
-	if (m_ParentPanel != NULL)
+	if (m_pParentPanel != NULL)
 		{
-		int RelevantPanelIndex = m_ParentPanel->GetInternalPanelIndex(this);
-		m_ParentPanel->ShowInternalPanel(RelevantPanelIndex);
+		int RelevantPanelIndex = m_pParentPanel->GetInternalPanelIndex(this);
+		m_pParentPanel->ShowInternalPanel(RelevantPanelIndex);
 		}
-	//  else, does not need to be shown since this is a "main panel" and cannot be hidden
+	//  else, does not need to be shown since this is a "main panel" and cannot be bHidden
 	}
