@@ -43,7 +43,7 @@ void CSubSession::DrawPanelOutline(CG32bitImage &Screen)
 //  =======================================================================
 
 CError::CError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString) : CSubSession(HI, AssociatedPanel),
-	m_ErrorString(ErrorString)
+	m_sErrorString(ErrorString)
 	{
 	}
 

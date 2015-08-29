@@ -83,16 +83,16 @@ void CButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 
 void CButton::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	int width = m_AssociatedPanel.GetWidth();
-	int height = m_AssociatedPanel.GetHeight();
+	int iRight = m_AssociatedPanel.GetPanelRight();
+	int iBottom = m_AssociatedPanel.GetPanelBottom();
 
 	//  paint "active" area of button (80% scaled inner rectangle)
 	if (m_IsLDown)
 		{
-		Screen.Fill(int(m_AssociatedPanel.GetOriginX() + 0.1*width), int(m_AssociatedPanel.GetOriginY() + 0.1*height), int(0.8*width), int(0.8*height), CG32bitPixel(0, 255, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetPanelLeft() + 0.1*iRight), int(m_AssociatedPanel.GetPanelTop() + 0.1*iBottom), int(0.8*iRight), int(0.8*iBottom), CG32bitPixel(0, 255, 0));
 		}
 	else
 		{
-		Screen.Fill(int(m_AssociatedPanel.GetOriginX() + 0.1*width), int(m_AssociatedPanel.GetOriginY() + 0.1*height), int(0.8*width), int(0.8*height), CG32bitPixel(255, 0, 0));
+		Screen.Fill(int(m_AssociatedPanel.GetPanelLeft() + 0.1*iRight), int(m_AssociatedPanel.GetPanelTop() + 0.1*iBottom), int(0.8*iRight), int(0.8*iBottom), CG32bitPixel(255, 0, 0));
 		}
 	}

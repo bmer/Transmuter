@@ -23,9 +23,9 @@ CExtensionNavigator::~CExtensionNavigator(void)
 
 void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetWidth(), m_AssociatedPanel.GetHeight() - m_MenuSlotHeight, false, false, true);
+	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_MenuSlotHeight, m_AssociatedPanel.GetPanelRight(), m_AssociatedPanel.GetPanelBottom() - m_MenuSlotHeight, false, false, true);
 	CPanel *pMenuSlot;
-	int MenuPanelWidth = pMenuPanel->GetWidth();
+	int MenuPanelWidth = pMenuPanel->GetPanelRight();
 	
 	int iNumExtensions = m_Extensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
@@ -39,7 +39,7 @@ void CExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 
 void CExtensionNavigator::DrawTitleBar(CG32bitImage &Screen)
 	{
-	Screen.DrawText(m_AssociatedPanel.GetOriginX() + 10, m_AssociatedPanel.GetOriginY() + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
+	Screen.DrawText(m_AssociatedPanel.GetPanelLeft() + 10, m_AssociatedPanel.GetPanelTop() + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
 	}
 
 void CExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
@@ -69,7 +69,7 @@ CExtensionDetails::CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPane
 CExtensionMenuItem::CExtensionMenuItem(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSubSession(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetHeight(), false, false, true);
+	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetPanelBottom(), false, false, true);
 	m_Button = new CButton(HI, *ButtonPanel);
 	m_Button->SetBGColor(CG32bitPixel(100, 100, 100));
 
@@ -94,8 +94,8 @@ void CExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 			m_Button->OnPaint(Screen, rcInvalid);
 			CPanel &ButtonPanel = m_Button->GetAssociatedPanel();
 
-			int TextX = ButtonPanel.GetOriginX() + ButtonPanel.GetWidth();
-			int TextY = ButtonPanel.GetOriginY();
+			int TextX = ButtonPanel.GetPanelLeft() + ButtonPanel.GetPanelRight();
+			int TextY = ButtonPanel.GetPanelTop();
 			Screen.DrawText(TextX + 10, TextY + 10, m_HeadingFont, m_HeadingColor, m_Extension.GetName());
 			}
 		}
