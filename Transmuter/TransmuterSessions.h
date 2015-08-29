@@ -108,7 +108,7 @@ class CTextArea : public CSubSession
 	public:
 		CTextArea(CHumanInterface &HI, CPanel &AssociatedPanel);
 		CTextArea(CHumanInterface &HI, CPanel &AssociatedPanel, CString sText);
-		CTextArea(CHumanInterface &HI, CPanel &AssociatedPanel, CString sRichText);
+		~CTextArea(void);
 
 		inline const CString &GetText (void) { return m_sText; }
 		inline void SetBackColor (CG32bitPixel rgbColor) { m_rgbBackColor = rgbColor; }
@@ -116,24 +116,24 @@ class CTextArea : public CSubSession
 		inline void SetTextColor (CG32bitPixel rgbColor) { m_rgbTextColor = rgbColor; }
 		inline void SetCursor (int iLine, int iCol = 0) { m_iCursorLine = iLine; m_iCursorPos = iCol; }
 		inline void SetEditable (bool bEditable = true) { m_bEditable = bEditable; }
-		inline void SetFont (const CG16bitFont *pFont) { m_pFont = pFont; m_cxJustifyWidth = 0; }
+		inline void SetFont (CG16bitFont *pFont) { m_pFont = pFont; m_cxJustifyWidth = 0; }
 		inline void SetFontTable (const IFontTable *pFontTable) { m_pFontTable = pFontTable; }
 		inline void SetLineSpacing (int cySpacing) { m_cyLineSpacing = cySpacing; m_cxJustifyWidth = 0; }
 		inline void SetPadding (int iPadding) { m_rcPadding.left = iPadding; m_rcPadding.top = iPadding; m_rcPadding.right = iPadding; m_rcPadding.bottom = iPadding; }
-		inline void SetRichText (const CString &sRTF) { m_sRichText = sRTF; m_sText = NULL_STR; m_bRTFInvalid = true; HIInvalidate(); }
+		inline void SetRichText (const CString &sRTF) { m_sRTF = sRTF; m_sText = NULL_STR; m_bRTFInvalid = true; Invalidate(); }
 		inline void SetStyles (DWORD dwStyles) { m_dwStyles = dwStyles; m_cxJustifyWidth = 0; }
-		inline void SetText (const CString &sText) { m_sText = sText; m_sRichText = NULL_STR; m_cxJustifyWidth = 0; HIInvalidate(); }
-		inline void SetPadding (RECT rcPadding) { m_rcPadding = rcPadding; }
-		inline RECT GetPadding(RECT rcPadding) { return m_rcPadding; }
+		inline void SetText (const CString &sText) { m_sText = sText; m_sRTF = NULL_STR; m_cxJustifyWidth = 0; HIInvalidate(); }
+		inline void SetPaddingRect (RECT rcPadding) { m_rcPadding = rcPadding; }
+		inline RECT GetPaddingRect (RECT rcPadding) { return m_rcPadding; }
 		void SetEdgePadding (DWORD dwEdge, int iPadding);
 
 		int Justify (const RECT &rcRect);
-		void FormatRichText(void);
+		void FormatForRichText (const RECT &rcRect);
 
 		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 	private:
 		CString m_sText;					//  basic content string
-		const CG16bitFont *m_pFont;
+		CG16bitFont *m_pFont;
 		RECT m_rcPadding;					//  padding information -- not really a rectangle
 
 		bool m_bPlainText;					//  true if we want plain text shown, false if we want rich text
@@ -144,7 +144,7 @@ class CTextArea : public CSubSession
 
 		bool m_bRTFInvalid;					//  true if we need to format rich text
 		DWORD m_dwStyles;
-		CString m_sRichText;				//  rich text formatted string
+		CString m_sRTF;				//  rich text formatted string
 		const IFontTable *m_pFontTable;		//  for rich text
 		TArray<CString> m_Lines;			//	Justified lines of text
 
