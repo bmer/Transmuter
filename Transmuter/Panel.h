@@ -35,7 +35,7 @@ class CPanel
 		inline 
 		inline double GetRigidity (void) { return m_dRigidity; }
 
-		inline void SetParentPanel(CPanel *Panel) { m_pParentPanel = Panel; }
+		inline void SetParentPanel(CPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline CPanel *GetParentPanel(void) { return m_pParentPanel; }
 
 		TArray <int> SortInternalPanelsByEdgeLocation (DWORD dwFlag);
@@ -61,32 +61,32 @@ class CPanel
 
 		TArray <CSubSession *> GetInternalPanelSessions (void);
 
-		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_iLeft); }
-		inline int GetXDisplacementToRightEdge(int x) { return (x - (m_iLeft + m_iRight)); }
-		inline int GetYDisplacementToTopEdge(int y) { return (y - m_iTop); }
-		inline int GetYDisplacementToBottomEdge(int y) { return (y - (m_iTop + m_iBottom)); }
+		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_rcPanel.left); }
+		inline int GetXDisplacementToRightEdge(int x) { return (x - m_rcPanel.right); }
+		inline int GetYDisplacementToTopEdge(int y) { return (y - m_rcPanel.top); }
+		inline int GetYDisplacementToBottomEdge(int y) { return (y - m_rcPanel.bottom); }
 
-		inline void FocusOnInternalPanel (int PanelIndex) { m_aInternalPanels[PanelIndex]->m_bFocus = 1; }
-		inline void RemoveFocusFromInternalPanel (int PanelIndex) { m_aInternalPanels[PanelIndex]->m_bFocus = 0; }
+		inline void FocusOnInternalPanel (int iPanelIndex) { m_aInternalPanels[iPanelIndex]->m_bFocus = 1; }
+		inline void RemoveFocusFromInternalPanel (int iPanelIndex) { m_aInternalPanels[iPanelIndex]->m_bFocus = 0; }
 
 		inline RECT GetPanelRect (void) { return m_rcPanel; }
 		RECT GetScaledInnerRect (double scale);
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
 
-		int GetInternalPanelIndex (CPanel *Panel);
-		void HideInternalPanel (int PanelIndex);
-		void ShowInternalPanel (int PanelIndex);
+		int GetInternalPanelIndex (CPanel *pPanel);
+		void HideInternalPanel (int iPanelIndex);
+		void ShowInternalPanel (int iPanelIndex);
 
-		void Hide(void);
-		void Show(void);
+		void Hide (void);
+		void Show (void);
 		inline void SetHiddenFlag (bool bHidden) { m_bHidden = bHidden; }
 		inline bool IsHidden (void) { return m_bHidden; }
 
-		inline bool IsEmpty(void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
-		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
+		inline bool IsEmpty (void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
-		TArray <CSubSession *> ReturnSessionsContainingPoint(int x, int y);
+		TArray <CSubSession *> ReturnSessionsContainingPoint (int x, int y);
 
 	private:
 		RECT m_rcPanel;

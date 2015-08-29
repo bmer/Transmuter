@@ -471,7 +471,7 @@ TArray <CSubSession *> CPanel::ReturnSessionsContainingPoint(int x, int y)
 	return aRelevantSessions;
 	}
 
-int CPanel::GetInternalPanelIndex(CPanel *Panel)
+int CPanel::GetInternalPanelIndex(CPanel *pPanel)
 	{
 	int iDefaultIndex = -1;	//  not found in m_aInternalPanels
 
@@ -486,18 +486,18 @@ int CPanel::GetInternalPanelIndex(CPanel *Panel)
 	return iDefaultIndex;
 	}
 
-void CPanel::HideInternalPanel(int PanelIndex)
+void CPanel::HideInternalPanel(int iPanelIndex)
 	{
 	//  hide the panel first so other panels can take its space during rearrangement
-	m_aInternalPanels[PanelIndex]->SetHiddenFlag(true);
+	m_aInternalPanels[iPanelIndex]->SetHiddenFlag(true);
 
 	SmoothOutInternalPanels(false, true);
 	SmoothOutInternalPanels(false, false);
 	}
 
-void CPanel::ShowInternalPanel(int PanelIndex)
+void CPanel::ShowInternalPanel(int iPanelIndex)
 	{
-	CPanel *FocusPanel = m_aInternalPanels[PanelIndex];
+	CPanel *FocusPanel = m_aInternalPanels[iPanelIndex];
 
 	//  unhide the panel so that space can be made for it
 	FocusPanel->SetHiddenFlag(false);
