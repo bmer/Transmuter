@@ -12,7 +12,7 @@
 #define SMOOTH_UPDOWN		4
 #define SMOOTH_LEFTRIGHT	5
 
-class CSubSession;
+class CSChild;
 class CPanel;
 
 //  =======================================================================
@@ -57,10 +57,10 @@ class CPanel
 
 		inline TArray <CPanel *> GetInternalPanels (void) { return m_aInternalPanels; }
 
-		inline void AssociateSession(CSubSession *Session) { m_pAssociatedSession = Session; }
-		inline CSubSession *GetAssociatedSession(void) { return m_pAssociatedSession; }
+		inline void AssociateSession(CSChild *Session) { m_pAssociatedSession = Session; }
+		inline CSChild *GetAssociatedSession(void) { return m_pAssociatedSession; }
 
-		TArray <CSubSession *> GetInternalPanelSessions (void);
+		TArray <CSChild *> GetInternalPanelSessions (void);
 
 		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_rcPanel.left); }
 		inline int GetXDisplacementToRightEdge(int x) { return (x - m_rcPanel.right); }
@@ -87,7 +87,11 @@ class CPanel
 		inline bool IsEmpty (void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
-		TArray <CSubSession *> ReturnSessionsContainingPoint (int x, int y);
+		TArray <CSChild *> ReturnSessionsContainingPoint (int x, int y);
+
+		inline void InvalidatePanel (void) { m_bInvalid = true; }
+		inline bool IsPanelInvalid (void) { return m_bInvalid; }
+		inline void ValidatePanel (void) { m_bInvalid = false; }
 
 	private:
 		RECT m_rcPanel;
@@ -105,10 +109,12 @@ class CPanel
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
 
-		CSubSession *m_pAssociatedSession;
+		CSChild *m_pAssociatedSession;
 
 		int m_bFocus;
 		bool m_bHidden;
+
+		bool m_bInvalid;					//  if panel is space is changed, then its made "invalid?"
 	};
 
 double CalculateRelativeRigidity(double rigidity1, double rigidity2);

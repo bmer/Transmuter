@@ -1,16 +1,16 @@
-//	CTransmuterSession.cpp
+//	CSTransmuter.cpp
 //
-//	CTransmuterSession class
+//	CSTransmuter class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
 
-CLoadingSession::CLoadingSession (CHumanInterface &HI) : IHISession(HI)
-	//	CTransmuterSession constructor
+CSLoading::CSLoading (CHumanInterface &HI) : IHISession(HI)
+	//	CSTransmuter constructor
 	{
 	}
 
-void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CSLoading::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	Screen.Fill(0, 0, Screen.GetWidth(), Screen.GetHeight(), CG32bitPixel(64, 64, 64));
 	

@@ -4,34 +4,41 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #pragma once
+#define SCROLL_HORIZONTAL		0
+#define SCROLL_VERTICAL			1
 
-class CLoadingSession;
+//  Class naming convention acronym meanings:
+//  CS -- class, session
+//  CSM -- class, session, menu item
+
 class CPanel;
-class CSubSession;
-class CButton;
-class CError;
-class CTextArea;
-class CExtensionDetails;
-class CExtensionNavigator;
-class CExtensionMenuItem;
-class CTransmuterSession;
+class CSLoading;
+class CSChild;
+class CSButton;
+class CSError;
+class CSScrollBar;
+class CSTextArea;
+class CSExtensionDetails;
+class CSExtensionNavigator;
+class CSMExtension;
+class CSTransmuter;
 
 //  =======================================================================
 
-class CLoadingSession : public IHISession
+class CSLoading : public IHISession
 	{
 	public:
-		CLoadingSession(CHumanInterface &HI);
+		CSLoading(CHumanInterface &HI);
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 	};
 
 //  =======================================================================
 
-class CSubSession : public IHISession
+class CSChild : public IHISession
 	{
 	public:
-		CSubSession(CHumanInterface &HI, CPanel &AssociatedPanel);
+		CSChild(CHumanInterface &HI, CPanel &AssociatedPanel);
 		
 		virtual void OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture) {};
 		virtual void OnLButtonUp(int x, int y, DWORD dwFlags) {};
@@ -55,29 +62,33 @@ class CSubSession : public IHISession
 
 //  =======================================================================
 
-class CButton : public CSubSession
+class CSButton : public CSChild
 	{
 	public:
-		CButton(CHumanInterface &HI, CPanel &AssociatedPanel);
-		CButton(CHumanInterface &HI, CPanel &AssociatedPanel, CG32bitPixel BGColor);
+		CSButton(CHumanInterface &HI, CPanel &AssociatedPanel);
+		CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, RECT rcRelativeButton);
+		CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, RECT rcRelativeButton, CG32bitPixel BGColor);
 
-		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
+		virtual void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
-		void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
-		void OnLButtonUp (int x, int y, DWORD dwFlags);
+		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
 
-		void OnRButtonDown (int x, int y, DWORD dwFlags);
-		void OnRButtonUp (int x, int y, DWORD dwFlags);
+		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
 
-		inline void SetBGColor(CG32bitPixel BGColor) { m_rgbBackColor = BGColor; }
-		inline void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = true; }
+		inline virtual void SetBGColor(CG32bitPixel BGColor) { m_rgbBackColor = BGColor; }
+		inline virtual void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = true; }
 
 		inline bool CheckIfLPressed(void) { bool ReturnValue = m_IsLPressed; m_IsLPressed = false; return ReturnValue; }
 		inline bool CheckIfRPressed(void) { bool ReturnValue = m_IsRPressed; m_IsRPressed = false; return ReturnValue; }
 
-	private:
+		void UpdateRelativeButtonRect(RECT rc);
+
+	protected:
 		CG32bitPixel m_rgbBackColor;
 
+		RECT m_rcActive;
 		bool m_HasText;
 		CString m_TextString;
 
@@ -90,10 +101,47 @@ class CButton : public CSubSession
 
 //  =======================================================================
 
-class CError : public CSubSession
+class CSScrollBar : public CSButton
 	{
 	public:
-		CError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString);
+		CSScrollBar(CHumanInterface &HI, CPanel &AssociatedPanel, CPanel &pPanelToScroll);
+
+		//void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
+
+		//void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		//void OnLButtonUp (int x, int y, DWORD dwFlags);
+
+		//void OnRButtonDown (int x, int y, DWORD dwFlags);
+		//void OnRButtonUp (int x, int y, DWORD dwFlags);
+
+		inline void SetBGColor(CG32bitPixel BGColor) { m_rgbBackColor = BGColor; }
+		inline void SetTextString(CString TextString) { m_TextString = TextString; m_HasText = true; }
+
+		inline void SetScrollBarColor (CG32bitPixel ScrollBarColor) { m_ScrollBarColor = ScrollBarColor; }
+
+		void DetermineVisibility (void);
+		void CalculateBarRect (void);
+		void CalculateSlideRect (void);
+		inline bool IsBarVisible (void) { return m_bVisible; } 
+
+	private:
+		DWORD dwBarOrientation;
+
+		CPanel &m_PanelToScroll;
+		CG32bitPixel m_ScrollBarColor;
+
+		RECT m_rcSlide;
+		RECT m_rcBar;
+
+		bool m_bVisible;
+	};
+
+//  =======================================================================
+
+class CSError : public CSChild
+	{
+	public:
+		CSError(CHumanInterface &HI, CPanel &AssociatedPanel, CString ErrorString);
 
 		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
@@ -103,67 +151,23 @@ class CError : public CSubSession
 
 //  =======================================================================
 
-class CTextArea : public CSubSession
+class CSTextArea : public CSChild, public CGTextArea
 	{
 	public:
-		CTextArea(CHumanInterface &HI, CPanel &AssociatedPanel);
-		CTextArea(CHumanInterface &HI, CPanel &AssociatedPanel, CString sText);
-		~CTextArea(void);
+		CSTextArea (CHumanInterface &HI, CPanel &AssociatedPanel);
 
-		inline const CString &GetText (void) { return m_sText; }
-		inline void SetBackColor (CG32bitPixel rgbColor) { m_rgbBackColor = rgbColor; }
-		inline void SetBorderThickness (int iThickness) { m_iBorderThickness = iThickness; }
-		inline void SetTextColor (CG32bitPixel rgbColor) { m_rgbTextColor = rgbColor; }
-		inline void SetCursor (int iLine, int iCol = 0) { m_iCursorLine = iLine; m_iCursorPos = iCol; }
-		inline void SetEditable (bool bEditable = true) { m_bEditable = bEditable; }
-		inline void SetFont (CG16bitFont *pFont) { m_pFont = pFont; m_cxJustifyWidth = 0; }
-		inline void SetFontTable (const IFontTable *pFontTable) { m_pFontTable = pFontTable; }
-		inline void SetLineSpacing (int cySpacing) { m_cyLineSpacing = cySpacing; m_cxJustifyWidth = 0; }
-		inline void SetPadding (int iPadding) { m_rcPadding.left = iPadding; m_rcPadding.top = iPadding; m_rcPadding.right = iPadding; m_rcPadding.bottom = iPadding; }
-		inline void SetRichText (const CString &sRTF) { m_sRTF = sRTF; m_sText = NULL_STR; m_bRTFInvalid = true; Invalidate(); }
-		inline void SetStyles (DWORD dwStyles) { m_dwStyles = dwStyles; m_cxJustifyWidth = 0; }
-		inline void SetText (const CString &sText) { m_sText = sText; m_sRTF = NULL_STR; m_cxJustifyWidth = 0; HIInvalidate(); }
-		inline void SetPaddingRect (RECT rcPadding) { m_rcPadding = rcPadding; }
-		inline RECT GetPaddingRect (RECT rcPadding) { return m_rcPadding; }
-		void SetEdgePadding (DWORD dwEdge, int iPadding);
+		int JustifyInPanel (void);
+		void PaintInPanel (CG32bitImage &Dest);
 
-		int Justify (const RECT &rcRect);
-		void FormatForRichText (const RECT &rcRect);
-
-		void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
-	private:
-		CString m_sText;					//  basic content string
-		CG16bitFont *m_pFont;
-		RECT m_rcPadding;					//  padding information -- not really a rectangle
-
-		bool m_bPlainText;					//  true if we want plain text shown, false if we want rich text
-
-		int m_cxJustifyWidth;				//	Width (in pixels) for which m_Lines
-											//	was justified.
-		int m_cyLineSpacing;
-
-		bool m_bRTFInvalid;					//  true if we need to format rich text
-		DWORD m_dwStyles;
-		CString m_sRTF;				//  rich text formatted string
-		const IFontTable *m_pFontTable;		//  for rich text
-		TArray<CString> m_Lines;			//	Justified lines of text
-
-		CG32bitPixel m_rgbBackColor;		//  Background color of text box
-		int m_iBorderThickness;
-		CG32bitPixel m_rgbTextColor;
-
-		bool m_bEditable;
-		int m_iTick;						//	Cursor tick
-		int m_iCursorLine;					//	Cursor position (-1 = no cursor)
-		int m_iCursorPos;					//	Position in line
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 	};
 
 //  =======================================================================
 
-class CExtensionDetails : public CSubSession
+class CSExtensionDetails : public CSChild
 	{
 	public:
-		CExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPanel);
+		CSExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPanel);
 
 		//void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
@@ -173,23 +177,24 @@ class CExtensionDetails : public CSubSession
 
 //  =======================================================================
 
-class CExtensionMenuItem : public CSubSession
+class CSMExtension : public CSChild
 	{
 	public:
-		CExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension);
-		~CExtensionMenuItem (void);
+		CSMExtension (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension);
+		~CSMExtension (void);
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
 		CExtension &m_Extension;
-		CButton *m_Button;
+		CSButton *m_Button;
+		CSTextArea *m_TextArea;
 	};
 
-class CExtensionNavigator : public CSubSession
+class CSExtensionNavigator : public CSChild
 	{
 	public:
-		CExtensionNavigator (CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions);
-		~CExtensionNavigator(void);
+		CSExtensionNavigator (CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions);
+		~CSExtensionNavigator(void);
 
 		void CreateExtensionNavigatorMenuItems (void);
 
@@ -199,7 +204,7 @@ class CExtensionNavigator : public CSubSession
 
 	private:
 		TArray <CExtension *> m_Extensions;
-		TArray <CExtensionMenuItem *> m_NavigatorMenuItems;
+		TArray <CSMExtension *> m_NavigatorMenuItems;
 		int m_iMenuSlotHeight;
 		int m_iHeaderBarHeight;
 	};
@@ -207,11 +212,11 @@ class CExtensionNavigator : public CSubSession
 
 //  =======================================================================
 
-class CTransmuterSession : public IHISession, public CUniverse::INotifications
+class CSTransmuter : public IHISession, public CUniverse::INotifications
 	{
 	public:
-		CTransmuterSession (CHumanInterface &HI, CTransmuterModel &model);
-		~CTransmuterSession (void);
+		CSTransmuter (CHumanInterface &HI, CTransmuterModel &model);
+		~CSTransmuter (void);
 		//	IHISession virtuals
 
 		//virtual void OnChar (char chChar, DWORD dwKeyData);
@@ -229,7 +234,7 @@ class CTransmuterSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		TArray <CSubSession *> m_aSubSessions;
+		TArray <CSChild *> m_aSubSessions;
 		CTransmuterModel &m_Model;
 		CPanel &m_Panel;
 		int m_IsRButtonDown;

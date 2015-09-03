@@ -10,3 +10,4 @@ bool IsRect1InRect2(RECT rc1, RECT rc2);
 TArray <bool> DoesRect1ClashRect2(RECT rc1, RECT rc2);
 int GetSharedTopBottomEdgeLength(RECT *rcTop, RECT *rcBot);
 int GetSharedLeftRightEdgeLength(RECT *rcLeft, RECT *rcRight);
+RECT ScaleRect(double dScale, RECT rc);

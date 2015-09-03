@@ -1,6 +1,6 @@
-//	CTransmuterSession.cpp
+//	CSTransmuter.cpp
 //
-//	CTransmuterSession class
+//	CSTransmuter class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
@@ -108,21 +108,25 @@ void CPanel::ShiftPanelEdgeLocation (DWORD dwEdge, int iShift)
 		{
 		iLocation = iShift + m_rcPanel.bottom;
 		m_rcPanel.bottom = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
 		iLocation = iShift + m_rcPanel.left;
 		m_rcPanel.left = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
 		iLocation = iShift + m_rcPanel.right;
 		m_rcPanel.right = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_TOP)
 		{
 		iLocation = iShift + m_rcPanel.top;
 		m_rcPanel.top = iLocation;
+		InvalidatePanel();
 		}
 
 	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
@@ -142,21 +146,25 @@ void CPanel::SetPanelEdgeLocation (DWORD dwEdge, int iLocation)
 		{
 		iShift = iLocation - m_rcPanel.bottom;
 		m_rcPanel.bottom = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
 		iShift = iLocation - m_rcPanel.left;
 		m_rcPanel.left = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
 		iShift = iLocation - m_rcPanel.right;
 		m_rcPanel.right = iLocation;
+		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_TOP)
 		{
 		iShift = iLocation - m_rcPanel.top;
 		m_rcPanel.top = iLocation;
+		InvalidatePanel();
 		}
 
 	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
@@ -415,9 +423,9 @@ CPanel *CPanel::AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int 
 	return NewPanel;
 	}
 
-TArray <CSubSession *> CPanel::GetInternalPanelSessions (void)
+TArray <CSChild *> CPanel::GetInternalPanelSessions (void)
 	{
-	TArray <CSubSession *> InternalSessions;
+	TArray <CSChild *> InternalSessions;
 
 	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
@@ -455,9 +463,9 @@ void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 		}
 	}
 
-TArray <CSubSession *> CPanel::ReturnSessionsContainingPoint (int x, int y)
+TArray <CSChild *> CPanel::ReturnSessionsContainingPoint (int x, int y)
 	{
-	TArray <CSubSession *> aRelevantSessions;
+	TArray <CSChild *> aRelevantSessions;
 
 	if (!IsEmpty() && !IsHidden())
 		{

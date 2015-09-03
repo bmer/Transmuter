@@ -88,7 +88,7 @@ ALERROR CTransmuterController::OnCommand (const CString &sCmd, void *pData)
 		OnModelInitDone((CInitModelTask *)pData);
 
 	else if (strEquals(sCmd, CMD_INTRO_SHOW_UI))
-		m_HI.ShowSession(new CTransmuterSession(m_HI, m_Model));
+		m_HI.ShowSession(new CSTransmuter(m_HI, m_Model));
 
 	return NOERROR;
 	}
@@ -101,7 +101,7 @@ ALERROR CTransmuterController::OnInit (CString *retsError)
 
 	{
 	// Show loading screen while we do initialization
-	m_HI.ShowSession(new CLoadingSession(m_HI));
+	m_HI.ShowSession(new CSLoading(m_HI));
 
 	//	Initialize the model
 	CTransmuterModel::SInitDesc Ctx;

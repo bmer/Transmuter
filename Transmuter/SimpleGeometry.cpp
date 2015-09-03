@@ -1,6 +1,6 @@
 //	SimpleGeometry.cpp
 //
-//	CTransmuterSession class
+//	CSTransmuter class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
@@ -205,4 +205,19 @@ int GetSharedLeftRightEdgeLength(RECT *rc1, RECT *rc2)
 				}
 			}
 		}
+	}
+
+RECT ScaleRect(double dScale, RECT rc)
+	{
+	RECT rcResult;
+
+	int iYPadding = 0.5*(1 - dScale)*RectHeight(rc);
+	int iXPadding = 0.5*(1 - dScale)*RectWidth(rc);
+
+	rcResult.bottom = rc.bottom - iYPadding;
+	rcResult.left = rc.left + iXPadding;
+	rcResult.right = rc.right - iYPadding;
+	rcResult.top =  rc.top + iYPadding;
+	
+	return rcResult;
 	}
