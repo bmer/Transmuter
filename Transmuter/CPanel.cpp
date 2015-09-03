@@ -28,15 +28,19 @@ CPanel::CPanel(void) :
 	m_pAssociatedSession(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
-	m_iNumInternalPanels(0)
+	m_iNumInternalPanels(0),
+	m_iViewSpaceTopOffset(0),
+	m_iViewSpaceLeftOffset(0)
 	{
-	m_rcPanel.bottom = -1;
-	m_rcPanel.left = -1;
-	m_rcPanel.right = -1;
-	m_rcPanel.top = -1;
+	m_rcScreenSpace.bottom = -1;
+	m_rcScreenSpace.left = -1;
+	m_rcScreenSpace.right = -1;
+	m_rcScreenSpace.top = -1;
+
+	InitTrueSpace();
 	}
 
-CPanel::CPanel (RECT rcPanelRect) : m_rcPanel(rcPanelRect),
+CPanel::CPanel (RECT rcPanelRect) : m_rcScreenSpace(rcPanelRect),
 	m_dRigidity(0),
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
@@ -44,11 +48,14 @@ CPanel::CPanel (RECT rcPanelRect) : m_rcPanel(rcPanelRect),
 	m_pAssociatedSession(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
-	m_iNumInternalPanels(0)
+	m_iNumInternalPanels(0),
+	m_iViewSpaceTopOffset(0),
+	m_iViewSpaceLeftOffset(0)
 	{
+	InitTrueSpace();
 	}
 
-CPanel::CPanel (RECT rcPanel, double dRigidity) : m_rcPanel(rcPanel),
+CPanel::CPanel (RECT rcScreenSpace, double dRigidity) : m_rcScreenSpace(rcScreenSpace),
 	m_dRigidity(dRigidity),
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
@@ -56,8 +63,11 @@ CPanel::CPanel (RECT rcPanel, double dRigidity) : m_rcPanel(rcPanel),
 	m_pAssociatedSession(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
-	m_iNumInternalPanels(0)
+	m_iNumInternalPanels(0),
+	m_iViewSpaceTopOffset(0),
+	m_iViewSpaceLeftOffset(0)
 	{
+	InitTrueSpace();
 	}
 
 CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom) :
@@ -68,12 +78,16 @@ CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom) :
 	m_pAssociatedSession(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
-	m_iNumInternalPanels(0)
+	m_iNumInternalPanels(0),
+	m_iViewSpaceTopOffset(0),
+	m_iViewSpaceLeftOffset(0)
 	{
-	m_rcPanel.bottom = iBottom;
-	m_rcPanel.left = iLeft;
-	m_rcPanel.right = iRight;
-	m_rcPanel.top = iTop;
+	m_rcScreenSpace.bottom = iBottom;
+	m_rcScreenSpace.left = iLeft;
+	m_rcScreenSpace.right = iRight;
+	m_rcScreenSpace.top = iTop;
+
+	InitTrueSpace();
 	}
 
 CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity) :
@@ -86,10 +100,12 @@ CPanel::CPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity) 
 	m_bHidden(false),
 	m_iNumInternalPanels(0)
 	{
-	m_rcPanel.bottom = iBottom;
-	m_rcPanel.left = iLeft;
-	m_rcPanel.right = iRight;
-	m_rcPanel.top = iTop;
+	m_rcScreenSpace.bottom = iBottom;
+	m_rcScreenSpace.left = iLeft;
+	m_rcScreenSpace.right = iRight;
+	m_rcScreenSpace.top = iTop;
+
+	InitTrueSpace();
 	}
 
 CPanel::~CPanel ()
@@ -100,43 +116,51 @@ CPanel::~CPanel ()
 		}
 	}
 
-void CPanel::ShiftPanelEdgeLocation (DWORD dwEdge, int iShift)
+void CPanel::InitTrueSpace (void)
+	{
+	m_rcTrueSpace.bottom = m_rcScreenSpace.bottom;
+	m_rcTrueSpace.left = m_rcScreenSpace.left;
+	m_rcTrueSpace.right = m_rcScreenSpace.right;
+	m_rcTrueSpace.top = m_rcScreenSpace.top;
+	}
+
+void CPanel::ShiftScreenSpaceLocation (DWORD dwEdge, int iShift)
 	{
 	int iLocation; 
 
 	if (dwEdge == EDGE_BOTTOM)
 		{
-		iLocation = iShift + m_rcPanel.bottom;
-		m_rcPanel.bottom = iLocation;
+		iLocation = iShift + m_rcScreenSpace.bottom;
+		m_rcScreenSpace.bottom = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
-		iLocation = iShift + m_rcPanel.left;
-		m_rcPanel.left = iLocation;
+		iLocation = iShift + m_rcScreenSpace.left;
+		m_rcScreenSpace.left = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		iLocation = iShift + m_rcPanel.right;
-		m_rcPanel.right = iLocation;
+		iLocation = iShift + m_rcScreenSpace.right;
+		m_rcScreenSpace.right = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_TOP)
 		{
-		iLocation = iShift + m_rcPanel.top;
-		m_rcPanel.top = iLocation;
+		iLocation = iShift + m_rcScreenSpace.top;
+		m_rcScreenSpace.top = iLocation;
 		InvalidatePanel();
 		}
 
 	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		m_aInternalPanels[i]->ShiftPanelEdgeLocation (dwEdge, iShift);
+		m_aInternalPanels[i]->ShiftScreenSpaceLocation (dwEdge, iShift);
 		}
 	}
 
-void CPanel::SetPanelEdgeLocation (DWORD dwEdge, int iLocation)
-//  SetPanelEdgeLocation
+void CPanel::SetScreenSpaceEdgeLocation (DWORD dwEdge, int iLocation)
+//  SetScreenSpaceEdgeLocation
 // 
 //  Set location of panel edge.
 	{
@@ -144,52 +168,52 @@ void CPanel::SetPanelEdgeLocation (DWORD dwEdge, int iLocation)
 
 	if (dwEdge == EDGE_BOTTOM)
 		{
-		iShift = iLocation - m_rcPanel.bottom;
-		m_rcPanel.bottom = iLocation;
+		iShift = iLocation - m_rcScreenSpace.bottom;
+		m_rcScreenSpace.bottom = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
-		iShift = iLocation - m_rcPanel.left;
-		m_rcPanel.left = iLocation;
+		iShift = iLocation - m_rcScreenSpace.left;
+		m_rcScreenSpace.left = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		iShift = iLocation - m_rcPanel.right;
-		m_rcPanel.right = iLocation;
+		iShift = iLocation - m_rcScreenSpace.right;
+		m_rcScreenSpace.right = iLocation;
 		InvalidatePanel();
 		}
 	else if (dwEdge == EDGE_TOP)
 		{
-		iShift = iLocation - m_rcPanel.top;
-		m_rcPanel.top = iLocation;
+		iShift = iLocation - m_rcScreenSpace.top;
+		m_rcScreenSpace.top = iLocation;
 		InvalidatePanel();
 		}
 
 	for (int i = 0; i < m_aInternalPanels.GetCount(); i++)
 		{
-		m_aInternalPanels[i]->ShiftPanelEdgeLocation (dwEdge, iShift);
+		m_aInternalPanels[i]->ShiftScreenSpaceLocation (dwEdge, iShift);
 		}
 	}
 
-int CPanel::GetPanelEdgeLocation (DWORD dwEdge)
+int CPanel::GetScreenSpaceEdgeLocation (DWORD dwEdge)
 	{
 	if (dwEdge == EDGE_BOTTOM)
 		{
-		return m_rcPanel.bottom;
+		return m_rcScreenSpace.bottom;
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
-		return m_rcPanel.left;
+		return m_rcScreenSpace.left;
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		return m_rcPanel.right;
+		return m_rcScreenSpace.right;
 		}
 	else if (dwEdge == EDGE_TOP)
 		{
-		return m_rcPanel.top;
+		return m_rcScreenSpace.top;
 		}
 	else
 		{
@@ -198,8 +222,8 @@ int CPanel::GetPanelEdgeLocation (DWORD dwEdge)
 		}
 	}
 
-TArray <int> CPanel::SortInternalPanelsByEdgeLocation (DWORD dwEdge)
-//  SortInternalPanelsByEdgeLocation
+TArray <int> CPanel::SortInternalPanelsByScreenSapceEdgeLocation (DWORD dwEdge)
+//  SortInternalPanelsByScreenSapceEdgeLocation
 // 
 //  Return an array of integers whose elements correspond with indices of panels
 //  in the m_aInternalPanels array. Panel indices are sorted by edge location
@@ -219,7 +243,7 @@ TArray <int> CPanel::SortInternalPanelsByEdgeLocation (DWORD dwEdge)
 			}
 		else
 			{
-			aEdgeLocations.Insert(pInternalPanel->GetPanelEdgeLocation(dwEdge));
+			aEdgeLocations.Insert(pInternalPanel->GetScreenSpaceEdgeLocation(dwEdge));
 			}
 		}
 
@@ -239,11 +263,11 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 
 	if (dwSmoothType == SMOOTH_LEFTRIGHT)
 		{
-		aSortedPanelIndices = SortInternalPanelsByEdgeLocation(EDGE_LEFT);
+		aSortedPanelIndices = SortInternalPanelsByScreenSapceEdgeLocation(EDGE_LEFT);
 		}
 	else if (dwSmoothType == SMOOTH_UPDOWN)
 		{
-		aSortedPanelIndices = SortInternalPanelsByEdgeLocation(EDGE_TOP);
+		aSortedPanelIndices = SortInternalPanelsByScreenSapceEdgeLocation(EDGE_TOP);
 		}
 
 	int iFocusIndex;
@@ -295,11 +319,11 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 
 			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherEdgeLocation = pOtherPanel->GetPanelEdgeLocation(EDGE_RIGHT);
+				iOtherEdgeLocation = pOtherPanel->GetScreenSpaceEdgeLocation(EDGE_RIGHT);
 				}
 			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherEdgeLocation = pOtherPanel->GetPanelEdgeLocation(EDGE_BOTTOM);
+				iOtherEdgeLocation = pOtherPanel->GetScreenSpaceEdgeLocation(EDGE_BOTTOM);
 				}
 			}
 		else
@@ -307,7 +331,7 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 			rcOther = this->GetPanelRect();
 			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherEdgeLocation = m_rcPanel.left;
+				iOtherEdgeLocation = m_rcScreenSpace.left;
 				if (pFocusPanel->IsFixed())
 					{
 					iOtherEdgeLocation += pFocusPanel->GetFixedDeltaLeft();
@@ -315,7 +339,7 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 				}
 			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherEdgeLocation = m_rcPanel.top;
+				iOtherEdgeLocation = m_rcScreenSpace.top;
 				if (pFocusPanel->IsFixed())
 					{
 					iOtherEdgeLocation += pFocusPanel->GetFixedDeltaTop();
@@ -325,11 +349,11 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 
 		if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			iFocusLocation = pFocusPanel->GetPanelEdgeLocation(EDGE_LEFT);
+			iFocusLocation = pFocusPanel->GetScreenSpaceEdgeLocation(EDGE_LEFT);
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			iFocusLocation = pFocusPanel->GetPanelEdgeLocation(EDGE_TOP);
+			iFocusLocation = pFocusPanel->GetScreenSpaceEdgeLocation(EDGE_TOP);
 			}
 			
 		iProposedChange = (iFocusLocation - iOtherEdgeLocation);
@@ -342,25 +366,25 @@ void CPanel::SmoothOutInternalPanels (bool bExpandInPlace, DWORD dwSmoothType)
 		 if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
 			rcChangedFocus.left = iOtherEdgeLocation;
-			rcChangedFocus.right = iOtherEdgeLocation + pFocusPanel->GetPanelWidth();
+			rcChangedFocus.right = iOtherEdgeLocation + pFocusPanel->GetScreenSpaceWidth();
 
 			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&rcChangedFocus, &rcOther);
 			if (iSharedRectBoundary > 0)
 				{
-				pFocusPanel->SetPanelEdgeLocation(EDGE_LEFT, rcChangedFocus.left);
-				pFocusPanel->SetPanelEdgeLocation(EDGE_RIGHT, rcChangedFocus.right);
+				pFocusPanel->SetScreenSpaceEdgeLocation(EDGE_LEFT, rcChangedFocus.left);
+				pFocusPanel->SetScreenSpaceEdgeLocation(EDGE_RIGHT, rcChangedFocus.right);
 				}
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
 			rcChangedFocus.top = iOtherEdgeLocation;
-			rcChangedFocus.bottom = iOtherEdgeLocation + pFocusPanel->GetPanelHeight(); 
+			rcChangedFocus.bottom = iOtherEdgeLocation + pFocusPanel->GetScreenSpaceHeight(); 
 
 			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&rcChangedFocus, &rcOther);
 			if (iSharedRectBoundary > 0)
 				{
-				pFocusPanel->SetPanelEdgeLocation(EDGE_BOTTOM, rcChangedFocus.bottom);
-				pFocusPanel->SetPanelEdgeLocation(EDGE_TOP, rcChangedFocus.top);
+				pFocusPanel->SetScreenSpaceEdgeLocation(EDGE_BOTTOM, rcChangedFocus.bottom);
+				pFocusPanel->SetScreenSpaceEdgeLocation(EDGE_TOP, rcChangedFocus.top);
 				}
 			}
 		}
@@ -372,28 +396,34 @@ CPanel *CPanel::AddInternalPanel(int iLeft, int iTop, int iRight, int iBottom, d
 	NewPanel = new CPanel(iLeft, iTop, iRight, iBottom, dRigidity);
 	RECT rcNewPanel = NewPanel->GetPanelRect();
 
-	if (IsRect1InRect2(rcNewPanel, this->GetPanelRect()))
+	NewPanel->SetHiddenFlag(bHidden);
+	NewPanel->SetParentPanel(this);
+
+	if (bFixedRelativeToParent)
 		{
-		NewPanel->SetHiddenFlag(bHidden);
-		NewPanel->SetParentPanel(this);
-
-		if (bFixedRelativeToParent)
-			{
-			NewPanel->SetAsFixed(iLeft - rcNewPanel.left, iTop - rcNewPanel.top);
-			}
-		m_aInternalPanels.Insert(NewPanel);
-		UpdateNumInternalPanels();
-
-		SmoothOutInternalPanels(bExpandInPlace, SMOOTH_LEFTRIGHT);
-		SmoothOutInternalPanels(bExpandInPlace, SMOOTH_UPDOWN);
-
-		return NewPanel;
+		NewPanel->SetAsFixed(iLeft - rcNewPanel.left, iTop - rcNewPanel.top);
 		}
-	else
-		{
-		delete NewPanel;
-		return NULL;
-		}
+	m_aInternalPanels.Insert(NewPanel);
+	UpdateNumInternalPanels();
+
+	SmoothOutInternalPanels(bExpandInPlace, SMOOTH_LEFTRIGHT);
+	SmoothOutInternalPanels(bExpandInPlace, SMOOTH_UPDOWN);
+
+	TArray <int> aPanelIndices = SortInternalPanelsByScreenSapceEdgeLocation(EDGE_BOTTOM);
+	int iNumPanels = aPanelIndices.GetCount();
+	int iLastPanelIndex = aPanelIndices[iNumPanels-1];
+	int iLastPanelBottom = m_aInternalPanels[iLastPanelIndex]->GetScreenSpaceEdgeLocation(EDGE_BOTTOM);
+	
+	this->SetTrueSpaceEdgeLocation(EDGE_BOTTOM, iLastPanelBottom);
+
+	TArray <int> aPanelIndices = SortInternalPanelsByScreenSapceEdgeLocation(EDGE_RIGHT);
+	int iNumPanels = aPanelIndices.GetCount();
+	int iLastPanelIndex = aPanelIndices[iNumPanels-1];
+	int iLastPanelRight = m_aInternalPanels[iLastPanelIndex]->GetScreenSpaceEdgeLocation(EDGE_RIGHT);
+	
+	this->SetTrueSpaceEdgeLocation(EDGE_RIGHT, iLastPanelBottom);
+
+	return NewPanel;
 	}
 
 CPanel *CPanel::AddInternalPanel(int iLeft, int iTop, int iRight, int iBottom, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
@@ -405,8 +435,8 @@ CPanel *CPanel::AddInternalPanel(int iLeft, int iTop, int iRight, int iBottom, b
 
 CPanel *CPanel::AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iWidth, int iHeight, double dRigidity, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
-	int iLeft = m_rcPanel.left + iDeltaX;
-	int iTop = m_rcPanel.top + iDeltaY;
+	int iLeft = m_rcScreenSpace.left + iDeltaX;
+	int iTop = m_rcScreenSpace.top + iDeltaY;
 
 	CPanel *NewPanel = AddInternalPanel(iLeft, iTop, iLeft + iWidth, iTop + iHeight, dRigidity, bHidden, bExpandInPlace, bFixedRelativeToParent);
 
@@ -415,8 +445,8 @@ CPanel *CPanel::AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int 
 
 CPanel *CPanel::AddInternalPanelRelativeToOrigin (int iDeltaX, int iDeltaY, int iWidth, int iHeight, bool bHidden, bool bExpandInPlace, bool bFixedRelativeToParent)
 	{
-	int iLeft = m_rcPanel.left + iDeltaX;
-	int iTop = m_rcPanel.top + iDeltaY;
+	int iLeft = m_rcScreenSpace.left + iDeltaX;
+	int iTop = m_rcScreenSpace.top + iDeltaY;
 
 	CPanel *NewPanel = AddInternalPanel(iLeft, iTop, iLeft + iWidth, iTop + iHeight, m_dRigidity, bHidden, bExpandInPlace, bFixedRelativeToParent);
 
@@ -439,13 +469,13 @@ RECT CPanel::GetScaledInnerRect (double scale)
 	{
 	RECT rc;
 
-	int iLeft = int(m_rcPanel.left + m_rcPanel.right*(1 - scale)*0.5);
-	int iTop = int(m_rcPanel.top + m_rcPanel.bottom*(1 - scale)*0.5);
+	int iLeft = int(m_rcScreenSpace.left + m_rcScreenSpace.right*(1 - scale)*0.5);
+	int iTop = int(m_rcScreenSpace.top + m_rcScreenSpace.bottom*(1 - scale)*0.5);
 
 	rc.left = iLeft;
 	rc.top = iTop; 
-	rc.right = iLeft + int(m_rcPanel.right*scale);
-	rc.bottom = iTop + int(m_rcPanel.bottom*scale);
+	rc.right = iLeft + int(m_rcScreenSpace.right*scale);
+	rc.bottom = iTop + int(m_rcScreenSpace.bottom*scale);
 
 	return rc;
 	}

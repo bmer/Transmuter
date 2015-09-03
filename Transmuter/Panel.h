@@ -21,25 +21,30 @@ class CPanel
 	{
 	public:
 		CPanel (void);
-		CPanel (RECT rcPanel);
+		CPanel (RECT rcScreenSpace);
 		CPanel (int iLeft, int iTop, int iRight, int iBottom);
-		CPanel (RECT rcPanel, double dRigidity);
+		CPanel (RECT rcScreenSpace, double dRigidity);
 		CPanel (int iLeft, int iTop, int iRight, int iBottom, double dRigidity);
 
 		~CPanel (void);
 
-		void SetPanelEdgeLocation (DWORD dwEdge, int iLocation);
-		void ShiftPanelEdgeLocation (DWORD dwEdge, int iShift);
-		int GetPanelEdgeLocation (DWORD dwEdge);
+		void InitTrueSpace(void);
 
-		inline int GetPanelWidth (void) { return RectWidth(m_rcPanel); }
-		inline int GetPanelHeight (void) { return RectHeight(m_rcPanel); }
+		void SetScreenSpaceEdgeLocation (DWORD dwEdge, int iLocation);
+		void SetTrueSpaceEdgeLocation (DWORD dwEdge, int iLocation);
+		void ShiftScreenSpaceLocation (DWORD dwEdge, int iShift);
+		void ShiftTrueSpaceLocation (DWORD dwEdge, int iShift);
+		int GetScreenSpaceEdgeLocation (DWORD dwEdge);
+		int GetTrueSpaceEdgeLocation (DWORD dwEdge);
+
+		inline int GetScreenSpaceWidth (void) { return RectWidth(m_rcScreenSpace); }
+		inline int GetScreenSpaceHeight (void) { return RectHeight(m_rcScreenSpace); }
 		inline double GetRigidity (void) { return m_dRigidity; }
 
 		inline void SetParentPanel(CPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline CPanel *GetParentPanel(void) { return m_pParentPanel; }
 
-		TArray <int> SortInternalPanelsByEdgeLocation (DWORD dwFlag);
+		TArray <int> SortInternalPanelsByScreenSapceEdgeLocation (DWORD dwFlag);
 
 		inline void UpdateNumInternalPanels (void) { m_iNumInternalPanels = m_aInternalPanels.GetCount(); }
 		inline void SetAsFixed (int iRelativeLeft, int iRelativeTop ) { if (m_pParentPanel != NULL) { m_bFixed = true; m_iRelativeLeft = iRelativeLeft; m_iRelativeTop = iRelativeTop; } };
@@ -62,15 +67,15 @@ class CPanel
 
 		TArray <CSChild *> GetInternalPanelSessions (void);
 
-		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_rcPanel.left); }
-		inline int GetXDisplacementToRightEdge(int x) { return (x - m_rcPanel.right); }
-		inline int GetYDisplacementToTopEdge(int y) { return (y - m_rcPanel.top); }
-		inline int GetYDisplacementToBottomEdge(int y) { return (y - m_rcPanel.bottom); }
+		inline int GetXDisplacementToLeftEdge(int x) { return (x - m_rcScreenSpace.left); }
+		inline int GetXDisplacementToRightEdge(int x) { return (x - m_rcScreenSpace.right); }
+		inline int GetYDisplacementToTopEdge(int y) { return (y - m_rcScreenSpace.top); }
+		inline int GetYDisplacementToBottomEdge(int y) { return (y - m_rcScreenSpace.bottom); }
 
 		inline void FocusOnInternalPanel (int iPanelIndex) { m_aInternalPanels[iPanelIndex]->m_bFocus = 1; }
 		inline void RemoveFocusFromInternalPanel (int iPanelIndex) { m_aInternalPanels[iPanelIndex]->m_bFocus = 0; }
 
-		inline RECT GetPanelRect (void) { return m_rcPanel; }
+		inline RECT GetPanelRect (void) { return m_rcScreenSpace; }
 		RECT GetScaledInnerRect (double scale);
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
@@ -94,7 +99,11 @@ class CPanel
 		inline void ValidatePanel (void) { m_bInvalid = false; }
 
 	private:
-		RECT m_rcPanel;
+		RECT m_rcTrueSpace;
+		RECT m_rcScreenSpace;
+
+		int m_iViewSpaceTopOffset;
+		int m_iViewSpaceLeftOffset;
 
 		double m_dRigidity;					//  dRigidity of panel
 
