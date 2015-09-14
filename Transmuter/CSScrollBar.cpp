@@ -9,4 +9,3 @@ CSScrollBar::CSScrollBar(CHumanInterface &HI, CPanel &AssociatedPanel, CPanel &P
 	m_PanelToScroll(PanelToScroll)
 	{
 	}
-

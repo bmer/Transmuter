@@ -11,17 +11,17 @@ CSTransmuter::CSTransmuter (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	m_IsRButtonDown(0)
 	//	CSTransmuter constructor
 	{
-	CPanel *pEmptyPanel = m_Panel.AddInternalPanelRelativeToOrigin(0, 0, 200, HI.GetScreen().GetHeight(), false, false, false);
+	CPanel *pEmptyPanel = m_Panel.InternalPanels.Add(0, 0, 200, m_Panel.ScreenArea.GetHeight(), false, false);
 
 	CSExtensionNavigator *pExtensionNavigatorSession = new CSExtensionNavigator(HI, *pEmptyPanel, m_Model.GetExtensionsArray());
-	m_aSubSessions.Insert(pExtensionNavigatorSession);
+	m_aChildSessions.Insert(pExtensionNavigatorSession);
 	}
 
 CSTransmuter::~CSTransmuter(void)
 	{
-	for (int i = 0; i < m_aSubSessions.GetCount(); i++)
+	for (int i = 0; i < m_aChildSessions.GetCount(); i++)
 		{
-		delete m_aSubSessions[i];
+		delete m_aChildSessions[i];
 		}
 
 	delete &m_Panel;
@@ -29,7 +29,7 @@ CSTransmuter::~CSTransmuter(void)
 
 void CSTransmuter::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
-	TArray <CSChild *> RelevantSessions = m_Panel.ReturnSessionsContainingPoint(x, y);
+	TArray <CSChild *> RelevantSessions = m_Panel.GetSessionsContainingPoint(x, y);
 
 	for (int i = 0; i < RelevantSessions.GetCount(); i++)
 		{
@@ -39,7 +39,7 @@ void CSTransmuter::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 
 void CSTransmuter::OnLButtonUp(int x, int y, DWORD dwFlags)
 	{
-	TArray <CSChild *> RelevantSessions = m_Panel.ReturnSessionsContainingPoint(x, y);
+	TArray <CSChild *> RelevantSessions = m_Panel.GetSessionsContainingPoint(x, y);
 
 	for (int i = 0; i < RelevantSessions.GetCount(); i++)
 		{
@@ -49,7 +49,7 @@ void CSTransmuter::OnLButtonUp(int x, int y, DWORD dwFlags)
 
 void CSTransmuter::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	TArray <CSChild *> RelevantSessions = m_Panel.ReturnSessionsContainingPoint(x, y);
+	TArray <CSChild *> RelevantSessions = m_Panel.GetSessionsContainingPoint(x, y);
 
 	for (int i = 0; i < RelevantSessions.GetCount(); i++)
 		{
@@ -59,7 +59,7 @@ void CSTransmuter::OnRButtonDown(int x, int y, DWORD dwFlags)
 
 void CSTransmuter::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	TArray <CSChild *> RelevantSessions = m_Panel.ReturnSessionsContainingPoint(x, y);
+	TArray <CSChild *> RelevantSessions = m_Panel.GetSessionsContainingPoint(x, y);
 
 	for (int i = 0; i < RelevantSessions.GetCount(); i++)
 		{
@@ -72,9 +72,14 @@ void CSTransmuter::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	//	paint the background
 	Screen.Fill(0, 0, Screen.GetWidth(), Screen.GetHeight(), CG32bitPixel(32, 32, 32));
 
+	RECT rcClip;
 	//	call paint functions of all subsessions
-	for (int i = 0; i < m_aSubSessions.GetCount(); i++)
+	for (int i = 0; i < m_aChildSessions.GetCount(); i++)
 		{
-		m_aSubSessions[i]->OnPaint(Screen, rcInvalid);
+		CSChild *pSubSession = m_aChildSessions[i];
+		rcClip = (m_aChildSessions[i]->GetAssociatedPanel()).ScreenArea.GetViewOffsetRect();
+		Screen.SetClipRect(rcClip);
+		m_aChildSessions[i]->OnPaint(Screen, rcInvalid);
 		}
-	}
+	Screen.ResetClipRect();
+	} 

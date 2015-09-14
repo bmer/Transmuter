@@ -18,7 +18,7 @@ CSChild::CSChild(CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
 
 void CSChild::DrawPanelOutline(CG32bitImage &Screen)
 	{
-	RECT PanelRect = m_AssociatedPanel.GetPanelRect();
+	RECT PanelRect = m_AssociatedPanel.ScreenArea.GetViewOffsetRect();
 
 	//  corners are numbered starting from top left hand corner being zero, and then going counter clockwise
 

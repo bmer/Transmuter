@@ -1,4 +1,4 @@
-//	CSTransmuter.cpp
+//	CLoadingSession.cpp
 //
 //	CSTransmuter class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.

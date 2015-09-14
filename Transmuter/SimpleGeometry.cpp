@@ -19,6 +19,20 @@ bool IsPointInRect (int px, int py, RECT rc)
 	return ((rx0 <= px) && (px <= rx1) && (ry0 <= py) && (py <= ry1));
 	}
 
+bool IsPointInRect (int px, int py, int iLeft, int iTop, int iWidth, int iHeight)
+//  IsPointInRect
+// 
+//  Checks to see if given point is inside given rectangle. 
+//  rx and ry are the coordinates of the TOP LEFT HAND CORNER of the rectangle.
+	{
+	int rx0 = iLeft;
+	int ry0 = iTop;
+	int rx1 = iLeft + iWidth;
+	int ry1 = iTop + iHeight;
+
+	return ((rx0 <= px) && (px <= rx1) && (ry0 <= py) && (py <= ry1));
+	}
+
 bool IsRect1InRect2(RECT rc1, RECT rc2)
 //  IsRect1InRect2
 //  
@@ -207,6 +221,21 @@ int GetSharedLeftRightEdgeLength(RECT *rc1, RECT *rc2)
 		}
 	}
 
+RECT ScaleRect(double dScale, int iLeft, int iTop, int iWidth, int iHeight)
+	{
+	RECT rcResult;
+
+	int iYPadding = 0.5*(1 - dScale)*iHeight;
+	int iXPadding = 0.5*(1 - dScale)*iWidth;
+
+	rcResult.bottom = (iTop + iHeight) - iYPadding;
+	rcResult.left = iLeft + iXPadding;
+	rcResult.right = (iLeft + iWidth) - iXPadding;
+	rcResult.top =  iTop + iYPadding;
+	
+	return rcResult;
+	}
+
 RECT ScaleRect(double dScale, RECT rc)
 	{
 	RECT rcResult;
@@ -216,8 +245,31 @@ RECT ScaleRect(double dScale, RECT rc)
 
 	rcResult.bottom = rc.bottom - iYPadding;
 	rcResult.left = rc.left + iXPadding;
-	rcResult.right = rc.right - iYPadding;
+	rcResult.right = rc.right - iXPadding;
 	rcResult.top =  rc.top + iYPadding;
 	
 	return rcResult;
+	}
+
+RECT MakeRect (int iLeft, int iTop, int iWidth, int iHeight)
+	{
+	RECT rc;
+	rc.bottom = iTop + iHeight;
+	rc.left = iLeft;
+	rc.right = iLeft + iWidth;
+	rc.top = iTop;
+
+	return rc;
+	}
+
+RECT MakeRect (RECT rcReference, int iRelativeLeft, int iRelativeTop, int iWidth, int iHeight)
+	{
+	RECT rc;
+	rc.left = rcReference.left + iRelativeLeft;
+	rc.top = rcReference.top + iRelativeTop;
+
+	rc.right = rc.left + iWidth;
+	rc.bottom = rc.top + iHeight;
+
+	return rc;
 	}

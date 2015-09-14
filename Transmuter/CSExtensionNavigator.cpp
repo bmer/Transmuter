@@ -24,14 +24,14 @@ CSExtensionNavigator::~CSExtensionNavigator(void)
 
 void CSExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + m_iHeaderBarHeight, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_RIGHT), m_AssociatedPanel.GetPanelEdgeLocation(EDGE_BOTTOM) - m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) - m_iHeaderBarHeight, false, false, true);
+	CPanel *pMenuPanel = m_AssociatedPanel.InternalPanels.Add(0, m_iHeaderBarHeight, m_AssociatedPanel.ScreenArea.GetWidth(), m_iMenuSlotHeight, false, false);
 	CPanel *pMenuSlot;
-	int iMenuPanelWidth = pMenuPanel->GetPanelWidth();
+	int iMenuPanelWidth = pMenuPanel->ScreenArea.GetWidth();
 	
 	int iNumExtensions = m_Extensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
 		{
-		pMenuSlot = pMenuPanel->AddInternalPanelRelativeToOrigin(0, m_iMenuSlotHeight*i, iMenuPanelWidth, 40, false, false, false);
+		pMenuSlot = pMenuPanel->InternalPanels.Add(0, m_iMenuSlotHeight*i, iMenuPanelWidth, m_iMenuSlotHeight, false, false);
 		CSMExtension *MenuItem = new CSMExtension(m_HI, *pMenuSlot, m_Extensions[i]);
 		m_NavigatorMenuItems.Insert(MenuItem);
 		pMenuSlot->AssociateSession(MenuItem);
@@ -40,7 +40,7 @@ void CSExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 
 void CSExtensionNavigator::DrawTitleBar(CG32bitImage &Screen)
 	{
-	Screen.DrawText(m_AssociatedPanel.GetPanelEdgeLocation(EDGE_LEFT) + 10, m_AssociatedPanel.GetPanelEdgeLocation(EDGE_TOP) + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
+	Screen.DrawText(m_AssociatedPanel.ScreenArea.GetViewOffsetEdgeLocation(EDGE_LEFT) + 10, m_AssociatedPanel.ScreenArea.GetViewOffsetEdgeLocation(EDGE_TOP) + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
 	}
 
 void CSExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
@@ -70,17 +70,19 @@ CSExtensionDetails::CSExtensionDetails(CHumanInterface &HI, CPanel &AssociatedPa
 CSMExtension::CSMExtension(CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CSChild(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
-	CPanel *ButtonPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(0, 0, 40, m_AssociatedPanel.GetPanelHeight(), false, false, true);
-	m_Button = new CSButton(HI, *ButtonPanel, ScaleRect(0.8, ButtonPanel->GetPanelRect()), CG32bitPixel(100, 100, 100));
+	//  button panels should be sticky
+	CPanel *ButtonPanel = m_AssociatedPanel.InternalPanels.Add(0, 0, 40, m_AssociatedPanel.ScreenArea.GetHeight(), false, true);
+	m_Button = new CSButton(HI, *ButtonPanel, 0.8, CG32bitPixel(100, 100, 100));
 	ButtonPanel->AssociateSession(m_Button);
 
-	CPanel *TextPanel = m_AssociatedPanel.AddInternalPanelRelativeToOrigin(40, 0, m_AssociatedPanel.GetPanelWidth() - 40, m_AssociatedPanel.GetPanelHeight(), false, false, true);
+	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.Add(40, 0, m_AssociatedPanel.ScreenArea.GetWidth() - 40, m_AssociatedPanel.ScreenArea.GetHeight(), false, false);
 	m_TextArea = new CSTextArea(HI, *TextPanel);
 	TextPanel->AssociateSession(m_TextArea);
 
 	m_TextArea->SetPadding(10);
 	m_TextArea->SetText(m_Extension.GetName());
-	m_TextArea->JustifyInPanel();
+	m_TextArea->Justify();
+
 	}
 
 CSMExtension::~CSMExtension(void)
@@ -99,6 +101,7 @@ void CSMExtension::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 			}
 		else
 			{
+			DrawPanelOutline(Screen);
 			m_Button->OnPaint(Screen, rcInvalid);
 			m_TextArea->OnPaint(Screen, rcInvalid);
 			}

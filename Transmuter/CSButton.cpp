@@ -9,26 +9,32 @@ CSButton::CSButton(CHumanInterface &HI, CPanel &AssociatedPanel) : CSChild(HI, A
 	{
 	}
 
-CSButton::CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, RECT rcRelativeButton) : CSChild(HI, AssociatedPanel),
-	m_rcActive(rcRelativeButton)
+CSButton::CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, double dActiveAreaScale) : CSChild(HI, AssociatedPanel),
+	m_dActiveAreaScale(dActiveAreaScale)
 	{
 	}
 
-CSButton::CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, RECT rcRelativeButton, CG32bitPixel BGColor) : CSChild(HI, AssociatedPanel),
-	m_rgbBackColor(BGColor),
-	m_rcActive(rcRelativeButton)
+CSButton::CSButton(CHumanInterface &HI, CPanel &AssociatedPanel, double dActiveAreaScale, CG32bitPixel BGColor) : CSChild(HI, AssociatedPanel),
+	m_rgbBackgroundColor(BGColor),
+	m_dActiveAreaScale(dActiveAreaScale)
 	{
 	}
 
-void CSButton::UpdateRelativeButtonRect(RECT rc)
+void CSButton::UpdateActiveAreaScale (double dNewActiveAreaScale)
 	{
-	m_rcActive = rc;
+	m_dActiveAreaScale = dNewActiveAreaScale;
+	}
+
+RECT CSButton::GetActiveAreaRect (void)
+	{
+	return ScaleRect(m_dActiveAreaScale, m_AssociatedPanel.ScreenArea.GetViewOffsetRect());
 	}
 
 void CSButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
 	//  check if click was in "active area" of button session (80% scale inner rectangle)
-	if (IsPointInRect(x, y, m_rcActive))
+	RECT rcActiveArea = GetActiveAreaRect();
+	if (IsPointInRect(x, y, rcActiveArea))
 		{
 		m_IsLDown = true;
 		}
@@ -43,7 +49,8 @@ void CSButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 void CSButton::OnLButtonUp(int x, int y, DWORD dwFlags)
 	{
 	// check if click was in "active area" of button session (80% scale inner rectangle)
-	if (IsPointInRect(x, y, m_rcActive))
+	RECT rcActiveArea = GetActiveAreaRect();
+	if (IsPointInRect(x, y, rcActiveArea))
 		{
 		if (m_IsLDown)
 			{
@@ -66,7 +73,8 @@ void CSButton::OnLButtonUp(int x, int y, DWORD dwFlags)
 
 void CSButton::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	if (IsPointInRect(x, y, m_rcActive))
+	RECT rcActiveArea = GetActiveAreaRect();
+	if (IsPointInRect(x, y, rcActiveArea))
 		{
 		m_IsRDown = true;
 		}
@@ -78,7 +86,8 @@ void CSButton::OnRButtonDown(int x, int y, DWORD dwFlags)
 
 void CSButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	if (IsPointInRect(x, y, m_rcActive))
+	RECT rcActiveArea = GetActiveAreaRect();
+	if (IsPointInRect(x, y, rcActiveArea))
 		{
 		if (m_IsRDown)
 			{
@@ -99,16 +108,13 @@ void CSButton::OnRButtonUp(int x, int y, DWORD dwFlags)
 
 void CSButton::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	int iPanelWidth = m_AssociatedPanel.GetPanelWidth();
-	int iPanelHeight = m_AssociatedPanel.GetPanelHeight();
-
-	//  paint "active" area of button
+	RECT rcActiveArea = GetActiveAreaRect();
 	if (m_IsLDown)
 		{
-		Screen.Fill(m_rcActive.left, m_rcActive.top, RectWidth(m_rcActive), RectHeight(m_rcActive), CG32bitPixel(0, 255, 0));
+		Screen.Fill(rcActiveArea.left, rcActiveArea.top, RectWidth(rcActiveArea), RectHeight(rcActiveArea), CG32bitPixel(0, 255, 0));
 		}
 	else
 		{
-		Screen.Fill(m_rcActive.left, m_rcActive.top, RectWidth(m_rcActive), RectHeight(m_rcActive), CG32bitPixel(255, 0, 0));
+		Screen.Fill(rcActiveArea.left, rcActiveArea.top, RectWidth(rcActiveArea), RectHeight(rcActiveArea), CG32bitPixel(255, 0, 0));
 		}
 	}
