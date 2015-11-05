@@ -28,21 +28,16 @@ class CPanelArea
 		CPanelArea (CPanel &AssociatedPanel);
 		CPanelArea (CPanel &AssociatedPanel, RECT rcArea);
 
-		inline void SetAbsoluteRect (RECT rcArea) { m_rcArea = rcArea; }
-		RECT GetAbsoluteRect (void);
-		RECT GetViewOffsetRect (void);
+		inline void SetRect (RECT rcArea) { m_rcArea = rcArea; }
+		RECT GetRect (void);
 
-		int GetAbsoluteEdgeLocation (DWORD dwEdge);
-		int GetViewOffsetEdgeLocation (DWORD dwEdge);
+		int GetEdgeLocation (DWORD dwEdge);
 
-		void SetAbsoluteEdgeAt (DWORD dwEdge, int iLocation);
-		void ShiftEdge (DWORD dwEdge, int iShift);
-
-		inline int GetWidth (void) { return RectWidth(m_rcArea); }
-		inline int GetHeight (void) { return RectHeight(m_rcArea); }
+		void SetEdgeTo (DWORD dwEdge, int iNewLocation);
+		void MoveAreaByEdgeTo (DWORD dwEdge, int iShift);
 
 		inline int CalculateDisplacementToEdge (DWORD dwEdge, int x);
-		void FitChildrenExactly(void);
+		void ExpandRectToFitChildren(void);
 
 	private:
 		CPanel &m_AssociatedPanel;
