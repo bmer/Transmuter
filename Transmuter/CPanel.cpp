@@ -97,7 +97,8 @@ int CPanelRect::GetEdgePosition (DWORD dwEdge)
 		}
 	else
 		{
-		throw CMessageException("Unknown DWORD given for EDGE!");
+		// throw CMessageException("Unknown DWORD given for EDGE!");
+		m_iOriginX = 0;
 		}
 	}
 
@@ -123,7 +124,8 @@ void CPanelRect::SetEdgePosition (DWORD dwEdge, int iPosition)
 		}
 	else
 		{
-		throw CMessageException("Unknown DWORD given for EDGE!");
+		// throw CMessageException("Unknown DWORD given for EDGE!");
+		m_iOriginX = 0
 		}
 	}
 
@@ -149,7 +151,8 @@ void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 		}
 	else
 		{
-		throw CMessageException("Unknown DWORD given for EDGE!");
+		// throw CMessageException("Unknown DWORD given for EDGE!");
+		m_iOriginX = 0
 		}
 	}
 
