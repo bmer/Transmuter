@@ -24,14 +24,14 @@ CSExtensionNavigator::~CSExtensionNavigator(void)
 
 void CSExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.InternalPanels.Add(0, m_iHeaderBarHeight, m_AssociatedPanel.ScreenArea.GetWidth(), m_iMenuSlotHeight, false, false);
+	CPanel *pMenuPanel = m_AssociatedPanel.InternalPanels.AddPanel(0, m_iHeaderBarHeight, m_AssociatedPanel.PanelRect.GetWidth(), m_iMenuSlotHeight, false);
 	CPanel *pMenuSlot;
-	int iMenuPanelWidth = pMenuPanel->ScreenArea.GetWidth();
+	int iMenuPanelWidth = pMenuPanel->PanelRect.GetWidth();
 	
 	int iNumExtensions = m_Extensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
 		{
-		pMenuSlot = pMenuPanel->InternalPanels.Add(0, m_iMenuSlotHeight*i, iMenuPanelWidth, m_iMenuSlotHeight, false, false);
+		pMenuSlot = pMenuPanel->InternalPanels.AddPanel(0, m_iMenuSlotHeight*i, iMenuPanelWidth, m_iMenuSlotHeight, false);
 		CSMExtension *MenuItem = new CSMExtension(m_HI, *pMenuSlot, m_Extensions[i]);
 		m_NavigatorMenuItems.Insert(MenuItem);
 		pMenuSlot->AssociateSession(MenuItem);
@@ -40,7 +40,7 @@ void CSExtensionNavigator::CreateExtensionNavigatorMenuItems(void)
 
 void CSExtensionNavigator::DrawTitleBar(CG32bitImage &Screen)
 	{
-	Screen.DrawText(m_AssociatedPanel.ScreenArea.GetViewOffsetEdgeLocation(EDGE_LEFT) + 10, m_AssociatedPanel.ScreenArea.GetViewOffsetEdgeLocation(EDGE_TOP) + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
+	Screen.DrawText(m_AssociatedPanel.PanelRect.GetEdgePosition(EDGE_LEFT) + 10, m_AssociatedPanel.PanelRect.GetEdgePosition(EDGE_TOP) + 10, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
 	}
 
 void CSExtensionNavigator::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
@@ -71,12 +71,14 @@ CSMExtension::CSMExtension(CHumanInterface &HI, CPanel &AssociatedPanel, CExtens
 	m_Extension(*Extension)
 	{
 	//  button panels should be sticky
-	CPanel *ButtonPanel = m_AssociatedPanel.InternalPanels.Add(0, 0, 40, m_AssociatedPanel.ScreenArea.GetHeight(), false, true);
+	CPanel *ButtonPanel = m_AssociatedPanel.InternalPanels.AddPanel(0, 0, 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
 	m_Button = new CSButton(HI, *ButtonPanel, 0.8, CG32bitPixel(100, 100, 100));
 	ButtonPanel->AssociateSession(m_Button);
 
-	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.Add(40, 0, m_AssociatedPanel.ScreenArea.GetWidth() - 40, m_AssociatedPanel.ScreenArea.GetHeight(), false, false);
+	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.AddPanel(40, 0, m_AssociatedPanel.PanelRect.GetWidth() - 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
 	m_TextArea = new CSTextArea(HI, *TextPanel);
+	// do set font table 
+	m_TextArea->SetFontTable(&HI.GetVisuals());
 	TextPanel->AssociateSession(m_TextArea);
 
 	m_TextArea->SetPadding(10);

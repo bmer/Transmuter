@@ -51,7 +51,7 @@ RECT CSTextArea::CalcTextRect (void)
 //	Calculates the text rect given the control rect
 
 	{
-	return CalcTextRect(m_AssociatedPanel.ScreenArea.GetViewOffsetRect());
+	return CalcTextRect(m_AssociatedPanel.PanelRect.GetAsRect());
 	}
 
 void CSTextArea::FormatRTF (const RECT &rcRect)
@@ -122,7 +122,7 @@ int CSTextArea::Justify (void)
 //	Justify the text and return the height (in pixels)
 
 	{
-	return Justify(m_AssociatedPanel.ScreenArea.GetViewOffsetRect());
+	return Justify(m_AssociatedPanel.PanelRect.GetAsRect());
 	}
 
 void CSTextArea::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
@@ -133,7 +133,7 @@ void CSTextArea::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 	{
 	RECT rcText = CalcTextRect();
-	RECT rcRect = m_AssociatedPanel.ScreenArea.GetViewOffsetRect();
+	RECT rcRect = m_AssociatedPanel.PanelRect.GetAsRect();
 
 	//	Paint the background
 

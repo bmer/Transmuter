@@ -12,47 +12,68 @@
 #define SMOOTH_UPDOWN		4
 #define SMOOTH_LEFTRIGHT	5
 
+class CPanelRect;
 class CSChild;
-class CScreenSpace;
 class CPanel;
 class CInternalPanels;
 
-//  =======================================================================
+using namespace std;
 
-class CPanelArea
+class CMessageException: public exception
+	{
+	public: 
+		CMessageException (const char* ExceptionMessage);
+
+		virtual const char* what() const throw() { return m_ExceptionMessage; }
+
+	private:
+		const char* m_ExceptionMessage;
+	};
+
+class CPanelRect
 	{
 	friend CPanel;
 	friend CInternalPanels;
 
 	public:
-		CPanelArea (CPanel &AssociatedPanel);
-		CPanelArea (CPanel &AssociatedPanel, RECT rcArea);
+		CPanelRect (CPanel &AssociatedPanel);
+		CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iHeight, int iWidth);
+		CPanelRect (CPanel &AssociatedPanel, RECT rc);
 
-		inline void SetAbsoluteRect (RECT rcArea) { m_rcArea = rcArea; }
-		RECT GetAbsoluteRect (void);
-		RECT GetViewOffsetRect (void);
+		inline int GetOriginX (void) { return m_iOriginX; }
+		inline int GetOriginY (void) { return m_iOriginY; }
+		inline int GetHeight (void) { return m_iHeight; }
+		inline int GetWidth (void) { return m_iWidth; }
 
-		int GetAbsoluteEdgeLocation (DWORD dwEdge);
-		int GetViewOffsetEdgeLocation (DWORD dwEdge);
+		void MakeTopLeftOrigin(void);
 
-		void SetAbsoluteEdgeAt (DWORD dwEdge, int iLocation);
-		void ShiftEdge (DWORD dwEdge, int iShift);
+		void SetOrigin (int iOriginX, int iOriginY);
+		void ShiftOrigin (int iDeltaX, int iDeltaY);
+		RECT GetAsRect (void);
+		void SetWithRect (RECT rc);
+		
+		int GetEdgePosition (DWORD dwEdge);
 
-		inline int GetWidth (void) { return RectWidth(m_rcArea); }
-		inline int GetHeight (void) { return RectHeight(m_rcArea); }
+		void SetEdgePosition (DWORD dwEdge, int iPosition);
+		void ShiftEdgePosition (DWORD dwEdge, int iShift);
 
-		inline int CalculateDisplacementToEdge (DWORD dwEdge, int x);
-		void FitChildrenExactly(void);
+		inline void ChangeHeight (int iHeight) { m_iHeight = iHeight; }
+		inline void ChangeWidth (int iWidth) { m_iWidth = iWidth; }
 
 	private:
 		CPanel &m_AssociatedPanel;
-		RECT m_rcArea;
+		int m_iOriginX;
+		int m_iOriginY;
+		int m_iHeight;
+		int m_iWidth;
 	};
+
+//  =======================================================================
 
 class CInternalPanels
 	{
 	friend CPanel;
-	friend CPanelArea;
+	friend CPanelRect;
 
 	public:
 		CInternalPanels (CPanel &ParentPanel);
@@ -61,14 +82,14 @@ class CInternalPanels
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
 		inline TArray <CPanel *> GetPanels (void) {return m_aPanels; }
 
-		void SetEdgeAt (int iPanelIndex, DWORD dwEdge, int iLocation);
-		void ShiftEdges (DWORD dwEdge, int iShift);
+		void SetPanelEdgeAt (int iPanelIndex, DWORD dwEdge, int iLocation);
+		void ShiftAllOrigins (int iShiftX, int iShiftY);
 
 		void SmoothOut (DWORD dwSmoothType);
 
-		CPanel *Add (int iRelativeLeft, int iRelativeTop, int iWidth, int iHeight, bool bHidden, bool bFixed);
+		CPanel *AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden);
 
-		void Remove (int iPanelIndex);
+		void DeletePanel (int iPanelIndex);
 
 		TArray <CSChild *> GetAssociatedSessions (void);
 		TArray <CSChild *> GetSessionsContainingPoint (int x, int y);
@@ -82,14 +103,11 @@ class CInternalPanels
 		void HideAll (void);
 		void ShowAll (void);
 
-		void SetViewOffsetX (int iOffset);
-		void SetViewOffsetY (int iOffset);
-
-		void Invalidate (void);
+		void InvalidateAll (void);
 		void PaintAll (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	protected:
-		TArray <int> SortByScreenAreaEdgeLocation (DWORD dwEdge);
+		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
 
 	private:
 		CPanel &m_ParentPanel;
@@ -98,26 +116,17 @@ class CInternalPanels
 
 class CPanel 
 	{
-	friend class CPanelArea;
+	friend class CPanelRect;
 	friend class CInternalPanels;
 
 	public:
 		CPanel (void);
-		CPanel (RECT rcScreenSpace);
-		CPanel (int iLeft, int iTop, int iWidth, int iHeight);
 
 		void InitScreenArea (void);
 		void InitScreenArea (RECT rcArea);
 		
 		inline void SetParentPanel(CPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline CPanel *GetParentPanel(void) { return m_pParentPanel; }
-
-	
-		inline bool IsSticky (void) { return m_bSticky; }
-		inline void MakeSticky (int iRelativeLeft, int iRelativeTop) { if (m_pParentPanel != NULL) { m_bSticky = true; m_iStickyLeftOffset = iRelativeLeft; m_iStickyTopOffset = iRelativeTop; } else { m_bSticky = false; } };
-		inline int GetStickyLeftOffset (void) { return m_iStickyLeftOffset; }
-		inline int GetStickyTopOffset (void) { return m_iStickyTopOffset; }
-		inline void RemoveSticky (void) { m_bSticky = false; }
 
 		inline void AssociateSession(CSChild *Session) { m_pAssociatedSession = Session; }
 		inline CSChild *GetAssociatedSession (void) { return m_pAssociatedSession; }
@@ -145,22 +154,19 @@ class CPanel
 
 		void SetError (CString sErrorDescription) { m_bErrorOccurred = true; m_sErrorString = sErrorDescription; }
 
-		CPanelArea ScreenArea;
+		CPanelRect PanelRect;
 		CInternalPanels InternalPanels;
 
-		inline void SetViewOffsetX (int iOffset) { m_iViewOffsetX = iOffset; InternalPanels.SetViewOffsetX(iOffset); }
-		inline void SetViewOffsetY (int iOffset) { m_iViewOffsetY = iOffset; InternalPanels.SetViewOffsetY(iOffset); }
+		void SetViewOffset (int iOffsetX, int iOffsetY);
 
 		inline int GetViewOffsetX (void) { return m_iViewOffsetX; }
 		inline int GetViewOffsetY (void) { return m_iViewOffsetY; }
 
+		void FitChildrenExactly (void);
+
 	private:
 		int m_iViewOffsetX;
 		int m_iViewOffsetY;
-
-		bool m_bSticky;
-		int m_iStickyLeftOffset;
-		int m_iStickyTopOffset;
 
 		CPanel *m_pParentPanel;
 		

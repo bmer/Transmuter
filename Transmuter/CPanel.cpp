@@ -5,183 +5,154 @@
 
 #include "PreComp.h"
 
-// ===========================================================================
-
-CPanelArea::CPanelArea (CPanel &AssociatedPanel) :
-	m_AssociatedPanel(AssociatedPanel),
-	m_rcArea(MakeRect(0, 0, 0, 0))
+CPanelRect::CPanelRect (CPanel &AssociatedPanel) : 
+	m_iOriginX(0),
+	m_iOriginY(0),
+	m_iHeight(0),
+	m_iWidth(0),
+	m_AssociatedPanel(AssociatedPanel)
 	{
 	}
 
-CPanelArea::CPanelArea (CPanel &AssociatedPanel, RECT rcArea) :
-	m_AssociatedPanel(AssociatedPanel),
-	m_rcArea(rcArea)
+CPanelRect::CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iHeight, int iWidth) :
+	m_iOriginX(iOriginX),
+	m_iOriginY(iOriginY),
+	m_iHeight(iHeight),
+	m_iWidth(iWidth),
+	m_AssociatedPanel(AssociatedPanel)
 	{
 	}
 
-RECT CPanelArea::GetAbsoluteRect (void)
+CPanelRect::CPanelRect (CPanel &AssociatedPanel, RECT rc) :
+	m_AssociatedPanel(AssociatedPanel)
 	{
-	return m_rcArea;
+	SetWithRect(rc);
 	}
 
-RECT CPanelArea::GetViewOffsetRect (void)
+void CPanelRect::MakeTopLeftOrigin (void)
+	{
+	if (m_iHeight < 0)
+		{
+		m_iOriginY = m_iHeight + m_iOriginY;
+		}
+	if (m_iWidth < 0)
+		{
+		m_iOriginX = m_iHeight + m_iOriginX;
+		}
+	}
+
+void CPanelRect::SetOrigin (int iOriginX, int iOriginY)
+	{
+	m_iOriginX = iOriginX;
+	m_iOriginY = iOriginY;
+	}
+
+void CPanelRect::ShiftOrigin (int iDeltaX, int iDeltaY)
+	{
+	m_iOriginX += iDeltaX;
+	m_iOriginY += iDeltaY;
+	}
+
+RECT CPanelRect::GetAsRect (void)
 	{
 	RECT rc;
 
-	rc.bottom = GetViewOffsetEdgeLocation(EDGE_BOTTOM);
-	rc.left = GetViewOffsetEdgeLocation(EDGE_LEFT);
-	rc.right = GetViewOffsetEdgeLocation(EDGE_RIGHT);
-	rc.top = GetViewOffsetEdgeLocation(EDGE_TOP);
+	MakeTopLeftOrigin();
+
+	rc.left = m_iOriginX;
+	rc.right = m_iOriginX + m_iWidth;
+	rc.top = m_iOriginY;
+	rc.bottom = m_iHeight + m_iOriginY;
 
 	return rc;
 	}
 
-int CPanelArea::GetAbsoluteEdgeLocation (DWORD dwEdge)
+void CPanelRect::SetWithRect (RECT rc)
 	{
-	if (dwEdge == EDGE_BOTTOM)
+	m_iOriginX = rc.left;
+	m_iOriginY = rc.top;
+	m_iHeight = rc.bottom - rc.top;
+	m_iWidth = rc.right - rc.left;
+	}
+
+int CPanelRect::GetEdgePosition (DWORD dwEdge)
+	{
+	MakeTopLeftOrigin();
+
+	if (dwEdge == EDGE_TOP)
 		{
-		return m_rcArea.bottom;
-		}
-	else if (dwEdge == EDGE_LEFT)
-		{
-		return m_rcArea.left;
+		return m_iOriginY;
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		return m_rcArea.right;
+		return m_iOriginX + m_iWidth;
 		}
-	else if (dwEdge == EDGE_TOP)
+	else if (dwEdge == EDGE_BOTTOM)
 		{
-		return m_rcArea.top;
+		return m_iOriginY + m_iHeight;
+		}
+	else if (dwEdge == EDGE_LEFT)
+		{
+		return m_iOriginX;
 		}
 	else
 		{
-		//  error
-		m_AssociatedPanel.SetError (CONSTLIT("Invalid edge flag provided."));
-		return 0;
+		throw CMessageException("Unknown DWORD given for EDGE!");
 		}
 	}
 
-int CPanelArea::GetViewOffsetEdgeLocation (DWORD dwEdge)
+void CPanelRect::SetEdgePosition (DWORD dwEdge, int iPosition)
 	{
-	int iViewOffsetY = m_AssociatedPanel.GetViewOffsetY();
-	int iViewOffsetX = m_AssociatedPanel.GetViewOffsetX();
+	MakeTopLeftOrigin();
 
-	if (dwEdge == EDGE_BOTTOM)
+	if (dwEdge == EDGE_TOP)
 		{
-		return m_rcArea.bottom + m_AssociatedPanel.GetViewOffsetY();
-		}
-	else if (dwEdge == EDGE_LEFT)
-		{
-		return m_rcArea.left + m_AssociatedPanel.GetViewOffsetX();
+		m_iOriginY = iPosition;
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		return m_rcArea.right + m_AssociatedPanel.GetViewOffsetX();
+		m_iWidth = iPosition - m_iOriginX;
 		}
-	else if (dwEdge == EDGE_TOP)
+	else if (dwEdge == EDGE_BOTTOM)
 		{
-		return m_rcArea.top + m_AssociatedPanel.GetViewOffsetY();
+		m_iHeight = iPosition- m_iOriginY;
+		}
+	else if (dwEdge == EDGE_LEFT)
+		{
+		m_iOriginX = iPosition;
 		}
 	else
 		{
-		//  error
-		m_AssociatedPanel.SetError (CONSTLIT("Invalid edge flag provided."));
-		return 0;
+		throw CMessageException("Unknown DWORD given for EDGE!");
 		}
 	}
 
-void CPanelArea::SetAbsoluteEdgeAt (DWORD dwEdge, int iLocation)
-//  SetAbsoluteEdgeAt
-// 
-//  Set location of area edge.
+void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 	{
-	int iShift;
+	MakeTopLeftOrigin();
 
-	if (dwEdge == EDGE_BOTTOM)
+	if (dwEdge == EDGE_TOP)
 		{
-		iShift = iLocation - GetAbsoluteEdgeLocation(EDGE_BOTTOM);
-		m_rcArea.bottom = iLocation;
-		}
-	else if (dwEdge == EDGE_LEFT)
-		{
-		iShift = iLocation - GetAbsoluteEdgeLocation(EDGE_LEFT);
-		m_rcArea.left = iLocation;
-
-		m_AssociatedPanel.InternalPanels.ShiftEdges(dwEdge, iShift);
-		m_AssociatedPanel.Invalidate();
+		m_iOriginY += iShift;
 		}
 	else if (dwEdge == EDGE_RIGHT)
 		{
-		iShift = iLocation - GetAbsoluteEdgeLocation(EDGE_RIGHT);
-		m_rcArea.right = iLocation;
+		m_iWidth = (GetEdgePosition(dwEdge) + iShift) - m_iOriginX;
 		}
-	else if (dwEdge == EDGE_TOP)
+	else if (dwEdge == EDGE_BOTTOM)
 		{
-		iShift = iLocation - GetAbsoluteEdgeLocation(EDGE_TOP);
-		m_rcArea.top = iLocation;
-		m_AssociatedPanel.InternalPanels.ShiftEdges(dwEdge, iShift);
-		m_AssociatedPanel.Invalidate();
-		}
-	}
-
-void CPanelArea::ShiftEdge (DWORD dwEdge, int iShift)
-	{
-	int iLocation; 
-
-	if (dwEdge == EDGE_BOTTOM)
-		{
-		iLocation = iShift + m_rcArea.bottom;
-		m_rcArea.bottom = iLocation;
+		m_iHeight = (GetEdgePosition(dwEdge) + iShift)- m_iOriginY;
 		}
 	else if (dwEdge == EDGE_LEFT)
 		{
-		iLocation = iShift + m_rcArea.left;
-		m_rcArea.left = iLocation;
-
-		m_AssociatedPanel.InternalPanels.ShiftEdges(dwEdge, iShift);
-		m_AssociatedPanel.Invalidate();
+		m_iOriginX += iShift;
 		}
-	else if (dwEdge == EDGE_RIGHT)
+	else
 		{
-		iLocation = iShift + m_rcArea.right;
-		m_rcArea.right = iLocation;
-		}
-	else if (dwEdge == EDGE_TOP)
-		{
-		iLocation = iShift + m_rcArea.top;
-		m_rcArea.top = iLocation;
-
-		m_AssociatedPanel.InternalPanels.ShiftEdges(dwEdge, iShift);
-		m_AssociatedPanel.Invalidate();
+		throw CMessageException("Unknown DWORD given for EDGE!");
 		}
 	}
 
-void CPanelArea::FitChildrenExactly (void)
-	{
-	CPanel *pParentPanel = m_AssociatedPanel.GetParentPanel();
-
-	if (pParentPanel == NULL)
-		{
-		return;
-		}
-
-	TArray <int> aPanelIndices = m_AssociatedPanel.InternalPanels.SortByScreenAreaEdgeLocation(EDGE_BOTTOM);
-	TArray <CPanel *> aPanels = m_AssociatedPanel.InternalPanels.GetPanels();
-
-	int iNumPanels = aPanelIndices.GetCount();
-	int iLastPanelIndex = aPanelIndices[iNumPanels-1];
-	int iLastPanelBottom = aPanels[iLastPanelIndex]->ScreenArea.GetAbsoluteEdgeLocation(EDGE_BOTTOM);
-	
-	pParentPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_BOTTOM, iLastPanelBottom);
-
-	aPanelIndices = m_AssociatedPanel.InternalPanels.SortByScreenAreaEdgeLocation(EDGE_RIGHT);
-	iNumPanels = aPanelIndices.GetCount();
-	iLastPanelIndex = aPanelIndices[iNumPanels-1];
-	int iLastPanelRight = aPanels[iLastPanelIndex]->ScreenArea.GetAbsoluteEdgeLocation(EDGE_RIGHT);
-	
-	pParentPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_RIGHT, iLastPanelRight);
-	}
 // ===========================================================================
 
 CInternalPanels::CInternalPanels(CPanel &ParentPanel) :
@@ -197,8 +168,8 @@ CInternalPanels::~CInternalPanels()
 		}
 	}
 
-TArray <int> CInternalPanels::SortByScreenAreaEdgeLocation (DWORD dwEdge)
-//  SortInternalPanelsByScreenSapceEdgeLocation
+TArray <int> CInternalPanels::SortByPanelRectEdgeLocation (DWORD dwEdge)
+//  SortByPanelRectEdgeLocation
 // 
 //  Return an array of integers whose elements correspond with indices of panels
 //  in the m_aInternalPanels array. Panel indices are sorted by edge location
@@ -218,7 +189,7 @@ TArray <int> CInternalPanels::SortByScreenAreaEdgeLocation (DWORD dwEdge)
 			}
 		else
 			{
-			aEdgeLocations.Insert(pPanel->ScreenArea.GetAbsoluteEdgeLocation(dwEdge));
+			aEdgeLocations.Insert(pPanel->PanelRect.GetEdgePosition(dwEdge));
 			}
 		}
 
@@ -230,19 +201,18 @@ TArray <int> CInternalPanels::SortByScreenAreaEdgeLocation (DWORD dwEdge)
 void CInternalPanels::SmoothOut (DWORD dwSmoothType)
 	{
 	TArray <int> aSortedPanelIndices;
-	int iProposedChange;
+	int iShift;
 	int iSharedRectBoundary;
 
-	RECT rcChangedFocus;
 	RECT rcOther;
 
 	if (dwSmoothType == SMOOTH_LEFTRIGHT)
 		{
-		aSortedPanelIndices = SortByScreenAreaEdgeLocation(EDGE_LEFT);
+		aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_LEFT);
 		}
 	else if (dwSmoothType == SMOOTH_UPDOWN)
 		{
-		aSortedPanelIndices = SortByScreenAreaEdgeLocation(EDGE_TOP);
+		aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_TOP);
 		}
 
 	int iFocusIndex;
@@ -265,11 +235,6 @@ void CInternalPanels::SmoothOut (DWORD dwSmoothType)
 
 		if (pFocusPanel->IsHidden())
 			continue;
-
-		iStickyLeftOffset = 0;
-		iStickyTopOffset = 0;
-
-		rcChangedFocus = pFocusPanel->ScreenArea.GetViewOffsetRect();
 
 		if (i != 0)
 			{
@@ -295,96 +260,81 @@ void CInternalPanels::SmoothOut (DWORD dwSmoothType)
 		if (iOtherIndex != -1)
 			{
 			pOtherPanel = m_aPanels[iOtherIndex];
-			rcOther = pOtherPanel->ScreenArea.GetViewOffsetRect();
+			rcOther = pOtherPanel->PanelRect.GetAsRect();
 
 			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherEdgeLocation = pOtherPanel->ScreenArea.GetAbsoluteEdgeLocation(EDGE_RIGHT);
+				iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_RIGHT);
 				}
 			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherEdgeLocation = pOtherPanel->ScreenArea.GetAbsoluteEdgeLocation(EDGE_BOTTOM);
+				iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_BOTTOM);
 				}
 			}
 		else
 			{
-			rcOther = m_ParentPanel.ScreenArea.GetAbsoluteRect();
-
-			if (pFocusPanel->IsSticky())
-				{
-				iStickyLeftOffset = pFocusPanel->GetStickyLeftOffset();
-				iStickyTopOffset = pFocusPanel->GetStickyTopOffset();
-				}
+			rcOther = m_ParentPanel.PanelRect.GetAsRect();
 
 			if (dwSmoothType == SMOOTH_LEFTRIGHT)
 				{
-				iOtherEdgeLocation = rcOther.left + iStickyLeftOffset;
+				iOtherEdgeLocation = rcOther.left;
 				}
 			else if (dwSmoothType == SMOOTH_UPDOWN)
 				{
-				iOtherEdgeLocation = rcOther.top + iStickyTopOffset;
+				iOtherEdgeLocation = rcOther.top;
 				}
 			}
 
 		if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			iFocusLocation = pFocusPanel->ScreenArea.GetAbsoluteEdgeLocation(EDGE_LEFT);
+			iFocusLocation = pFocusPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			iFocusLocation = pFocusPanel->ScreenArea.GetAbsoluteEdgeLocation(EDGE_TOP);
+			iFocusLocation = pFocusPanel->PanelRect.GetEdgePosition(EDGE_TOP);
 			}
 			
-		iProposedChange = (iFocusLocation - iOtherEdgeLocation);
+		iShift = (iFocusLocation - iOtherEdgeLocation);
 
-		if (iProposedChange == 0)
+		if (iShift == 0)
 			{
 			continue;
 			}
 
 		 if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			rcChangedFocus.left = iOtherEdgeLocation;
-			rcChangedFocus.right = iOtherEdgeLocation + pFocusPanel->ScreenArea.GetWidth();
+			pFocusPanel->PanelRect.ShiftOrigin(iShift, 0);
 
-			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&rcChangedFocus, &rcOther);
-			if (iSharedRectBoundary > 0)
+			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&pFocusPanel->PanelRect.GetAsRect(), &rcOther);
+
+			if (!(iSharedRectBoundary > 0))
 				{
-				pFocusPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_LEFT, rcChangedFocus.left);
-				pFocusPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_RIGHT, rcChangedFocus.right);
+				pFocusPanel->PanelRect.ShiftOrigin(-1*iShift, 0);
 				}
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			rcChangedFocus.top = iOtherEdgeLocation;
-			rcChangedFocus.bottom = iOtherEdgeLocation + pFocusPanel->ScreenArea.GetHeight(); 
+			pFocusPanel->PanelRect.ShiftOrigin(0, iShift);
 
-			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&rcChangedFocus, &rcOther);
-			if (iSharedRectBoundary > 0)
+			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&pFocusPanel->PanelRect.GetAsRect(), &rcOther);
+			if (!(iSharedRectBoundary > 0))
 				{
-				pFocusPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_BOTTOM, rcChangedFocus.bottom);
-				pFocusPanel->ScreenArea.SetAbsoluteEdgeAt(EDGE_TOP, rcChangedFocus.top);
+				pFocusPanel->PanelRect.ShiftOrigin(0, -1*iShift);
 				}
 			}
 		}
 	}
 
-CPanel *CInternalPanels::Add (int iRelativeLeft, int iRelativeTop, int iWidth, int iHeight, bool bHidden, bool bSticky)
+CPanel *CInternalPanels::AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden)
 	{
 	CPanel *NewPanel = NULL;
-	RECT rcParent = m_ParentPanel.ScreenArea.GetAbsoluteRect();
-	RECT rcScreenArea = MakeRect(rcParent, iRelativeLeft, iRelativeTop, iWidth, iHeight);
-	NewPanel = new CPanel(rcScreenArea);
+	NewPanel = new CPanel();
+
+	NewPanel->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX, m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY);
 
 	NewPanel->SetHiddenFlag(bHidden);
 	NewPanel->SetParentPanel(&m_ParentPanel);
-	NewPanel->SetViewOffsetX(m_ParentPanel.GetViewOffsetX());
-	NewPanel->SetViewOffsetY(m_ParentPanel.GetViewOffsetY());
-
-	if (bSticky)
-		{
-		NewPanel->MakeSticky(iRelativeLeft, iRelativeTop);
-		}
+	NewPanel->SetViewOffset(m_ParentPanel.GetViewOffsetX(), m_ParentPanel.GetViewOffsetY());
 
 	m_aPanels.Insert(NewPanel);
 
@@ -510,7 +460,7 @@ void CInternalPanels::ShowAll (void)
 	SmoothOut(SMOOTH_UPDOWN);
 	}
 
-void CInternalPanels::Invalidate (void)
+void CInternalPanels::InvalidateAll (void)
 	{
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -526,27 +476,12 @@ void CInternalPanels::PaintAll (CG32bitImage &Screen, const RECT &rcInvalid)
 		}
 	}
 
-void CInternalPanels::SetViewOffsetX (int iOffset)
-	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
-		{
-		m_aPanels[i]->SetViewOffsetX(iOffset);
-		}
-	}
 
-void CInternalPanels::SetViewOffsetY (int iOffset)
+void CInternalPanels::ShiftAllOrigins (int iShiftX, int iShiftY)
 	{
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
-		m_aPanels[i]->SetViewOffsetY(iOffset);
-		}
-	}
-
-void CInternalPanels::ShiftEdges (DWORD dwEdge, int iShift)
-	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
-		{
-		m_aPanels[i]->ScreenArea.ShiftEdge(dwEdge, iShift);
+		m_aPanels[i]->PanelRect.ShiftOrigin(iShiftX, iShiftY);
 		}
 	}
 
@@ -559,40 +494,7 @@ CPanel::CPanel(void) :
 	m_pAssociatedSession(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
-	m_bSticky(false),
-	m_iStickyLeftOffset(0),
-	m_iStickyTopOffset(0),
-	ScreenArea(*this),
-	InternalPanels(*this)
-	{
-	}
-
-CPanel::CPanel (RECT rcScreenArea) : 
-	m_pParentPanel(NULL),
-	m_bErrorOccurred(false),
-	m_sErrorString(CONSTLIT("")),
-	m_pAssociatedSession(NULL),
-	m_bFocus(0),
-	m_bHidden(false),
-	m_bSticky(false),
-	m_iStickyLeftOffset(0),
-	m_iStickyTopOffset(0),
-	ScreenArea(*this, rcScreenArea),
-	InternalPanels(*this)
-	{
-	}
-
-CPanel::CPanel (int iLeft, int iTop, int iWidth, int iHeight) :
-	m_pParentPanel(NULL),
-	m_bErrorOccurred(false),
-	m_sErrorString(CONSTLIT("")),
-	m_pAssociatedSession(NULL),
-	m_bFocus(0),
-	m_bHidden(false),
-	m_bSticky(false),
-	m_iStickyLeftOffset(0),
-	m_iStickyTopOffset(0),
-	ScreenArea(*this, MakeRect(iLeft, iTop, iWidth, iHeight)),
+	PanelRect(*this),
 	InternalPanels(*this)
 	{
 	}
@@ -613,7 +515,7 @@ TArray <CSChild *> CPanel::GetSessionsContainingPoint (int x, int y)
 
 	if (!IsEmpty() && !IsHidden())
 		{
-		if (IsPointInRect(x, y, ScreenArea.GetAbsoluteRect()))
+		if (IsPointInRect(x, y, PanelRect.GetAsRect()))
 			{
 			aRelevantSessions.Insert(m_pAssociatedSession);
 			}
@@ -655,5 +557,41 @@ void CPanel::Invalidate()
 		m_pAssociatedSession->HIInvalidate();
 		}
 
-	InternalPanels.Invalidate();
+	InternalPanels.InvalidateAll();
+	}
+
+void CPanel::FitChildrenExactly (void)
+	{
+	if (m_pParentPanel == NULL)
+		{
+		return;
+		}
+
+	TArray <int> aPanelIndices = InternalPanels.SortByPanelRectEdgeLocation(EDGE_BOTTOM);
+	TArray <CPanel *> aPanels = InternalPanels.GetPanels();
+
+	int iNumPanels = aPanelIndices.GetCount();
+	int iLastPanelIndex = aPanelIndices[iNumPanels-1];
+	int iLastPanelBottom = aPanels[iLastPanelIndex]->PanelRect.GetEdgePosition(EDGE_BOTTOM);
+	
+	m_pParentPanel->PanelRect.SetEdgePosition(EDGE_BOTTOM, iLastPanelBottom);
+
+	aPanelIndices = InternalPanels.SortByPanelRectEdgeLocation(EDGE_RIGHT);
+	iNumPanels = aPanelIndices.GetCount();
+	iLastPanelIndex = aPanelIndices[iNumPanels-1];
+	int iLastPanelRight = aPanels[iLastPanelIndex]->PanelRect.GetEdgePosition(EDGE_RIGHT);
+	
+	m_pParentPanel->PanelRect.SetEdgePosition(EDGE_RIGHT, iLastPanelRight);
+	}
+
+void CPanel::SetViewOffset (int iOffsetX, int iOffsetY)
+	{
+	int iShiftX = iOffsetX - m_iViewOffsetX;
+	m_iViewOffsetX = iOffsetX;
+
+	int iShiftY = iOffsetY - m_iViewOffsetY;
+	m_iViewOffsetY = iOffsetY;
+
+	PanelRect.ShiftOrigin(iShiftX, iShiftY);
+	InternalPanels.ShiftAllOrigins(iShiftX, iShiftY);
 	}

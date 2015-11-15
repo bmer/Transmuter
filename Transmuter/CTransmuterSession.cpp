@@ -11,7 +11,7 @@ CSTransmuter::CSTransmuter (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	m_IsRButtonDown(0)
 	//	CSTransmuter constructor
 	{
-	CPanel *pEmptyPanel = m_Panel.InternalPanels.Add(0, 0, 200, m_Panel.ScreenArea.GetHeight(), false, false);
+	CPanel *pEmptyPanel = m_Panel.InternalPanels.AddPanel(0, 0, 200, m_Panel.PanelRect.GetHeight(), false, false);
 
 	CSExtensionNavigator *pExtensionNavigatorSession = new CSExtensionNavigator(HI, *pEmptyPanel, m_Model.GetExtensionsArray());
 	m_aChildSessions.Insert(pExtensionNavigatorSession);
@@ -77,7 +77,7 @@ void CSTransmuter::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	for (int i = 0; i < m_aChildSessions.GetCount(); i++)
 		{
 		CSChild *pSubSession = m_aChildSessions[i];
-		rcClip = (m_aChildSessions[i]->GetAssociatedPanel()).ScreenArea.GetViewOffsetRect();
+		rcClip = (m_aChildSessions[i]->GetAssociatedPanel()).PanelRect.GetAsRect();
 		Screen.SetClipRect(rcClip);
 		m_aChildSessions[i]->OnPaint(Screen, rcInvalid);
 		}

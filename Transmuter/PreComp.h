@@ -6,6 +6,8 @@
 
 #include <windows.h>
 #include <ddraw.h>
+#include <iostream>
+#include <exception>
 #include "Alchemy.h"
 #include "JPEGUtil.h"
 #include "DirectXUtil.h"

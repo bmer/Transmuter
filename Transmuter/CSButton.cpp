@@ -27,7 +27,7 @@ void CSButton::UpdateActiveAreaScale (double dNewActiveAreaScale)
 
 RECT CSButton::GetActiveAreaRect (void)
 	{
-	return ScaleRect(m_dActiveAreaScale, m_AssociatedPanel.ScreenArea.GetViewOffsetRect());
+	return ScaleRect(m_dActiveAreaScale, m_AssociatedPanel.PanelRect.GetAsRect());
 	}
 
 void CSButton::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
