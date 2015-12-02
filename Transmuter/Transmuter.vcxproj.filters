@@ -33,16 +33,37 @@
     <ClInclude Include="TransmuterController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TransmuterSessions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimpleGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Panel.h">
+    <ClInclude Include="SimpleSorting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleSorting.h">
+    <ClInclude Include="CContextSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicSessions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMainSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTextAreaSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CScrollBarSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CInterfaceSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEditorSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPreviewSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,12 +77,6 @@
     <ClCompile Include="Transmuter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CLoadingSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CTransmuterSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SimpleGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,19 +86,19 @@
     <ClCompile Include="SimpleSorting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSScrollBar.cpp">
+    <ClCompile Include="CMainSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSButton.cpp">
+    <ClCompile Include="CScrollBarSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSExtensionNavigator.cpp">
+    <ClCompile Include="CContextSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSChild.cpp">
+    <ClCompile Include="CTextAreaSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSTextArea.cpp">
+    <ClCompile Include="BasicSessions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

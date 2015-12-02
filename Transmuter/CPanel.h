@@ -13,11 +13,11 @@
 #define SMOOTH_LEFTRIGHT	5
 
 class CPanelRect;
-class CSChild;
+class CTransmuterSession;
 class CPanel;
 class CInternalPanels;
 
-using namespace std;
+// using namespace std;
 
 //class CMessageException: public exception
 //	{
@@ -37,7 +37,7 @@ class CPanelRect
 
 	public:
 		CPanelRect (CPanel &AssociatedPanel);
-		CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iHeight, int iWidth);
+		CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight);
 		CPanelRect (CPanel &AssociatedPanel, RECT rc);
 
 		inline int GetOriginX (void) { return m_iOriginX; }
@@ -57,8 +57,11 @@ class CPanelRect
 		void SetEdgePosition (DWORD dwEdge, int iPosition);
 		void ShiftEdgePosition (DWORD dwEdge, int iShift);
 
-		inline void ChangeHeight (int iHeight) { m_iHeight = iHeight; }
-		inline void ChangeWidth (int iWidth) { m_iWidth = iWidth; }
+		inline void SetWidth (int iWidth) { m_iWidth = iWidth; }
+		inline void ChangeWidthBy (int iChange) { m_iWidth += iChange;  }
+
+		inline void SetHeight (int iHeight) { m_iHeight = iHeight; }
+		inline void ChangeHeightBy (int iChange) { m_iHeight += iChange;  }
 
 	private:
 		CPanel &m_AssociatedPanel;
@@ -81,8 +84,7 @@ class CInternalPanels
 
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
 		inline TArray <CPanel *> GetPanels (void) {return m_aPanels; }
-
-		void SetPanelEdgeAt (int iPanelIndex, DWORD dwEdge, int iLocation);
+		inline CPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
 		void ShiftAllOrigins (int iShiftX, int iShiftY);
 
 		void SmoothOut (DWORD dwSmoothType);
@@ -91,8 +93,8 @@ class CInternalPanels
 
 		void DeletePanel (int iPanelIndex);
 
-		TArray <CSChild *> GetAssociatedSessions (void);
-		TArray <CSChild *> GetSessionsContainingPoint (int x, int y);
+		TArray <CTransmuterSession *> GetAssociatedSessions (void);
+		TArray <CTransmuterSession *> GetSessionsContainingPoint (int x, int y);
 
 		int GetPanelIndex (CPanel *pPanel);
 
@@ -121,21 +123,16 @@ class CPanel
 
 	public:
 		CPanel (void);
+		CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CPanel (CTransmuterSession *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight);
 
-		void InitScreenArea (void);
-		void InitScreenArea (RECT rcArea);
-		
-		inline void SetParentPanel(CPanel *pPanel) { m_pParentPanel = pPanel; }
-		inline CPanel *GetParentPanel(void) { return m_pParentPanel; }
+		inline void SetParentPanel (CPanel *pPanel) { m_pParentPanel = pPanel; }
+		inline CPanel *GetParentPanel (void) { return m_pParentPanel; }
 
-		inline void AssociateSession(CSChild *Session) { m_pAssociatedSession = Session; }
-		inline CSChild *GetAssociatedSession (void) { return m_pAssociatedSession; }
-		TArray <CSChild *> GetAllAssociatedSessions (void);
+		inline void AssociateSession (CTransmuterSession *Session) { m_pAssociatedSession = Session; }
+		inline CTransmuterSession *GetAssociatedSession (void) { return m_pAssociatedSession; }
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
-
-		void HideInternalPanel (int iPanelIndex);
-		void ShowInternalPanel (int iPanelIndex);
 
 		void Hide (void);
 		void Show (void);
@@ -147,7 +144,7 @@ class CPanel
 
 		inline bool IsEmpty (void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
 
-		TArray <CSChild *> GetSessionsContainingPoint (int x, int y);
+		TArray <CTransmuterSession *> GetSessionsContainingPoint (int x, int y);
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void Invalidate (void);
@@ -173,7 +170,7 @@ class CPanel
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
 
-		CSChild *m_pAssociatedSession;
+		CTransmuterSession *m_pAssociatedSession;
 
 		int m_bFocus;
 		bool m_bHidden;

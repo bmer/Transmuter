@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -126,27 +126,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
-    <ClInclude Include="Panel.h" />
+    <ClInclude Include="CContextSession.h" />
+    <ClInclude Include="CEditorSession.h" />
+    <ClInclude Include="CInterfaceSession.h" />
+    <ClInclude Include="CMainSession.h" />
+    <ClInclude Include="CPreviewSession.h" />
+    <ClInclude Include="CTextAreaSession.h" />
+    <ClInclude Include="CScrollBarSession.h" />
+    <ClInclude Include="BasicSessions.h" />
+    <ClInclude Include="CPanel.h" />
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleGeometry.h" />
     <ClInclude Include="SimpleSorting.h" />
     <ClInclude Include="TransmuterController.h" />
     <ClInclude Include="TransmuterModel.h" />
-    <ClInclude Include="TransmuterSessions.h" />
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CSButton.cpp" />
+    <ClCompile Include="BasicSessions.cpp" />
     <ClCompile Include="CPanel.cpp" />
-    <ClCompile Include="CSExtensionNavigator.cpp" />
-    <ClCompile Include="CLoadingSession.cpp" />
-    <ClCompile Include="CSScrollBar.cpp" />
-    <ClCompile Include="CSChild.cpp" />
-    <ClCompile Include="CSTextArea.cpp" />
+    <ClCompile Include="CContextSession.cpp" />
+    <ClCompile Include="CScrollBarSession.cpp" />
+    <ClCompile Include="CTextAreaSession.cpp" />
     <ClCompile Include="CTransmuterController.cpp" />
     <ClCompile Include="CTransmuterModel.cpp" />
-    <ClCompile Include="CTransmuterSession.cpp" />
+    <ClCompile Include="CMainSession.cpp" />
     <ClCompile Include="SimpleGeometry.cpp" />
     <ClCompile Include="SimpleSorting.cpp" />
     <ClCompile Include="Transmuter.cpp">

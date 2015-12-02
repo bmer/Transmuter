@@ -1,6 +1,6 @@
 //	SimpleGeometry.cpp
 //
-//	CSTransmuter class
+//	CMainSession class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
@@ -225,8 +225,8 @@ RECT ScaleRect(double dScale, int iLeft, int iTop, int iWidth, int iHeight)
 	{
 	RECT rcResult;
 
-	int iYPadding = 0.5*(1 - dScale)*iHeight;
-	int iXPadding = 0.5*(1 - dScale)*iWidth;
+	int iYPadding = int(0.5*(1 - dScale)*iHeight);
+	int iXPadding = int(0.5*(1 - dScale)*iWidth);
 
 	rcResult.bottom = (iTop + iHeight) - iYPadding;
 	rcResult.left = iLeft + iXPadding;
@@ -240,8 +240,8 @@ RECT ScaleRect(double dScale, RECT rc)
 	{
 	RECT rcResult;
 
-	int iYPadding = 0.5*(1 - dScale)*RectHeight(rc);
-	int iXPadding = 0.5*(1 - dScale)*RectWidth(rc);
+	int iYPadding = int(0.5*(1 - dScale)*RectHeight(rc));
+	int iXPadding = int(0.5*(1 - dScale)*RectWidth(rc));
 
 	rcResult.bottom = rc.bottom - iYPadding;
 	rcResult.left = rc.left + iXPadding;

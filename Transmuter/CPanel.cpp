@@ -1,6 +1,6 @@
-//	CSTransmuter.cpp
+//	CMainSession.cpp
 //
-//	CSTransmuter class
+//	CMainSession class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
@@ -14,7 +14,7 @@ CPanelRect::CPanelRect (CPanel &AssociatedPanel) :
 	{
 	}
 
-CPanelRect::CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iHeight, int iWidth) :
+CPanelRect::CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	m_iOriginX(iOriginX),
 	m_iOriginY(iOriginY),
 	m_iHeight(iHeight),
@@ -125,7 +125,7 @@ void CPanelRect::SetEdgePosition (DWORD dwEdge, int iPosition)
 	else
 		{
 		// throw CMessageException("Unknown DWORD given for EDGE!");
-		m_iOriginX = 0
+		m_iOriginX = 0;
 		}
 	}
 
@@ -152,7 +152,7 @@ void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 	else
 		{
 		// throw CMessageException("Unknown DWORD given for EDGE!");
-		m_iOriginX = 0
+		m_iOriginX = 0;
 		}
 	}
 
@@ -224,8 +224,6 @@ void CInternalPanels::SmoothOut (DWORD dwSmoothType)
 	int iFocusLocation;
 	int iOtherEdgeLocation;
 
-	int iStickyLeftOffset;
-	int iStickyTopOffset;
 	int iProspectiveOtherIndex;
 
 	CPanel *pFocusPanel;
@@ -330,10 +328,10 @@ void CInternalPanels::SmoothOut (DWORD dwSmoothType)
 
 CPanel *CInternalPanels::AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden)
 	{
-	CPanel *NewPanel = NULL;
-	NewPanel = new CPanel();
+	int iOriginX = m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX;
+	int iOriginY = m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY;
 
-	NewPanel->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX, m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY);
+	CPanel *NewPanel = new CPanel(iOriginX, iOriginY, iWidth, iHeight);
 
 	NewPanel->SetHiddenFlag(bHidden);
 	NewPanel->SetParentPanel(&m_ParentPanel);
@@ -347,9 +345,14 @@ CPanel *CInternalPanels::AddPanel (int iRelativeOriginX, int iRelativeOriginY, i
 	return NewPanel;
 	}
 
-TArray <CSChild *> CInternalPanels::GetAssociatedSessions (void)
+void CInternalPanels::DeletePanel (int iPanelIndex)
 	{
-	TArray <CSChild *> InternalSessions;
+	m_aPanels.Delete(iPanelIndex);
+	}
+
+TArray <CTransmuterSession *> CInternalPanels::GetAssociatedSessions (void)
+	{
+	TArray <CTransmuterSession *> InternalSessions;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -360,9 +363,9 @@ TArray <CSChild *> CInternalPanels::GetAssociatedSessions (void)
 	}
 
 
-TArray <CSChild *> CInternalPanels::GetSessionsContainingPoint (int x, int y)
+TArray <CTransmuterSession *> CInternalPanels::GetSessionsContainingPoint (int x, int y)
 	{
-	TArray <CSChild *> aRelevantSessions;
+	TArray <CTransmuterSession *> aRelevantSessions;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -490,7 +493,7 @@ void CInternalPanels::ShiftAllOrigins (int iShiftX, int iShiftY)
 
 // ============================================================================
 
-CPanel::CPanel(void) :
+CPanel::CPanel (void) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
@@ -498,9 +501,40 @@ CPanel::CPanel(void) :
 	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this),
-	InternalPanels(*this)
+	InternalPanels(*this),
+	m_iViewOffsetX(0),
+	m_iViewOffsetY(0)
 	{
 	}
+
+CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight) :
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(NULL),
+	m_bFocus(0),
+	m_bHidden(false),
+	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
+	InternalPanels(*this),
+	m_iViewOffsetX(0),
+	m_iViewOffsetY(0)
+	{
+	}
+
+CPanel::CPanel (IHISession *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight) :
+	m_pParentPanel(NULL),
+	m_bErrorOccurred(false),
+	m_sErrorString(CONSTLIT("")),
+	m_pAssociatedSession(pAssociatedSession),
+	m_bFocus(0),
+	m_bHidden(false),
+	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
+	InternalPanels(*this),
+	m_iViewOffsetX(0),
+	m_iViewOffsetY(0)
+	{
+	}
+
 
 void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
@@ -512,11 +546,14 @@ void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	InternalPanels.PaintAll(Screen, rcInvalid);
 	}
 
-TArray <CSChild *> CPanel::GetSessionsContainingPoint (int x, int y)
+TArray <CTransmuterSession *> CPanel::GetSessionsContainingPoint (int x, int y)
 	{
-	TArray <CSChild *> aRelevantSessions;
+	TArray <CTransmuterSession *> aRelevantSessions;
 
-	if (!IsEmpty() && !IsHidden())
+	bool bIsEmpty = this->IsEmpty();
+	bool bIsHidden = this->IsHidden();
+
+	if (!this->IsEmpty() && !this->IsHidden())
 		{
 		if (IsPointInRect(x, y, PanelRect.GetAsRect()))
 			{

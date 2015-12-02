@@ -15,7 +15,7 @@ CUserSettings::SOptionDef g_UserSettings[] =
 		{	"forceNonDirectX",			CUserSettings::optionBoolean,	"false",	0	},
 		{	"forceExclusive",			CUserSettings::optionBoolean,	"false",	0	},
 		{	"forceNonExclusive",		CUserSettings::optionBoolean,	"false",	0	},
-		{	"windowedMode",				CUserSettings::optionBoolean,	"false",	0	},
+		{	"windowedMode",				CUserSettings::optionBoolean,	"True",	0	},
 		{	"useBackgroundBlt",			CUserSettings::optionBoolean,	"true",		0	},
 		{	"force1024",				CUserSettings::optionBoolean,	"false",	0	},
 		{	"force600",					CUserSettings::optionBoolean,	"false",	0	},
