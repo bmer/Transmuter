@@ -5,6 +5,8 @@
 #pragma once
 
 class CContextSession;
+class CContext;
+class CLibrary;
 class CContextItemSession;
 
 //  =======================================================================
@@ -23,10 +25,24 @@ class CContextSession : public CTransmuterSession
 	private:
 		TArray <CExtension *> m_Extensions;
 		TArray <CContextItemSession *> m_ContextItems;
-		CPanel &m_AssociatedPanel;
 	};
 
 //  =======================================================================
+
+class CLibrary
+	{
+	public:
+		CLibrary (void);
+
+		void ApplyContextFilters(TArray <CContextFilter *> aContextFilters);
+	
+		void ResetContextFilters(void);
+
+		CContext GetContext(void);
+
+	private:
+		TArray <CContextFilter *> m_appliedContextFilters;
+	};
 
 class CContextItemSession : public CTransmuterSession
 	{
@@ -38,6 +54,5 @@ class CContextItemSession : public CTransmuterSession
 
 	private:
 		TArray <CString> Context;
-		CButtonSession *m_Button;
 		CTextAreaSession &m_pTextArea;
 	};

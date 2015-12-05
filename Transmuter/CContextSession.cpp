@@ -6,12 +6,8 @@
 #include "PreComp.h"
 
 
-CContextSession::CContextSession (CHumanInterface &HI, CPanel &AssociatedPanel, TArray <CExtension *> Extensions) : CTransmuterSession(HI, AssociatedPanel),
-	m_Extensions(Extensions),
-	m_iMenuSlotHeight(40),
-	m_iHeaderBarHeight(40)
+CContextSession::CContextSession(CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterSession(CONSTLIT("context view"), HI, AssociatedPanel)
 	{
-	CreateExtensionNavigatorMenuItems();
 	}
 
 CContextSession::~CContextSession (void)

@@ -89,12 +89,12 @@ class CTransmuterSession : public IHISession
 class CHeaderSession : public CTransmuterSession
 	{
 	public:
-		CHeaderSession (CString sParentSessionName, CHumanInterface & HI, CPanel & AssociatedPanel, CTransmuterSession & AssociatedSession);
+		CHeaderSession (CString sParentSessionName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterSession &AssociatedSession);
 		~CHeaderSession (void);
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		const CG16bitFont *m_pFont;
+		CG16bitFont m_font;
 		CG32bitPixel m_rgbTextColor;
 		CG32bitPixel m_rgbBackgroundColor;
 		CString m_sPanelName;

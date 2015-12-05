@@ -72,7 +72,7 @@ void CTransmuterSession::DrawPanelOutline(CG32bitImage &Screen)
 //  =======================================================================
 
 CHeaderSession::CHeaderSession(CString sParentSessionName, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterSession & AssociatedSession) : CTransmuterSession(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
-	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
+	m_font((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy)),
 	m_rgbTextColor(CG32bitPixel(255,255,255)),
 	m_rgbBackgroundColor(CG32bitPixel(110,110,110))
 	{
@@ -80,4 +80,16 @@ CHeaderSession::CHeaderSession(CString sParentSessionName, CHumanInterface & HI,
 
 CHeaderSession::~CHeaderSession(void)
 	{
+	}
+
+void CHeaderSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+	{
+	Screen.Fill(0, 0, m_AssociatedPanel.PanelRect.GetWidth(), m_AssociatedPanel.PanelRect.GetWidth(), m_rgbBackgroundColor);
+
+	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
+
+	const CVisualPalette &VI = g_pHI->GetVisuals();
+	const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
+
+	Screen.DrawText(Screen.GetWidth() / 2, Screen.GetHeight() / 2, m_font, m_rgbTextColor, CONSTLIT("Loading..."));
 	}
