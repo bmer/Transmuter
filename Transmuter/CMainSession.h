@@ -4,7 +4,20 @@
 
 #pragma once
 
+class CLoadingSession;
 class CMainSession;
+
+//  =======================================================================
+//  Presents loading screen.
+class CLoadingSession : public IHISession
+	{
+	public:
+		CLoadingSession (CHumanInterface &HI);
+
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+	};
+
+//  =======================================================================
 
 //  =======================================================================
 
@@ -30,7 +43,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		TArray <CTransmuterSession *> m_aSubSessions;
+		TArray <CTransmuterPanelContent *> m_aSubSessions;
 		CTransmuterModel &m_Model;
-		CPanel &m_Panel;
+		CPanel m_Panel;
 	};

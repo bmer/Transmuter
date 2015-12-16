@@ -39,31 +39,31 @@
     <ClInclude Include="SimpleSorting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CContextSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicSessions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CMainSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CTextAreaSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CScrollBarSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CInterfaceSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CEditorSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPreviewSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicPanelContents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CContextPanelContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEditorPanelContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPreviewPanelContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CScrollBarPanelContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTextAreaPanelContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCommandPanelContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <ClCompile Include="CTextAreaSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasicSessions.cpp">
+    <ClCompile Include="BasicPanelContents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

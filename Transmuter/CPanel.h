@@ -1,4 +1,4 @@
-//	TransmuterSession.h
+//	TransmuterPanelContent.h
 //
 //	Transmuter
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
@@ -13,7 +13,7 @@
 #define SMOOTH_LEFTRIGHT	5
 
 class CPanelRect;
-class CTransmuterSession;
+class IPanelContent;
 class CPanel;
 class CInternalPanels;
 
@@ -93,8 +93,8 @@ class CInternalPanels
 
 		void DeletePanel (int iPanelIndex);
 
-		TArray <CTransmuterSession *> GetAssociatedSessions (void);
-		TArray <CTransmuterSession *> GetSessionsContainingPoint (int x, int y);
+		TArray <IPanelContent *> GetPanelContents (void);
+		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
 
 		int GetPanelIndex (CPanel *pPanel);
 
@@ -106,7 +106,7 @@ class CInternalPanels
 		void ShowAll (void);
 
 		void InvalidateAll (void);
-		void PaintAll (CG32bitImage &Screen, const RECT &rcInvalid);
+		void PaintAllContent (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	protected:
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
@@ -124,13 +124,14 @@ class CPanel
 	public:
 		CPanel (void);
 		CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight);
-		CPanel (CTransmuterSession *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		~CPanel (void);
 
 		inline void SetParentPanel (CPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline CPanel *GetParentPanel (void) { return m_pParentPanel; }
 
-		inline void AssociateSession (CTransmuterSession *Session) { m_pAssociatedSession = Session; }
-		inline CTransmuterSession *GetAssociatedSession (void) { return m_pAssociatedSession; }
+		inline void AssociateSession (IPanelContent *Session) { m_pAssociatedContent = Session; }
+		inline IPanelContent *GetAssociatedSession (void) { return m_pAssociatedContent; }
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
 
@@ -142,10 +143,10 @@ class CPanel
 		inline void SetFocus (bool bFocus) { m_bFocus = bFocus; }
 		inline void RemoveFocus (void) { m_bFocus = false; }
 
-		inline bool IsEmpty (void) { if (m_pAssociatedSession == NULL) { return true; } else { return false; } }
+		inline bool IsEmpty (void) { if (m_pAssociatedContent == NULL) { return true; } else { return false; } }
 
-		TArray <CTransmuterSession *> GetSessionsContainingPoint (int x, int y);
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
+		void PaintContent (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void Invalidate (void);
 
@@ -170,7 +171,7 @@ class CPanel
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
 
-		CTransmuterSession *m_pAssociatedSession;
+		IPanelContent *m_pAssociatedContent;
 
 		int m_bFocus;
 		bool m_bHidden;

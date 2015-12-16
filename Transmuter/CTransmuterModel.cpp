@@ -129,35 +129,12 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 		}
 	}
 
-TArray<CExtension *> CTransmuterModel::GetExtensionsArray()
-//	GetExtensionsArray
+CExtensionCollection &CTransmuterModel::GetExtensionCollection(void)
+//	GetExtensionCollection
 //
-//	Gets all extensions in universe's extension collection, in array format.
+//	Get the ExtensionCollection object of the Universe.
 	{
 	CExtensionCollection &ExtensionCollection = m_Universe.GetExtensionCollection();
 
-	TArray<CExtension *> aExtensions = ExtensionCollection.GetLoadedExtensions();
-
-	return aExtensions;
-	}
-
-
-
-TArray<CDesignTable> CTransmuterModel::GetExtensionDesignTables()
-//	GetExtensionNames
-//
-//	Loops over CExtension objects in array and gets associated name strings.
-	{
-	TArray<CExtension *> aExtensions = GetExtensionsArray();
-
-	TArray<CDesignTable> aDesignTables;
-	CDesignTable ExtensionDesignTable;
-
-	for (int i = 0; i < aExtensions.GetCount(); i++)
-		{
-		ExtensionDesignTable = aExtensions[i]->GetDesignTypes();
-		aDesignTables.Insert(ExtensionDesignTable);
-		};
-
-	return aDesignTables;
+	return ExtensionCollection;
 	}

@@ -1,17 +1,17 @@
-//	CTextAreaSession.h
+//	CTextAreaPanelContent.h
 //
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
-class CTextAreaSession;
+class CTextAreaPanelContent;
 
 #pragma once
 
 //  =======================================================================
 
-class CTextAreaSession : public CTransmuterSession
+class CTextAreaPanelContent : public CTransmuterPanelContent
 	{
 	public:
-		CTextAreaSession (CHumanInterface &HI, CPanel &AssociatedPanel);
+		CTextAreaPanelContent (CHumanInterface &HI, CPanel &AssociatedPanel);
 
 		inline const CString &GetText (void) { return m_sText; }
 		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }

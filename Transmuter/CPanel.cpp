@@ -350,9 +350,9 @@ void CInternalPanels::DeletePanel (int iPanelIndex)
 	m_aPanels.Delete(iPanelIndex);
 	}
 
-TArray <CTransmuterSession *> CInternalPanels::GetAssociatedSessions (void)
+TArray <IPanelContent *> CInternalPanels::GetPanelContents (void)
 	{
-	TArray <CTransmuterSession *> InternalSessions;
+	TArray <IPanelContent *> InternalSessions;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -363,16 +363,16 @@ TArray <CTransmuterSession *> CInternalPanels::GetAssociatedSessions (void)
 	}
 
 
-TArray <CTransmuterSession *> CInternalPanels::GetSessionsContainingPoint (int x, int y)
+TArray <IPanelContent *> CInternalPanels::GetPanelContentsContainingPoint (int x, int y)
 	{
-	TArray <CTransmuterSession *> aRelevantSessions;
+	TArray <IPanelContent *> aaRelevantContents;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
-		aRelevantSessions.Insert(m_aPanels[i]->GetSessionsContainingPoint(x, y));
+		aaRelevantContents.Insert(m_aPanels[i]->GetPanelContentsContainingPoint(x, y));
 		}
 
-	return aRelevantSessions;
+	return aaRelevantContents;
 	}
 
 int CInternalPanels::GetPanelIndex (CPanel *pPanel)
@@ -474,11 +474,11 @@ void CInternalPanels::InvalidateAll (void)
 		}
 	}
 
-void CInternalPanels::PaintAll (CG32bitImage &Screen, const RECT &rcInvalid)
+void CInternalPanels::PaintAllContent (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
-		m_aPanels[i]->OnPaint(Screen, rcInvalid);
+		m_aPanels[i]->PaintContent(Screen, rcInvalid);
 		}
 	}
 
@@ -497,7 +497,7 @@ CPanel::CPanel (void) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
-	m_pAssociatedSession(NULL),
+	m_pAssociatedContent(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this),
@@ -511,7 +511,7 @@ CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
-	m_pAssociatedSession(NULL),
+	m_pAssociatedContent(NULL),
 	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
@@ -521,11 +521,11 @@ CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	{
 	}
 
-CPanel::CPanel (IHISession *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight) :
+CPanel::CPanel (IPanelContent *pAssociatedContent, int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
-	m_pAssociatedSession(pAssociatedSession),
+	m_pAssociatedContent(pAssociatedContent),
 	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
@@ -535,20 +535,24 @@ CPanel::CPanel (IHISession *pAssociatedSession, int iOriginX, int iOriginY, int 
 	{
 	}
 
+CPanel::~CPanel ()
+	{
+	}
 
-void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+
+void CPanel::PaintContent (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	if (!IsEmpty() && !IsHidden())
 		{
-		m_pAssociatedSession->OnPaint(Screen, rcInvalid);
+		m_pAssociatedContent->OnPaint(Screen, rcInvalid);
 		}
 
-	InternalPanels.PaintAll(Screen, rcInvalid);
+	InternalPanels.PaintAllContent(Screen, rcInvalid);
 	}
 
-TArray <CTransmuterSession *> CPanel::GetSessionsContainingPoint (int x, int y)
+TArray <IPanelContent *> CPanel::GetPanelContentsContainingPoint (int x, int y)
 	{
-	TArray <CTransmuterSession *> aRelevantSessions;
+	TArray <IPanelContent *> aaRelevantContents;
 
 	bool bIsEmpty = this->IsEmpty();
 	bool bIsHidden = this->IsHidden();
@@ -557,13 +561,13 @@ TArray <CTransmuterSession *> CPanel::GetSessionsContainingPoint (int x, int y)
 		{
 		if (IsPointInRect(x, y, PanelRect.GetAsRect()))
 			{
-			aRelevantSessions.Insert(m_pAssociatedSession);
+			aaRelevantContents.Insert(m_pAssociatedContent);
 			}
 		}
 
-	aRelevantSessions.Insert(InternalPanels.GetSessionsContainingPoint(x, y));
+	aaRelevantContents.Insert(InternalPanels.GetPanelContentsContainingPoint(x, y));
 
-	return aRelevantSessions;
+	return aaRelevantContents;
 	}
 
 void CPanel::Hide(void)
@@ -594,7 +598,7 @@ void CPanel::Invalidate()
 	{
 	if (!IsEmpty())
 		{
-		m_pAssociatedSession->HIInvalidate();
+		m_pAssociatedContent->HIInvalidate();
 		}
 
 	InternalPanels.InvalidateAll();

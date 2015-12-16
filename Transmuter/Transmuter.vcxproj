@@ -126,14 +126,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
-    <ClInclude Include="CContextSession.h" />
-    <ClInclude Include="CEditorSession.h" />
-    <ClInclude Include="CInterfaceSession.h" />
+    <ClInclude Include="CContextPanelContent.h" />
+    <ClInclude Include="CEditorPanelContent.h" />
+    <ClInclude Include="CCommandPanelContent.h" />
     <ClInclude Include="CMainSession.h" />
-    <ClInclude Include="CPreviewSession.h" />
-    <ClInclude Include="CTextAreaSession.h" />
-    <ClInclude Include="CScrollBarSession.h" />
-    <ClInclude Include="BasicSessions.h" />
+    <ClInclude Include="CPreviewPanelContent.h" />
+    <ClInclude Include="CTextAreaPanelContent.h" />
+    <ClInclude Include="CScrollBarPanelContent.h" />
+    <ClInclude Include="BasicPanelContents.h" />
     <ClInclude Include="CPanel.h" />
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
@@ -144,7 +144,7 @@
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicSessions.cpp" />
+    <ClCompile Include="BasicPanelContents.cpp" />
     <ClCompile Include="CPanel.cpp" />
     <ClCompile Include="CContextSession.cpp" />
     <ClCompile Include="CScrollBarSession.cpp" />

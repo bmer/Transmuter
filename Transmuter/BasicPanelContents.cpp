@@ -1,6 +1,6 @@
-//	BasicSessions.cpp
+//	BasicPanelContents.cpp
 //
-//	Definitions of the basic sessions declared in BasicSessions.h
+//	Definitions of the basic sessions declared in BasicPanelContents.h
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
@@ -8,11 +8,6 @@
 #pragma once
 
 //  =======================================================================
-
-CLoadingSession::CLoadingSession (CHumanInterface &HI) : IHISession(HI)
-//	CMainSession constructor
-	{
-	}
 
 void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
@@ -28,26 +23,25 @@ void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 //  =======================================================================
 
-CTransmuterSession::CTransmuterSession (CString sSessionName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
-	m_AssociatedPanel(AssociatedPanel),
-	m_HeaderSession(NULL),
-	m_sSessionName(sSessionName),
-	m_rgbPanelOutlineColor(CG32bitPixel(255,255,255)),
-	m_rgbBackgroundColor(CG32bitPixel(0,0,0))
+CTransmuterPanelContent::CTransmuterPanelContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
+	m_HeaderPanelContent(NULL),
+	m_sContentName(m_sContentName),
+	m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255)),
+	m_model(model)
 	{
 	};
 
-CTransmuterSession::~CTransmuterSession(void)
+CTransmuterPanelContent::~CTransmuterPanelContent(void)
 	{
-	if (m_HeaderSession != NULL)
+	if (m_HeaderPanelContent != NULL)
 		{
-		delete m_HeaderSession;
+		delete m_HeaderPanelContent;
 		}
 	}
 
-void CTransmuterSession::DrawPanelOutline(CG32bitImage &Screen)
+void CTransmuterPanelContent::DrawPanelOutline(CG32bitImage &Screen)
 	{
-	RECT PanelRect = m_AssociatedPanel.PanelRect.GetAsRect();
+	RECT PanelRect = this->GetAssociatedPanel().PanelRect.GetAsRect();
 
 	//  corners are numbered starting from top left hand corner being zero, and then going counter clockwise
 
@@ -71,20 +65,21 @@ void CTransmuterSession::DrawPanelOutline(CG32bitImage &Screen)
 
 //  =======================================================================
 
-CHeaderSession::CHeaderSession(CString sParentSessionName, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterSession & AssociatedSession) : CTransmuterSession(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
+CHeaderPanelContent::CHeaderPanelContent(CString sParentSessionName, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
 	m_font((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy)),
 	m_rgbTextColor(CG32bitPixel(255,255,255)),
 	m_rgbBackgroundColor(CG32bitPixel(110,110,110))
 	{
 	};
 
-CHeaderSession::~CHeaderSession(void)
+CHeaderPanelContent::~CHeaderPanelContent(void)
 	{
 	}
 
-void CHeaderSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+void CHeaderPanelContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	Screen.Fill(0, 0, m_AssociatedPanel.PanelRect.GetWidth(), m_AssociatedPanel.PanelRect.GetWidth(), m_rgbBackgroundColor);
+	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
+	Screen.Fill(0, 0, refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetWidth(), m_rgbBackgroundColor);
 
 	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
 
@@ -92,4 +87,13 @@ void CHeaderSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
 
 	Screen.DrawText(Screen.GetWidth() / 2, Screen.GetHeight() / 2, m_font, m_rgbTextColor, CONSTLIT("Loading..."));
+	}
+
+IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
+	m_AssociatedPanel(AssociatedPanel)
+	{
+	}
+
+void IPanelContent::DrawPanelOutline(CG32bitImage & Screen)
+	{
 	}

@@ -6,64 +6,87 @@
 #include "PreComp.h"
 
 
-CContextSession::CContextSession(CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterSession(CONSTLIT("context view"), HI, AssociatedPanel)
+CContextPanelContent::CContextPanelContent(CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(CONSTLIT("context view"), HI, AssociatedPanel, model),
+	m_ExtensionCollection(m_model.GetExtensionCollection()),
+	m_defaultContext(m_ExtensionCollection.GetAllExtensions())
 	{
+	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
+	SetHeaderContent(refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), CONSTLIT("The Universe"));
 	}
 
-CContextSession::~CContextSession (void)
+CContextPanelContent::~CContextPanelContent (void)
 	{
-	m_NavigatorMenuItems.DeleteAll();
+	delete &m_defaultContext;
+	m_definedContexts.DeleteAll();
+	delete m_HeaderPanelContent;
 	}
 
-void CContextSession::CreateExtensionNavigatorMenuItems (void)
+void CContext::CreateContextItemSessions (CContextPanelContent &refContextSession)
 	{
-	CPanel *pMenuPanel = m_AssociatedPanel.InternalPanels.AddPanel(0, m_iHeaderBarHeight, m_AssociatedPanel.PanelRect.GetWidth(), m_iMenuSlotHeight, false);
-	CPanel *pMenuSlot;
-	int iMenuPanelWidth = pMenuPanel->PanelRect.GetWidth();
+	int iItemWidth = refContextSession.GetAssociatedPanel().PanelRect.GetWidth();
+	int iItemHeight = 40;
+	CPanel *pNewItemPanel;
+	CContextItemSession *pNewCtxItemSessn;
+	CExtension *pExtension;
+
+	if (refContextSession.GetHeaderPanelContent() == NULL)
+		{
+		refContextSession.SetHeaderContent(refContextSession.GetAssociatedPanel().PanelRect.GetWidth(), 40, m_sContextDescription);
+		}
+
+	int iItemYOffset = refContextSession.GetHeaderPanelContent.GetAssociatedPanel().PanelRect.GetHeight();
 	
-	int iNumExtensions = m_Extensions.GetCount();
+	int iNumExtensions = m_aExtensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
 		{
-		pMenuSlot = pMenuPanel->InternalPanels.AddPanel(0, m_iMenuSlotHeight*i, iMenuPanelWidth, m_iMenuSlotHeight, false);
-		CSExtensionMenuItem *MenuItem = new CSExtensionMenuItem(m_HI, *pMenuSlot, m_Extensions[i]);
-		m_NavigatorMenuItems.Insert(MenuItem);
-		pMenuSlot->AssociateSession(MenuItem);
+		pExtension = m_aExtensions[i];
+		pNewItemPanel = refContextSession.GetAssociatedPanel().InternalPanels.AddPanel(0, iItemYOffset, iItemWidth, iItemHeight, FALSE);
+		pNewCtxItemSessn = new CContextItemSession(pExtension->GetName(), *g_pHI, *pNewItemPanel, refContextSession.GetModel());
+		m_aContextItemSessions.Insert(pNewCtxItemSessn);
+		iItemYOffset += iItemHeight;
 		};
 	}
 
-void CContextSession::DrawTitleBar (CG32bitImage &Screen)
+void CContextPanelContent::SetHeaderContent(int headerWidth, int headerHeight, CString headerText)
 	{
-	int iOffsetX = m_AssociatedPanel.PanelRect.GetEdgePosition(EDGE_LEFT) + 10;
-	int iOffsetY = m_AssociatedPanel.PanelRect.GetEdgePosition(EDGE_TOP) + 10;
+	int iHeaderWidth = this->GetAssociatedPanel().PanelRect.GetWidth();
 
-	Screen.DrawText(iOffsetX, iOffsetY, m_HeadingFont, m_HeadingColor, CONSTLIT("Extension Navigator"));
+	CPanel *pHeaderPanel = this->GetAssociatedPanel().InternalPanels.AddPanel(0, 0, iHeaderWidth, 40, FALSE);
+	m_HeaderPanelContent = new CHeaderPanelContent(m_currentContext->GetContextDescription(), *g_pHI, *pHeaderPanel, *this);
 	}
 
-void CContextSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CContextPanelContent::UpdateHeaderContent(CString headerText)
+	{
+	}
+
+void CContextPanelContent::LoadDefinedContext(void)
+	{
+	}
+
+void CContextPanelContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	//  may remove panel outlining in future
 	DrawPanelOutline(Screen);
 
-	DrawTitleBar(Screen);
-
-	int iNumNavigatorMenuItems = m_NavigatorMenuItems.GetCount();
-	for (int i = 0; i < iNumNavigatorMenuItems; i++)
+	if (m_HeaderPanelContent != NULL)
 		{
-		m_NavigatorMenuItems[i]->OnPaint(Screen, rcInvalid);
+		m_HeaderPanelContent->OnPaint(Screen, rcInvalid);
 		}
+
+	m_currentContext->Paint(Screen, rcInvalid);
 	}
 
 //  =======================================================================
 
 
-CSExtensionDetails::CSExtensionDetails (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterSession(HI, AssociatedPanel)
+CSExtensionDetails::CSExtensionDetails (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterPanelContent(HI, AssociatedPanel)
 	{
 	}
 
 
 //  =======================================================================
 
-CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CTransmuterSession(HI, AssociatedPanel),
+CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CTransmuterPanelContent(HI, AssociatedPanel),
 	m_Extension(*Extension)
 	{
 	//  button panels should be sticky
@@ -72,7 +95,7 @@ CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &Associate
 	ButtonPanel->AssociateSession(m_Button);
 
 	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.AddPanel(40, 0, m_AssociatedPanel.PanelRect.GetWidth() - 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
-	m_TextArea = new CTextAreaSession(HI, *TextPanel);
+	m_TextArea = new CTextAreaPanelContent(HI, *TextPanel);
 	m_TextArea->SetFontTable(&HI.GetVisuals());
 	m_TextArea->SetFont(&HI.GetVisuals().GetFont(fontConsoleMediumHeavy));
 	TextPanel->AssociateSession(m_TextArea);
@@ -104,4 +127,8 @@ void CSExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 			m_TextArea->OnPaint(Screen, rcInvalid);
 			}
 		}
+	}
+
+CContextItemSession::CContextItemSession(CString sExtensionName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sExtensionName, HI, AssociatedPanel, model)
+	{
 	}

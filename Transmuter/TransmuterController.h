@@ -15,7 +15,7 @@
 class CTransmuterController;
 
 #include "TransmuterModel.h"
-#include "TransmuterSessions.h"
+#include "TransmuterPanelContents.h"
 #include "BackgroundTasks.h"
 
 class CTransmuterController : 
