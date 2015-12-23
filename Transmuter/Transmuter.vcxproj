@@ -131,7 +131,7 @@
     <ClInclude Include="CCommandPanelContent.h" />
     <ClInclude Include="CMainSession.h" />
     <ClInclude Include="CPreviewPanelContent.h" />
-    <ClInclude Include="CTextAreaPanelContent.h" />
+    <ClInclude Include="CTextContent.h" />
     <ClInclude Include="CScrollBarPanelContent.h" />
     <ClInclude Include="BasicPanelContents.h" />
     <ClInclude Include="CPanel.h" />
@@ -146,9 +146,9 @@
   <ItemGroup>
     <ClCompile Include="BasicPanelContents.cpp" />
     <ClCompile Include="CPanel.cpp" />
-    <ClCompile Include="CContextSession.cpp" />
-    <ClCompile Include="CScrollBarSession.cpp" />
-    <ClCompile Include="CTextAreaSession.cpp" />
+    <ClCompile Include="CContextPanelContent.cpp" />
+    <ClCompile Include="CScrollBarPanelContent.cpp" />
+    <ClCompile Include="CTextContent.cpp" />
     <ClCompile Include="CTransmuterController.cpp" />
     <ClCompile Include="CTransmuterModel.cpp" />
     <ClCompile Include="CMainSession.cpp" />

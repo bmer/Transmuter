@@ -8,7 +8,7 @@
 
 CContextPanelContent::CContextPanelContent(CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(CONSTLIT("context view"), HI, AssociatedPanel, model),
 	m_ExtensionCollection(m_model.GetExtensionCollection()),
-	m_defaultContext(m_ExtensionCollection.GetAllExtensions())
+	m_ContextObject(m_ExtensionCollection.GetAllExtensions())
 	{
 	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	SetHeaderContent(refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), CONSTLIT("The Universe"));
@@ -16,33 +16,39 @@ CContextPanelContent::CContextPanelContent(CHumanInterface &HI, CPanel &Associat
 
 CContextPanelContent::~CContextPanelContent (void)
 	{
-	delete &m_defaultContext;
 	m_definedContexts.DeleteAll();
 	delete m_HeaderPanelContent;
 	}
 
-void CContext::CreateContextItemSessions (CContextPanelContent &refContextSession)
+void CContextPanelContent::ApplyContextFilters(TArray<CString> aFilters)
 	{
-	int iItemWidth = refContextSession.GetAssociatedPanel().PanelRect.GetWidth();
+	m_ContextObject.ApplyFilters(aFilters);
+	CreateContextMenuContent();
+	}
+
+void CContextPanelContent::CreateContextMenuContent (void)
+	{
+	int iItemWidth = this->GetAssociatedPanel().PanelRect.GetWidth();
 	int iItemHeight = 40;
 	CPanel *pNewItemPanel;
-	CContextItemSession *pNewCtxItemSessn;
+	CContextMenuContent *pNewMenuContent;
 	CExtension *pExtension;
 
-	if (refContextSession.GetHeaderPanelContent() == NULL)
+	if (GetHeaderPanelContent() == NULL)
 		{
-		refContextSession.SetHeaderContent(refContextSession.GetAssociatedPanel().PanelRect.GetWidth(), 40, m_sContextDescription);
+		SetHeaderContent(this->GetAssociatedPanel().PanelRect.GetWidth(), 40, m_ContextObject.GetDescription());
 		}
 
-	int iItemYOffset = refContextSession.GetHeaderPanelContent.GetAssociatedPanel().PanelRect.GetHeight();
+	int iItemYOffset = GetHeaderPanelContent()->GetAssociatedPanel().PanelRect.GetHeight();
 	
-	int iNumExtensions = m_aExtensions.GetCount();
+	TArray <CExtension *> aExtensions = m_ContextObject.GetExtensionsGivenAppliedFilters();
+	int iNumExtensions = aExtensions.GetCount();
 	for (int i = 0; i < iNumExtensions; i++)
 		{
-		pExtension = m_aExtensions[i];
-		pNewItemPanel = refContextSession.GetAssociatedPanel().InternalPanels.AddPanel(0, iItemYOffset, iItemWidth, iItemHeight, FALSE);
-		pNewCtxItemSessn = new CContextItemSession(pExtension->GetName(), *g_pHI, *pNewItemPanel, refContextSession.GetModel());
-		m_aContextItemSessions.Insert(pNewCtxItemSessn);
+		pExtension = aExtensions[i];
+		pNewItemPanel = this->GetAssociatedPanel().InternalPanels.AddPanel(0, iItemYOffset, iItemWidth, iItemHeight, FALSE);
+		pNewMenuContent = new CContextMenuContent(pExtension->GetName(), *g_pHI, *pNewItemPanel, this->GetModel());
+		m_aContextMenuContent.Insert(*pNewMenuContent);
 		iItemYOffset += iItemHeight;
 		};
 	}
@@ -73,16 +79,46 @@ void CContextPanelContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 		m_HeaderPanelContent->OnPaint(Screen, rcInvalid);
 		}
 
-	m_currentContext->Paint(Screen, rcInvalid);
+	TArray <CExtension *> aContextItems = m_currentContext->GetContextItemsGivenAppliedFilters();
+	for (i = 0; i < aContextItems.GetCount(); i++)
+		{
+		
+		}
 	}
 
 //  =======================================================================
 
-
-CSExtensionDetails::CSExtensionDetails (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterPanelContent(HI, AssociatedPanel)
+CContext::CContext(TArray<CExtension*> AllExtensions) : m_sContextDescription(CONSTLIT("/")),
+	m_AllExtensions(AllExtensions)
 	{
 	}
 
+CContext::~CContext(void)
+	{
+	}
+
+void CContext::ApplyFilters(TArray<CString> aFilters)
+	{
+	m_CurrentContextUNIDs.DeleteAll();
+
+	int iNumFilters = aFilters.GetCount();
+	.l, ;/
+
+	for (int fi = 0; fi < iNumFilers; fi++)
+		{
+		for (int ei = 0; m_AllExtensions.GetCount(); ei++)
+			{
+			if (m_AllExtensions[ei]->GetType() == )
+			}
+		}
+	for (int ei = 0; ei < m_AllExtensions.GetCount(); ei++)
+		{
+		for (int fi = 0; fi < iNumFilters; fi++)
+			{
+			if 
+			}
+		}
+	}
 
 //  =======================================================================
 
@@ -95,7 +131,7 @@ CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &Associate
 	ButtonPanel->AssociateSession(m_Button);
 
 	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.AddPanel(40, 0, m_AssociatedPanel.PanelRect.GetWidth() - 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
-	m_TextArea = new CTextAreaPanelContent(HI, *TextPanel);
+	m_TextArea = new CTextContent(HI, *TextPanel);
 	m_TextArea->SetFontTable(&HI.GetVisuals());
 	m_TextArea->SetFont(&HI.GetVisuals().GetFont(fontConsoleMediumHeavy));
 	TextPanel->AssociateSession(m_TextArea);
@@ -129,6 +165,6 @@ void CSExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 		}
 	}
 
-CContextItemSession::CContextItemSession(CString sExtensionName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sExtensionName, HI, AssociatedPanel, model)
+CContextMenuContent::CContextMenuContent(CString sExtensionName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sExtensionName, HI, AssociatedPanel, model)
 	{
 	}

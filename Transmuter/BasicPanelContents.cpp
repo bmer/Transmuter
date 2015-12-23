@@ -7,39 +7,14 @@
 
 #pragma once
 
-//  =======================================================================
-
-void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
+m_AssociatedPanel(AssociatedPanel),
+m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
+m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255))
 	{
-	Screen.Fill(0, 0, Screen.GetWidth(), Screen.GetHeight(), CG32bitPixel(64, 64, 64));
-
-	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
-
-	const CVisualPalette &VI = g_pHI->GetVisuals();
-	const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
-
-	Screen.DrawText(Screen.GetWidth() / 2, Screen.GetHeight() / 2, font, TextColor, CONSTLIT("Loading..."));
 	}
 
-//  =======================================================================
-
-CTransmuterPanelContent::CTransmuterPanelContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
-	m_HeaderPanelContent(NULL),
-	m_sContentName(m_sContentName),
-	m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255)),
-	m_model(model)
-	{
-	};
-
-CTransmuterPanelContent::~CTransmuterPanelContent(void)
-	{
-	if (m_HeaderPanelContent != NULL)
-		{
-		delete m_HeaderPanelContent;
-		}
-	}
-
-void CTransmuterPanelContent::DrawPanelOutline(CG32bitImage &Screen)
+void IPanelContent::DrawPanelOutline(CG32bitImage &Screen)
 	{
 	RECT PanelRect = this->GetAssociatedPanel().PanelRect.GetAsRect();
 
@@ -61,6 +36,23 @@ void CTransmuterPanelContent::DrawPanelOutline(CG32bitImage &Screen)
 	Screen.DrawLine(c1x, c1y, c2x, c2y, 1, m_rgbPanelOutlineColor);
 	Screen.DrawLine(c2x, c2y, c3x, c3y, 1, m_rgbPanelOutlineColor);
 	Screen.DrawLine(c3x, c3y, c0x, c0y, 1, m_rgbPanelOutlineColor);
+	}
+
+//  =======================================================================
+
+CTransmuterPanelContent::CTransmuterPanelContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
+	m_HeaderPanelContent(NULL),
+	m_sContentName(m_sContentName),
+	m_model(model)
+	{
+	};
+
+CTransmuterPanelContent::~CTransmuterPanelContent(void)
+	{
+	if (m_HeaderPanelContent != NULL)
+		{
+		delete m_HeaderPanelContent;
+		}
 	}
 
 //  =======================================================================
@@ -89,11 +81,3 @@ void CHeaderPanelContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	Screen.DrawText(Screen.GetWidth() / 2, Screen.GetHeight() / 2, m_font, m_rgbTextColor, CONSTLIT("Loading..."));
 	}
 
-IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
-	m_AssociatedPanel(AssociatedPanel)
-	{
-	}
-
-void IPanelContent::DrawPanelOutline(CG32bitImage & Screen)
-	{
-	}

@@ -60,10 +60,10 @@
     <ClInclude Include="CScrollBarPanelContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CTextAreaPanelContent.h">
+    <ClInclude Include="CCommandPanelContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CCommandPanelContent.h">
+    <ClInclude Include="CTextContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,16 +89,16 @@
     <ClCompile Include="CMainSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CScrollBarSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CContextSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CTextAreaSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BasicPanelContents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CContextPanelContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CScrollBarPanelContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTextContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

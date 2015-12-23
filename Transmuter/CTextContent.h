@@ -1,17 +1,18 @@
-//	CTextAreaPanelContent.h
+//	CTextContent.h
 //
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
-class CTextAreaPanelContent;
+class CTextRun;
+class CTextCursor;
+class CTextContent;
 
 #pragma once
 
-//  =======================================================================
-
-class CTextAreaPanelContent : public CTransmuterPanelContent
+//  RunType class              
+class CTextRun : public CTransmuterPanelContent
 	{
 	public:
-		CTextAreaPanelContent (CHumanInterface &HI, CPanel &AssociatedPanel);
+		CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
 
 		inline const CString &GetText (void) { return m_sText; }
 		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }
@@ -33,16 +34,21 @@ class CTextAreaPanelContent : public CTransmuterPanelContent
 		void UpdateTicker (void) { m_iTick++; }
 
 	private:
+		//  text in this run (all formatting is applied throughout run)
+		CString m_sText;
+
+		//  calculate boundary rectangle
 		RECT CalcTextRect (const RECT &rcRect);
 		RECT CalcTextRect (void);
+
+		//  format RTF
 		void FormatRTF (const RECT &rcRect);
 		void PaintRTF (CG32bitImage &Dest, const RECT &rcRect);
 		void PaintText (CG32bitImage &Dest, const RECT &rcRect);
 
-		CString m_sText;						//	Text text to draw
-		CString m_sRTF;							//	Rich text to draw (only if m_sText is blank)
-
 		bool m_bEditable;						//	TRUE if editable
+
+		//  style options
 		DWORD m_dwStyles;						//	AlignmentStyles
 		RECT m_rcPadding;						//	Padding around the text
 		int m_cyLineSpacing;					//	Extra spacing between lines
@@ -58,8 +64,54 @@ class CTextAreaPanelContent : public CTransmuterPanelContent
 		TArray<CString> m_Lines;				//	Justified lines of text
 		int m_cxJustifyWidth;					//	Width (in pixels) for which m_Lines
 												//		was justified.
-
+				 
 		int m_iTick;							//	Cursor tick
 		int m_iCursorLine;						//	Cursor position (-1 = no cursor)
-		int m_iCursorPos;						//	Position in line
+		int m_iCursorPos;						//	Position in text run
+	};
+
+//  =======================================================================
+
+class CTextCursor
+	{
+	public:
+		int GetCursorPos (void);
+		void UpdateCursorPos (void);
+
+	private:
+		int iLine;
+		int iRun;
+		int iChar;
+	};
+
+//  =======================================================================
+
+class CTextContent : public CTransmuterPanelContent
+	{
+	public:
+		CTextContent (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+
+		inline const CString &GetText (void) { return m_sText; }
+		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }
+		inline void SetBorderRadius (int iRadius) { m_iBorderRadius = iRadius; }
+		inline void SetTextColor (CG32bitPixel rgbColor) { m_rgbTextColor = rgbColor; }
+		inline void SetCursor (int iLine, int iCol = 0) { m_iCursorLine = iLine; m_iCursorPos = iCol; }
+		inline void SetEditable (bool bEditable = true) { m_bEditable = bEditable; }
+		inline void SetFont (const CG16bitFont *pFont) { m_pFont = pFont; m_cxJustifyWidth = 0; }
+		inline void SetFontTable (const IFontTable *pFontTable) { m_pFontTable = pFontTable; }
+		inline void SetLineSpacing (int cySpacing) { m_cyLineSpacing = cySpacing; m_cxJustifyWidth = 0; }
+		inline void SetPadding (int iPadding) { m_rcPadding.left = iPadding; m_rcPadding.top = iPadding; m_rcPadding.right = iPadding; m_rcPadding.bottom = iPadding; }
+		void SetRichText (const CString &sRTF);
+		inline void SetStyles (DWORD dwStyles) { m_dwStyles = dwStyles; m_cxJustifyWidth = 0; }
+		void SetText (const CString &sText);
+
+		int Justify (void);
+		int Justify (const RECT &rcRect);
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		void UpdateTicker (void) { m_iTick++; }
+
+	private:
+		//
+		TArray <TArray <CTextRun>> m_Lines;
+
 	};

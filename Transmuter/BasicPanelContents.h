@@ -13,7 +13,7 @@ class CPanel;
 class IPanelContent;
 class CTransmuterPanelContent;
 class CHeaderPanelContent;
-class CTextAreaPanelContent;
+class CTextContent;
 class CMainSession;
 
 //  Class that all Transmuter PanelContents derive from. Note that every Transmuter
@@ -49,10 +49,13 @@ class IPanelContent : public IHISession
 
 		//  PanelContents have a background color
 		CG32bitPixel m_rgbBackgroundColor;
+		//  PanelContents can draw an outline of their Panel with color m_rgbPanelOutlineColor
+		CG32bitPixel m_rgbPanelOutlineColor;
 
 		bool m_bLButtonDown;
 		bool m_RButtonDown;
 	};
+
 class CTransmuterPanelContent : public IPanelContent
 	{
 	public:
@@ -64,9 +67,9 @@ class CTransmuterPanelContent : public IPanelContent
 
 		void DrawPanelOutline(CG32bitImage & Screen);
 
+		inline CHeaderPanelContent *GetHeaderPanelContent (void) { m_HeaderPanelContent; }
 		//  The following functions have an empty definition by default, which will
 		//  probably overridden in classes descending from CTransmuterPanelContent
-		inline CHeaderPanelContent *GetHeaderPanelContent (void) { m_HeaderPanelContent;  }
 		virtual void SetHeaderContent (void) {};
 		virtual void UpdateHeaderContent (void) {};
 
@@ -75,8 +78,6 @@ class CTransmuterPanelContent : public IPanelContent
 		//  TransmuterPanelContents may, or may not have associated header sessions
 		//  If m_HeaderPanelContent == NULL, then a header does not exist, else it does
 		CHeaderPanelContent *m_HeaderPanelContent;
-
-		CG32bitPixel m_rgbPanelOutlineColor;
 
 		//  TrasnmuterPanelContents have a name string -- it must be supplied
 		//  initializing a TransmuterPanelContent object

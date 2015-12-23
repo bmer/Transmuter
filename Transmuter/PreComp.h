@@ -22,7 +22,7 @@
 #include "CEditorPanelContent.h"
 #include "CPreviewPanelContent.h"
 #include "CScrollBarPanelContent.h"
-#include "CTextAreaPanelContent.h"
+#include "CTextContent.h"
 #include "UserSettingsDef.h"
 #include "SimpleGeometry.h"
 #include "SimpleSorting.h"

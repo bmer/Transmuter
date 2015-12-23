@@ -1,12 +1,12 @@
-//	CTextAreaPanelContent.cpp
+//	CTextContent.cpp
 //
-//	CTextAreaPanelContent class
+//	CTextContent class
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
 #define RGB_CURSOR								(CG32bitPixel(255,255,255))
 
-CTextAreaPanelContent::CTextAreaPanelContent (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterPanelContent(HI, AssociatedPanel),
+CTextContent::CTextContent (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterPanelContent(HI, AssociatedPanel),
 	m_bEditable(false),
 	m_dwStyles(alignLeft),
 	m_cyLineSpacing(0),
@@ -27,7 +27,7 @@ CTextAreaPanelContent::CTextAreaPanelContent (CHumanInterface &HI, CPanel &Assoc
 	m_rcPadding.bottom = 0;
 	}
 
-RECT CTextAreaPanelContent::CalcTextRect (const RECT &rcRect)
+RECT CTextContent::CalcTextRect (const RECT &rcRect)
 
 //	CalcTextRect
 //
@@ -44,7 +44,7 @@ RECT CTextAreaPanelContent::CalcTextRect (const RECT &rcRect)
 	return rcText;
 	}
 
-RECT CTextAreaPanelContent::CalcTextRect (void)
+RECT CTextContent::CalcTextRect (void)
 
 //	CalcTextRect
 //
@@ -54,7 +54,7 @@ RECT CTextAreaPanelContent::CalcTextRect (void)
 	return CalcTextRect(m_AssociatedPanel.PanelRect.GetAsRect());
 	}
 
-void CTextAreaPanelContent::FormatRTF (const RECT &rcRect)
+void CTextContent::FormatRTF (const RECT &rcRect)
 
 //	FormatRTF
 //
@@ -80,7 +80,7 @@ void CTextAreaPanelContent::FormatRTF (const RECT &rcRect)
 		}
 	}
 
-int CTextAreaPanelContent::Justify (const RECT &rcRect)
+int CTextContent::Justify (const RECT &rcRect)
 
 //	Justify
 //
@@ -115,7 +115,7 @@ int CTextAreaPanelContent::Justify (const RECT &rcRect)
 		return 0;
 	}
 
-int CTextAreaPanelContent::Justify (void)
+int CTextContent::Justify (void)
 
 //	Justify
 //
@@ -125,7 +125,7 @@ int CTextAreaPanelContent::Justify (void)
 	return Justify(m_AssociatedPanel.PanelRect.GetAsRect());
 	}
 
-void CTextAreaPanelContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 //	Paint
 //
@@ -158,7 +158,7 @@ void CTextAreaPanelContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid
 		PaintRTF(Screen, rcText);
 	}
 
-CString CTextAreaPanelContent::Escape (const CString &sText)
+CString CTextContent::Escape (const CString &sText)
 
 //	Escape
 //
@@ -230,7 +230,7 @@ CString CTextAreaPanelContent::Escape (const CString &sText)
 		return sText;
 	}
 
-void CTextAreaPanelContent::SetAsRichText (const CString &sText)
+void CTextContent::SetAsRichText (const CString &sText)
 
 //	LoadAsRichText
 //
@@ -248,7 +248,7 @@ void CTextAreaPanelContent::SetAsRichText (const CString &sText)
 	SetRichText(strPatternSubst(CONSTLIT("{\\rtf %s}"), Escape(sText)));
 	}
 
-void CTextAreaPanelContent::SetRichText (const CString &sRTF)
+void CTextContent::SetRichText (const CString &sRTF)
 	{ 
 	m_sRTF = sRTF; 
 	m_sText = NULL_STR; 
@@ -256,7 +256,7 @@ void CTextAreaPanelContent::SetRichText (const CString &sRTF)
 	m_AssociatedPanel.Invalidate(); 
 	}
 
-void CTextAreaPanelContent::SetText (const CString &sText)
+void CTextContent::SetText (const CString &sText)
 	{ 
 	m_sText = sText; 
 	m_sRTF = NULL_STR; 
@@ -264,7 +264,7 @@ void CTextAreaPanelContent::SetText (const CString &sText)
 	m_AssociatedPanel.Invalidate(); 
 	}
 
-void CTextAreaPanelContent::PaintRTF (CG32bitImage &Dest, const RECT &rcRect)
+void CTextContent::PaintRTF (CG32bitImage &Dest, const RECT &rcRect)
 
 //	PaintRTF
 //
@@ -296,7 +296,7 @@ void CTextAreaPanelContent::PaintRTF (CG32bitImage &Dest, const RECT &rcRect)
 		}
 	}
 
-void CTextAreaPanelContent::PaintText (CG32bitImage &Dest, const RECT &rcRect)
+void CTextContent::PaintText (CG32bitImage &Dest, const RECT &rcRect)
 
 //	PaintText
 //
