@@ -5,6 +5,7 @@
 #pragma once
 
 class CLoadingSession;
+class CPanel;
 class CMainSession;
 
 //  =======================================================================
@@ -43,7 +44,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		TArray <CTransmuterPanelContent *> m_aSubSessions;
+		TArray <CTransmuterPanelContent *> m_aContentPanels;
 		CTransmuterModel &m_Model;
 		CPanel m_Panel;
 	};

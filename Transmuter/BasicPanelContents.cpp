@@ -42,7 +42,7 @@ void IPanelContent::DrawPanelOutline(CG32bitImage &Screen)
 
 CTransmuterPanelContent::CTransmuterPanelContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
 	m_HeaderPanelContent(NULL),
-	m_sContentName(m_sContentName),
+	m_sName(m_sName),
 	m_model(model)
 	{
 	};
@@ -57,8 +57,9 @@ CTransmuterPanelContent::~CTransmuterPanelContent(void)
 
 //  =======================================================================
 
-CHeaderPanelContent::CHeaderPanelContent(CString sParentSessionName, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
-	m_font((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy)),
+CHeaderPanelContent::CHeaderPanelContent(CString sParentSessionName, CString sHeaderText, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
+	m_sHeaderText(sHeaderText),
+	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbTextColor(CG32bitPixel(255,255,255)),
 	m_rgbBackgroundColor(CG32bitPixel(110,110,110))
 	{
@@ -71,13 +72,18 @@ CHeaderPanelContent::~CHeaderPanelContent(void)
 void CHeaderPanelContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
-	Screen.Fill(0, 0, refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetWidth(), m_rgbBackgroundColor);
+	Screen.Fill(refAssociatedPanel.PanelRect.GetOriginX(), refAssociatedPanel.PanelRect.GetOriginY(), refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), m_rgbBackgroundColor);
 
 	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
 
 	const CVisualPalette &VI = g_pHI->GetVisuals();
 	const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
 
-	Screen.DrawText(Screen.GetWidth() / 2, Screen.GetHeight() / 2, m_font, m_rgbTextColor, CONSTLIT("Loading..."));
-	}
+	// this->DrawPanelOutline(Screen);
+	int iEdgeLeft = refAssociatedPanel.PanelRect.GetEdgePosition(EDGE_LEFT);
+	int iEdgeTop = refAssociatedPanel.PanelRect.GetEdgePosition(EDGE_TOP);
+	int iWidth = refAssociatedPanel.PanelRect.GetWidth();
+	int iHeight = refAssociatedPanel.PanelRect.GetHeight();
 
+	Screen.DrawText(iEdgeLeft + 10, iEdgeTop + 10, *m_pFont, m_rgbTextColor, m_sHeaderText);
+	}

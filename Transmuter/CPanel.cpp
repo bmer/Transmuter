@@ -97,8 +97,8 @@ int CPanelRect::GetEdgePosition (DWORD dwEdge)
 		}
 	else
 		{
-		// throw CMessageException("Unknown DWORD given for EDGE!");
-		m_iOriginX = 0;
+		return -1;
+		//throw UndefinedEdgeError;
 		}
 	}
 

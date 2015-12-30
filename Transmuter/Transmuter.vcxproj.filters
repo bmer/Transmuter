@@ -48,22 +48,22 @@
     <ClInclude Include="BasicPanelContents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CContextPanelContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CEditorPanelContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPreviewPanelContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CScrollBarPanelContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CCommandPanelContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CTextContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CScrollBarContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CContextContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCommandInterfaceContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,13 +92,16 @@
     <ClCompile Include="BasicPanelContents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CContextPanelContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CScrollBarPanelContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CTextContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CScrollBarContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CCommandInterfaceContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CContextContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

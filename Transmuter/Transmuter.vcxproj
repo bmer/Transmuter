@@ -54,7 +54,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\Mammoth\Include;..\..\Alchemy\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>PreComp.h</PrecompiledHeaderFile>
@@ -126,13 +126,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
-    <ClInclude Include="CContextPanelContent.h" />
+    <ClInclude Include="CContextContent.h" />
     <ClInclude Include="CEditorPanelContent.h" />
-    <ClInclude Include="CCommandPanelContent.h" />
+    <ClInclude Include="CCommandInterfaceContent.h" />
     <ClInclude Include="CMainSession.h" />
     <ClInclude Include="CPreviewPanelContent.h" />
     <ClInclude Include="CTextContent.h" />
-    <ClInclude Include="CScrollBarPanelContent.h" />
+    <ClInclude Include="CScrollBarContent.h" />
     <ClInclude Include="BasicPanelContents.h" />
     <ClInclude Include="CPanel.h" />
     <ClInclude Include="PreComp.h" />
@@ -145,9 +145,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicPanelContents.cpp" />
+    <ClCompile Include="CCommandInterfaceContent.cpp" />
     <ClCompile Include="CPanel.cpp" />
-    <ClCompile Include="CContextPanelContent.cpp" />
-    <ClCompile Include="CScrollBarPanelContent.cpp" />
+    <ClCompile Include="CContextContent.cpp" />
+    <ClCompile Include="CScrollBarContent.cpp" />
     <ClCompile Include="CTextContent.cpp" />
     <ClCompile Include="CTransmuterController.cpp" />
     <ClCompile Include="CTransmuterModel.cpp" />

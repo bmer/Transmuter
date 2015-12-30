@@ -12,6 +12,7 @@
 #define SMOOTH_UPDOWN		4
 #define SMOOTH_LEFTRIGHT	5
 
+// class TransmuterException;
 class CPanelRect;
 class IPanelContent;
 class CPanel;
@@ -178,3 +179,5 @@ class CPanel
 
 		bool m_bInvalid;					//  if panel is space is changed, then its made "invalid?"
 	};
+
+//TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));

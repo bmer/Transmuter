@@ -26,18 +26,28 @@ void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_Panel(0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
+	m_Panel(0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight())
 	//	CMainSession constructor
 	{
-	CPanel *pEmptyPanel = m_Panel.InternalPanels.AddPanel(0, 0, 200, m_Panel.PanelRect.GetHeight(), false);
+	int iContextPanelWidth = 300;
+	int iContextPanelHeight = 600;
 
-	CContextPanelContent *pExtensionNavigatorSession = new CContextPanelContent(HI, *pEmptyPanel, m_Model.GetExtensionsArray());
-	m_aSubSessions.Insert(pExtensionNavigatorSession);
+	//  Initializing context panel
+	CPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
+	CContextContent *pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
+	m_aContentPanels.Insert(pContextPanelContent);
+
+	//  Initializing command line interface
+	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
+	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight;
+	CPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, iCommandLineHeight, false);
+	CCommandInterfaceContent *pCLI = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
+	m_aContentPanels.Insert(pCLI);
 	}
 
 CMainSession::~CMainSession(void)
 	{
-	m_aSubSessions.DeleteAll();
+	m_aContentPanels.DeleteAll();
 	}
 
 void CMainSession::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
@@ -87,12 +97,12 @@ void CMainSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	RECT rcClip;
 	//	call paint functions of all subsessions
-	for (int i = 0; i < m_aSubSessions.GetCount(); i++)
+	for (int i = 0; i < m_aContentPanels.GetCount(); i++)
 		{
-		CTransmuterPanelContent *pSubSession = m_aSubSessions[i];
-		rcClip = (m_aSubSessions[i]->GetAssociatedPanel()).PanelRect.GetAsRect();
+		CTransmuterPanelContent *pContentPanel = m_aContentPanels[i];
+		rcClip = (m_aContentPanels[i]->GetAssociatedPanel()).PanelRect.GetAsRect();
 		Screen.SetClipRect(rcClip);
-		m_aSubSessions[i]->OnPaint(Screen, rcInvalid);
+		m_aContentPanels[i]->OnPaint(Screen, rcInvalid);
 		}
 	Screen.ResetClipRect();
 	} 

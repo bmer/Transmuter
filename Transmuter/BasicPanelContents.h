@@ -65,8 +65,6 @@ class CTransmuterPanelContent : public IPanelContent
 		//		* deleting the associated HeaderPanelContent, if it is not NULL
 		~CTransmuterPanelContent (void);
 
-		void DrawPanelOutline(CG32bitImage & Screen);
-
 		inline CHeaderPanelContent *GetHeaderPanelContent (void) { m_HeaderPanelContent; }
 		//  The following functions have an empty definition by default, which will
 		//  probably overridden in classes descending from CTransmuterPanelContent
@@ -81,7 +79,7 @@ class CTransmuterPanelContent : public IPanelContent
 
 		//  TrasnmuterPanelContents have a name string -- it must be supplied
 		//  initializing a TransmuterPanelContent object
-		const CString m_sContentName;
+		const CString m_sName;
 
 		//  The TransmuterModel. 
 		CTransmuterModel &m_model;
@@ -96,12 +94,13 @@ class CTransmuterPanelContent : public IPanelContent
 class CHeaderPanelContent : public IPanelContent
 	{
 	public:
-		CHeaderPanelContent (CString sParentSessionName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession);
+		CHeaderPanelContent (CString sName, CString sHeaderText, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession);
 		~CHeaderPanelContent (void);
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		CG16bitFont m_font;
+		CString m_sHeaderText;
+		const CG16bitFont *m_pFont;
 		CG32bitPixel m_rgbTextColor;
 		CG32bitPixel m_rgbBackgroundColor;
 		CString m_sPanelName;

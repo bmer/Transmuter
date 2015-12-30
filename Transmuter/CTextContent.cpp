@@ -6,13 +6,44 @@
 #include "PreComp.h"
 #define RGB_CURSOR								(CG32bitPixel(255,255,255))
 
-CTextContent::CTextContent (CHumanInterface &HI, CPanel &AssociatedPanel) : CTransmuterPanelContent(HI, AssociatedPanel),
+CTextContent::CTextContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sName, HI, AssociatedPanel, model)
+	{
+	}
+
+void CTextContent::OnPaint(CG32bitImage & Screen, const RECT & rcInvalid)
+	{
+	}
+
+//  =======================================================================
+
+CDocumentCursor::CDocumentCursor(void)
+	{
+	}
+
+CDocumentCursor::CDocumentCursor(int iLine, int iRun, int iChar) : m_iLine(iLine),
+	m_iRun(iRun),
+	m_iChar(iChar)
+	{
+	}
+
+int CDocumentCursor::GetCursorPos(void)
+	{
+	return 0;
+	}
+
+void CDocumentCursor::UpdateCursorPos(void)
+	{
+	}
+
+//  =======================================================================
+
+CTextRun::CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent("", HI, AssociatedPanel, model),
 	m_bEditable(false),
 	m_dwStyles(alignLeft),
 	m_cyLineSpacing(0),
 	m_iBorderRadius(0),
 	m_pFont(NULL),
-	m_rgbTextColor(CG32bitPixel(255,255,255)),
+	m_rgbTextColor(CG32bitPixel(255, 255, 255)),
 	m_rgbBackgroundColor(CG32bitPixel::Null()),
 	m_bRTFInvalid(true),
 	m_pFontTable(NULL),
@@ -27,7 +58,7 @@ CTextContent::CTextContent (CHumanInterface &HI, CPanel &AssociatedPanel) : CTra
 	m_rcPadding.bottom = 0;
 	}
 
-RECT CTextContent::CalcTextRect (const RECT &rcRect)
+RECT CTextRun::CalcTextRect (const RECT &rcRect)
 
 //	CalcTextRect
 //
@@ -44,43 +75,17 @@ RECT CTextContent::CalcTextRect (const RECT &rcRect)
 	return rcText;
 	}
 
-RECT CTextContent::CalcTextRect (void)
+RECT CTextRun::CalcTextRect (void)
 
 //	CalcTextRect
 //
 //	Calculates the text rect given the control rect
 
 	{
-	return CalcTextRect(m_AssociatedPanel.PanelRect.GetAsRect());
+	return CalcTextRect(GetAssociatedPanel().PanelRect.GetAsRect());
 	}
 
-void CTextContent::FormatRTF (const RECT &rcRect)
-
-//	FormatRTF
-//
-//	Make sure we are formatted
-
-	{
-	if (m_bRTFInvalid)
-		{
-		SBlockFormatDesc BlockFormat;
-
-		BlockFormat.cxWidth = RectWidth(rcRect);
-		BlockFormat.cyHeight = -1;
-		BlockFormat.iHorzAlign = ((m_dwStyles & alignRight) ? alignRight : ((m_dwStyles & alignCenter) ? alignCenter : alignLeft));
-		BlockFormat.iVertAlign = alignTop;
-		BlockFormat.iExtraLineSpacing = m_cyLineSpacing;
-
-		BlockFormat.DefaultFormat.rgbColor = m_rgbTextColor;
-		BlockFormat.DefaultFormat.pFont = m_pFont;
-
-		m_RichText.InitFromRTF(m_sRTF, *m_pFontTable, BlockFormat);
-
-		m_bRTFInvalid = false;
-		}
-	}
-
-int CTextContent::Justify (const RECT &rcRect)
+int CTextRun::Justify (const RECT &rcRect)
 
 //	Justify
 //
@@ -103,29 +108,21 @@ int CTextContent::Justify (const RECT &rcRect)
 
 		return m_rcPadding.top + (m_Lines.GetCount() * m_pFont->GetHeight() + (m_Lines.GetCount() - 1) * m_cyLineSpacing) + m_rcPadding.bottom;
 		}
-	else if (!m_sRTF.IsBlank())
-		{
-		FormatRTF(rcText);
-
-		RECT rcBounds;
-		m_RichText.GetBounds(&rcBounds);
-		return m_rcPadding.top + RectHeight(rcBounds) + m_rcPadding.bottom;
-		}
 	else
 		return 0;
 	}
 
-int CTextContent::Justify (void)
+int CTextRun::Justify (void)
 
 //	Justify
 //
 //	Justify the text and return the height (in pixels)
 
 	{
-	return Justify(m_AssociatedPanel.PanelRect.GetAsRect());
+	return Justify(GetAssociatedPanel().PanelRect.GetAsRect());
 	}
 
-void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CTextRun::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 //	Paint
 //
@@ -133,7 +130,7 @@ void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 	{
 	RECT rcText = CalcTextRect();
-	RECT rcRect = m_AssociatedPanel.PanelRect.GetAsRect();
+	RECT rcRect = GetAssociatedPanel().PanelRect.GetAsRect();
 
 	//	Paint the background
 
@@ -154,149 +151,16 @@ void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 	if (!m_sText.IsBlank())
 		PaintText(Screen, rcText);
-	else
-		PaintRTF(Screen, rcText);
 	}
 
-CString CTextContent::Escape (const CString &sText)
-
-//	Escape
-//
-//	Escapes all reserved characters in sText
-
-	{
-	char *pPos = sText.GetASCIIZPointer();
-	char *pEndPos = pPos + sText.GetLength();
-
-	CString sResult;
-	char *pDest = NULL;
-
-	char *pStart = pPos;
-	while (pPos < pEndPos)
-		{
-		switch (*pPos)
-			{
-			case '\\':
-			case '/':
-			case '{':
-			case '}':
-				{
-				//	If necessary, allocate a resulting buffer (note that we can
-				//	never be larger than twice the length of the original string).
-
-				if (pDest == NULL)
-					pDest = sResult.GetWritePointer(sText.GetLength() * 2);
-
-				//	Write out the string up to now
-
-				char *pSrc = pStart;
-				while (pSrc < pPos)
-					*pDest++ = *pSrc++;
-
-				//	Write out an escaped version of the character
-
-				*pDest++ = '\\';
-				*pDest++ = *pPos;
-
-				pStart = pPos + 1;
-				break;
-				}
-			}
-
-		pPos++;
-		}
-
-	//	If necessary write the remaining string
-
-	if (pDest)
-		{
-		char *pSrc = pStart;
-		while (pSrc < pEndPos)
-			*pDest++ = *pSrc++;
-
-		//	Truncate
-
-		sResult.Truncate((int)(pDest - sResult.GetPointer()));
-
-		//	Done
-
-		return sResult;
-		}
-
-	//	If we didn't need to escape anything then we just return the original
-	//	string.
-
-	else
-		return sText;
-	}
-
-void CTextContent::SetAsRichText (const CString &sText)
-
-//	LoadAsRichText
-//
-//	Takes either a RTF string (with "{\rtf...") or a plain string and returns
-//	a valid RTF string.
-
-	{
-	//	If this is already an RTF string, just return it.
-
-	if (strStartsWith(sText, CONSTLIT("{\\rtf")) || strStartsWith(sText, CONSTLIT("{/rtf")))
-		SetRichText(sText);
-
-	//	Otherwise, escape the string
-
-	SetRichText(strPatternSubst(CONSTLIT("{\\rtf %s}"), Escape(sText)));
-	}
-
-void CTextContent::SetRichText (const CString &sRTF)
-	{ 
-	m_sRTF = sRTF; 
-	m_sText = NULL_STR; 
-	m_bRTFInvalid = true; 
-	m_AssociatedPanel.Invalidate(); 
-	}
-
-void CTextContent::SetText (const CString &sText)
+void CTextRun::SetText (const CString &sText)
 	{ 
 	m_sText = sText; 
-	m_sRTF = NULL_STR; 
 	m_cxJustifyWidth = 0; 
-	m_AssociatedPanel.Invalidate(); 
+	GetAssociatedPanel().Invalidate();
 	}
 
-void CTextContent::PaintRTF (CG32bitImage &Dest, const RECT &rcRect)
-
-//	PaintRTF
-//
-//	Paint RTF
-
-	{
-	int i;
-
-	//	Must have a font table
-
-	if (m_pFontTable == NULL)
-		return;
-
-	//	Format, if necessary
-
-	FormatRTF(rcRect);
-
-	//	Paint
-
-	for (i = 0; i < m_RichText.GetFormattedSpanCount(); i++)
-		{
-		const SFormattedTextSpan &Span = m_RichText.GetFormattedSpan(i);
-
-		Span.Format.pFont->DrawText(Dest,
-				rcRect.left + Span.x,
-				rcRect.top + Span.y,
-				Span.Format.rgbColor,
-				Span.sText);
-		}
-	}
-
-void CTextContent::PaintText (CG32bitImage &Dest, const RECT &rcRect)
+void CTextRun::PaintText (CG32bitImage &Dest, const RECT &rcRect)
 
 //	PaintText
 //
