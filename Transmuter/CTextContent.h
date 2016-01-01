@@ -3,14 +3,22 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 class CTextRun;
-class CTextCursor;
+class CTextLine;
+class CDocumentCursor;
+class CTextDocument;
 class CTextContent;
 
 #pragma once
 class CTextRun
 	{
 	public:
-		CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+		CTextRun (void);
+		CTextRun (CString sText);
+
+		CString GetTruncatedStrCopy(CString sInput, int iNewLength);
+
+		void InsertAt (int iPosition, CString sText);
+		void DeleteBetween (int iStartPosition, int iDeletePosition);
 
 		inline const CString &GetText (void) { return m_sText; }
 		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }
@@ -25,19 +33,19 @@ class CTextRun
 		inline void SetStyles (DWORD dwStyles) { m_dwStyles = dwStyles; m_cxJustifyWidth = 0; }
 		void SetText (const CString &sText);
 
-		int Justify (void);
 		int Justify (const RECT &rcRect);
 
 		// void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 		void UpdateTicker (void) { m_iTick++; }
+
+		inline void Invalidate (void) { m_bInvalid = true; }
 
 	private:
 		//  text in this run (all formatting is applied throughout run)
 		CString m_sText;
 
 		//  calculate boundary rectangle
-		RECT CalcTextRect (const RECT &rcRect);
-		RECT CalcTextRect (void);
+		RECT CalcTextRect (const RECT &rcCtrlRect);
 
 		//  format RTF
 		void PaintText (CG32bitImage &Dest, const RECT &rcRect);
@@ -64,25 +72,8 @@ class CTextRun
 		int m_iTick;							//	Cursor tick
 		int m_iCursorLine;						//	Cursor position (-1 = no cursor)
 		int m_iCursorPos;						//	Position in text run
-	};
 
-//  =======================================================================
-
-class CDocumentCursor
-	{
-	public:
-		CDocumentCursor (void);
-		CDocumentCursor (int iLine, int iRun, int iChar);
-
-		int GetCursorPos (void);
-		void UpdateCursorPos (void);
-
-	private:
-		int m_iLine;
-		int m_iRun;
-		int m_iChar;
-
-		CTextDocument m_Document;
+		int m_bInvalid;
 	};
 
 //  =======================================================================
@@ -98,6 +89,7 @@ class CTextLine : private TArray <CTextRun *>
 		CTextRun *AddNewRun (const CTextRun &refTextRun);
 		inline CTextLine &operator=(const CTextLine &refTextLine) { CleanUp(); Copy(refTextLine); return *this; }
 
+		void InsertText (int iRun, int iChar, CString sText);
 	private:
 		void CleanUp (void);
 		void Copy (const CTextLine &refTextLine);
@@ -105,43 +97,67 @@ class CTextLine : private TArray <CTextRun *>
 
 //  =======================================================================
 
-class CTextDocument :
+
+class CDocumentCursor
 	{
 	public:
-		inline CTextDocument (void) { ; }
-		inline CTextDocument (const CTextDocument &refTextDocument) { Copy(refTextDocument); }
-		inline ~CTextDocument (void) { CleanUp(); }
+		CDocumentCursor (void);
+		CDocumentCursor (int iLine, int iRun, int iChar);
 
-		void ConcatenateDocuments (const CTextDocument &refTextDocument);
-		CTextRun *AddNewLine (const CTextLine &refTextLine);
-
-		// Set Style
-
-		// void InsertText(Cursor &ioCursor, CString String)
+		int GetCursorPos (void);
+		void UpdateCursorPos (void);
 
 	private:
-		TArray <CTextLine> m_Lines;
-		void CleanUp (void);
-		void Copy (const CTextDocument &refTextDocument);
+		int m_iLine;
+		int m_iRun;
+		int m_iChar;
 	};
 
 //  =======================================================================
 
-class CTextContent : public CTransmuterPanelContent
+class CTextDocument
 	{
 	public:
-		CTextContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		inline CTextDocument (void) { ; }
+		~CTextDocument (void);
+
+		inline void AddNewLine (CTextLine &Line) { m_Lines.Insert(Line);  }
+
+		void PlaceCursor (CDocumentCursor &refCursor)
+		CDocumentCursor &CreateNewCursor (int iLine, int iRun, int iChar);
+		void MoveCursorToEOD (CDocumentCursor &refCursor);
+		//inline CDocumentCursor &CreateNewCursor (void) { return CreateNewCursor(0, 0, 0); }
+
+		void InsertText(CDocumentCursor &refIOCursor, CString sText);
+		void DeleteChar
+
+		// inline TArray <CDocumentCursor *> &GetCursors(void) { return m_Cursors; }
+		// Set Style
 
 	private:
-		CTextDocument m_Document;
-		TArray <CDocumentCursor> m_Cursors;
+		TArray <CTextLine> m_Lines;
 	};
 
-//class CTextContent : public CTransmuterPanelContent
+//  =======================================================================
+
+class CTextContent : public CTransmuterContent
+	{
+	public:
+		CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+
+		void OnContentChar (char chChar, DWORD dwKeyData);
+
+	private:
+		CString m_InputBuffer;
+		CDocumentCursor m_Cursor;
+		CTextDocument m_Document;
+	};
+
+//class CTextContent : public CTransmuterContent
 //	{
 //	public:
-//		CTextContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+//		CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
 //
 //		inline const CString &GetText (void) { return m_sText; }
 //		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }

@@ -141,12 +141,10 @@ class CPanel
 		inline void SetHiddenFlag (bool bHidden) { m_bHidden = bHidden; }
 		inline bool IsHidden (void) { return m_bHidden; }
 
-		inline void SetFocus (bool bFocus) { m_bFocus = bFocus; }
-		inline void RemoveFocus (void) { m_bFocus = false; }
-
 		inline bool IsEmpty (void) { if (m_pAssociatedContent == NULL) { return true; } else { return false; } }
 
 		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
+		IPanelContent *GetContentContainingPoint (int x, int y);
 		void PaintContent (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void Invalidate (void);
@@ -173,8 +171,6 @@ class CPanel
 		CString m_sErrorString;
 
 		IPanelContent *m_pAssociatedContent;
-
-		int m_bFocus;
 		bool m_bHidden;
 
 		bool m_bInvalid;					//  if panel is space is changed, then its made "invalid?"

@@ -34,59 +34,107 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 
 	//  Initializing context panel
 	CPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
-	CContextContent *pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
-	m_aContentPanels.Insert(pContextPanelContent);
+	m_pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
+	m_aContent.Insert(m_pContextPanelContent);
+
 
 	//  Initializing command line interface
 	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
 	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight;
 	CPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, iCommandLineHeight, false);
-	CCommandInterfaceContent *pCLI = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
-	m_aContentPanels.Insert(pCLI);
+	m_pCommandInterfaceContent = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
+	m_aContent.Insert(m_pCommandInterfaceContent);
 	}
 
 CMainSession::~CMainSession(void)
 	{
-	m_aContentPanels.DeleteAll();
+	//for (int i = 0; i < m_aContent.GetCount(); i++)
+	//	{
+	//	delete m_aContent[i];
+	//	}
+	delete m_pContextPanelContent;
+	delete m_pCommandInterfaceContent;
 	}
 
 void CMainSession::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
-	{															   
-	TArray <IPanelContent *> aRelevantContents = m_Panel.GetPanelContentsContainingPoint(x, y);
+	{
+	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
-	for (int i = 0; i < aRelevantContents.GetCount(); i++)
+	if (pRelevantContent != NULL)
 		{
-		aRelevantContents[i]->OnLButtonDown(x, y, dwFlags, retbCapture);
+		pRelevantContent->OnLButtonDown(x, y, dwFlags, retbCapture);
 		}
 	}
 
 void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 	{
-	TArray <IPanelContent *> aRelevantContents = m_Panel.GetPanelContentsContainingPoint(x, y);
+	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
-	for (int i = 0; i < aRelevantContents.GetCount(); i++)
+	if (pRelevantContent != NULL)
 		{
-		aRelevantContents[i]->OnLButtonUp(x, y, dwFlags);
+		pRelevantContent->OnLButtonUp(x, y, dwFlags);
+
+		if (pRelevantContent->IsLClicked())
+			{
+			if (m_pFocusContent != NULL)
+				{
+				m_pFocusContent->RemoveFocus();
+				}
+			m_pFocusContent = pRelevantContent->SetFocus();
+			}
 		}
 	}
 
 void CMainSession::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	TArray <IPanelContent *> aRelevantContents = m_Panel.GetPanelContentsContainingPoint(x, y);
+	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
-	for (int i = 0; i < aRelevantContents.GetCount(); i++)
+	if (pRelevantContent != NULL)
 		{
-		aRelevantContents[i]->OnRButtonDown(x, y, dwFlags);
+		pRelevantContent->OnRButtonDown(x, y, dwFlags);
 		}
 	}
 
 void CMainSession::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	TArray <IPanelContent *> aRelevantContents = m_Panel.GetPanelContentsContainingPoint(x, y);
+	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
-	for (int i = 0; i < aRelevantContents.GetCount(); i++)
+	if (pRelevantContent != NULL)
 		{
-		aRelevantContents[i]->OnRButtonUp(x, y, dwFlags);
+		pRelevantContent->OnRButtonUp(x, y, dwFlags);
+
+		if (pRelevantContent->IsRClicked())
+			{
+			if (m_pFocusContent != NULL)
+				{
+				m_pFocusContent->RemoveFocus();
+				}
+			m_pFocusContent = pRelevantContent->SetFocus();
+			}
+		}
+	}
+
+void CMainSession::OnKeyDown(int iVirtKey, DWORD dwKeyData)
+	{
+	if (m_pFocusContent != NULL)
+		{
+		m_pFocusContent->OnKeyDown(iVirtKey, dwKeyData);
+		}
+	}
+
+void CMainSession::OnKeyUp(int iVirtKey, DWORD dwKeyData)
+	{
+	if (m_pFocusContent != NULL)
+		{
+		m_pFocusContent->OnKeyUp(iVirtKey, dwKeyData);
+		}
+	}
+
+void CMainSession::OnChar(char chChar, DWORD dwKeyData)
+	{
+	if (m_pFocusContent != NULL)
+		{
+		m_pFocusContent->OnChar(chChar, dwKeyData);
 		}
 	}
 
@@ -97,12 +145,12 @@ void CMainSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	RECT rcClip;
 	//	call paint functions of all subsessions
-	for (int i = 0; i < m_aContentPanels.GetCount(); i++)
+	for (int i = 0; i < m_aContent.GetCount(); i++)
 		{
-		CTransmuterPanelContent *pContentPanel = m_aContentPanels[i];
-		rcClip = (m_aContentPanels[i]->GetAssociatedPanel()).PanelRect.GetAsRect();
+		CTransmuterContent *pContent = m_aContent[i];
+		rcClip = (pContent->GetAssociatedPanel()).PanelRect.GetAsRect();
 		Screen.SetClipRect(rcClip);
-		m_aContentPanels[i]->OnPaint(Screen, rcInvalid);
+		pContent->OnPaint(Screen, rcInvalid);
 		}
 	Screen.ResetClipRect();
 	} 

@@ -4,17 +4,40 @@
 #pragma once
 
 class CTextContent;
+class CInputContent;
+class COutputcontent;
 class CCommandInterfaceContent;
 
-class CCommandInterfaceContent : public CTransmuterPanelContent
+//class CInputContent : public CTransmuterContent
+//	{
+//	public:
+//		CInputContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+//
+//		void OnKeyDown (int iVirtKey, DWORD dwKeyData);
+//		void OnKeyUp (int iVirtKey, DWORD dwKeyData);
+//
+//		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+//
+//	private:
+//		CTextContent m_InputText;
+//	};
+//
+//class COutputContent : public CTransmuterContent
+//	{
+//	public:
+//		COutputContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+//
+//		void OnPaint (CG32bitImage &Screen, const RECT&rcInvalid);
+//
+//	private:
+//		CTextContent m_OutputText;
+//	};
+
+class CCommandInterfaceContent : public CTransmuterContent
 	{
 	public:
-		CCommandInterfaceContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+		CCommandInterfaceContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
 		~CCommandInterfaceContent (void);
-
-		void SetHeaderContent (int iHeight, CString sHeaderText);
-
-		void UpdateHeaderContent(CString sHeaderText);
 
 		void OnKeyDown(int iVirtKey, DWORD dwKeyData);
 		void OnKeyUp (int iVirtKey, DWORD dwKeyData);
@@ -23,5 +46,6 @@ class CCommandInterfaceContent : public CTransmuterPanelContent
 
 	private:
 		int m_iCurrentLine;
-		CTextContent m_Terminal;
+		CTextContent *m_pInputContent;
+		CTextContent *m_pOutputContent;
 	};

@@ -10,8 +10,70 @@
 IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
 m_AssociatedPanel(AssociatedPanel),
 m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
-m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255))
+m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255)),
+m_bFocus(false),
+m_bLButtonDown(false),
+m_bLClicked(false),
+m_bLDblClicked(false),
+m_bRButtonDown(false),
+m_bRClicked(false)
 	{
+	m_AssociatedPanel.AssociateSession(this);
+	}
+
+void IPanelContent::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
+	{
+	m_bLButtonDown = true;
+	OnContentLButtonDown(x, y, dwFlags, retbCapture);
+	}
+
+void IPanelContent::OnLButtonUp(int x, int y, DWORD dwFlags)
+	{
+	if (IsLButtonDown())
+		{
+		m_bLButtonDown = false;
+		m_bLClicked = true;
+		}
+	OnContentLButtonUp(x, y, dwFlags);
+	}
+
+void IPanelContent::OnLButtonDblClick(int x, int y, DWORD dwFlags, bool * retbCapture)
+	{
+	m_bLDblClicked = true;
+	m_bLButtonDown = false;
+	m_bLClicked = false;
+	OnContentLButtonDblClick(x, y, dwFlags, retbCapture);
+	}
+
+void IPanelContent::OnRButtonDown(int x, int y, DWORD dwFlags)
+	{
+	m_bRButtonDown = true;
+	OnContentRButtonDown(x, y, dwFlags);
+	}
+
+void IPanelContent::OnRButtonUp(int x, int y, DWORD dwFlags)
+	{
+	if (IsRButtonDown())
+		{
+		m_bRButtonDown = false;
+		m_bRClicked = true;
+		}
+	OnContentRButtonUp(x, y, dwFlags);
+	}
+
+void IPanelContent::OnKeyDown(int iVirtKey, DWORD dwKeyData)
+	{
+	OnContentKeyDown(iVirtKey, dwKeyData);
+	}
+
+void IPanelContent::OnKeyUp(int iVirtKey, DWORD dwKeyData)
+	{
+	OnContentKeyUp(iVirtKey, dwKeyData);
+	}
+
+void IPanelContent::OnChar(char chChar, DWORD dwKeyData)
+	{
+	OnContentChar(chChar, dwKeyData);
 	}
 
 void IPanelContent::DrawPanelOutline(CG32bitImage &Screen)
@@ -40,24 +102,64 @@ void IPanelContent::DrawPanelOutline(CG32bitImage &Screen)
 
 //  =======================================================================
 
-CTransmuterPanelContent::CTransmuterPanelContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
-	m_HeaderPanelContent(NULL),
-	m_sName(m_sName),
+CTransmuterContent::CTransmuterContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
+	m_HeaderContent(NULL),
+	m_sID(m_sID),
 	m_model(model)
 	{
 	};
 
-CTransmuterPanelContent::~CTransmuterPanelContent(void)
+CTransmuterContent::~CTransmuterContent(void)
 	{
-	if (m_HeaderPanelContent != NULL)
+	if (m_HeaderContent != NULL)
 		{
-		delete m_HeaderPanelContent;
+		delete m_HeaderContent;
 		}
 	}
 
+void CTransmuterContent::SetHeaderContent(CString sID, CString sHeaderText, int iWidth, int iHeight, const CG16bitFont * pFont, CG32bitPixel rgbTextColor, CG32bitPixel rgbBackgroundColor)
+	{
+	CPanel *pHeaderPanel = GetAssociatedPanel().InternalPanels.AddPanel(0, 0, iWidth, iHeight, false);
+	m_HeaderContent = new CHeaderContent(sID, sHeaderText, *g_pHI, *pHeaderPanel, *this);
+	}
+
+void CTransmuterContent::UpdateHeaderText(CString sHeaderText)
+	{
+	if (m_HeaderContent != NULL)
+		{
+		m_HeaderContent->SetHeaderText(sHeaderText);
+		}
+	}
+
+void CTransmuterContent::UpdateHeaderFont(const CG16bitFont *pFont)
+	{
+	if (m_HeaderContent != NULL)
+		{
+		m_HeaderContent->SetHeaderTextFont(pFont);
+		}
+	}
+
+void CTransmuterContent::UpdateHeaderTextColor(CG32bitPixel rgbColor)
+	{
+	if (m_HeaderContent != NULL)
+		{
+		m_HeaderContent->SetHeaderTextColor(rgbColor);
+		}
+	}
+
+void CTransmuterContent::UpdateHeaderBackgroundColor(CG32bitPixel rgbColor)
+	{
+	if (m_HeaderContent != NULL)
+		{
+		m_HeaderContent->SetBackgroundColor(rgbColor);
+		}
+	}
+
+
+
 //  =======================================================================
 
-CHeaderPanelContent::CHeaderPanelContent(CString sParentSessionName, CString sHeaderText, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterPanelContent &AssociatedSession) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
+CHeaderContent::CHeaderContent(CString sParentSessionName, CString sHeaderText, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterContent &AssociatedSession) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
 	m_sHeaderText(sHeaderText),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbTextColor(CG32bitPixel(255,255,255)),
@@ -65,11 +167,11 @@ CHeaderPanelContent::CHeaderPanelContent(CString sParentSessionName, CString sHe
 	{
 	};
 
-CHeaderPanelContent::~CHeaderPanelContent(void)
+CHeaderContent::~CHeaderContent(void)
 	{
 	}
 
-void CHeaderPanelContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+void CHeaderContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	Screen.Fill(refAssociatedPanel.PanelRect.GetOriginX(), refAssociatedPanel.PanelRect.GetOriginY(), refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), m_rgbBackgroundColor);

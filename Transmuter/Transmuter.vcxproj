@@ -127,10 +127,10 @@
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
     <ClInclude Include="CContextContent.h" />
-    <ClInclude Include="CEditorPanelContent.h" />
+    <ClInclude Include="CEditorContent.h" />
     <ClInclude Include="CCommandInterfaceContent.h" />
     <ClInclude Include="CMainSession.h" />
-    <ClInclude Include="CPreviewPanelContent.h" />
+    <ClInclude Include="CPreviewContent.h" />
     <ClInclude Include="CTextContent.h" />
     <ClInclude Include="CScrollBarContent.h" />
     <ClInclude Include="BasicPanelContents.h" />

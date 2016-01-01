@@ -81,7 +81,7 @@ class CContext
 
 //  =======================================================================
 
-class CContextContent : public CTransmuterPanelContent
+class CContextContent : public CTransmuterContent
 	{
 	private:
 		CExtensionCollection &m_ExtensionCollection;
@@ -89,13 +89,10 @@ class CContextContent : public CTransmuterPanelContent
 		CG32bitPixel m_rgbFontColor;
 
 	public:
-		CContextContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+		CContextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
 		~CContextContent (void);
 		
 		CContext m_Context;
-
-		void SetHeaderContent(int iHeaderWidth, int iHeaderHeight, CString sHeaderText);
-		void UpdateHeaderContent(CString sHeaderText);
 
 		void LoadLastDefinedContextInHistory (void);
 		void LoadNextDefinedContextInHistory (void);

@@ -6,6 +6,9 @@
 
 class CLoadingSession;
 class CPanel;
+class CTransmutercontent;
+class CContextContent;
+class CCommandInterfaceContent;
 class CMainSession;
 
 //  =======================================================================
@@ -29,7 +32,6 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		~CMainSession (void);
 		//	IHISession virtuals
 
-		//virtual void OnChar (char chChar, DWORD dwKeyData);
 		//virtual void OnCleanUp (void);
 		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
 		//virtual ALERROR OnInit (CString *retsError);
@@ -39,12 +41,21 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		//virtual void OnMouseMove (int x, int y, DWORD dwFlags);
 		void OnRButtonDown (int x, int y, DWORD dwFlags);
 		void OnRButtonUp (int x, int y, DWORD dwFlags);
+		void OnKeyDown (int iVirtKey, DWORD dwKeyData);
+		void OnKeyUp (int iVirtKey, DWORD dwKeyData);
+		void OnChar (char chChar, DWORD dwKeyData);
 		//virtual void OnUpdate (bool bTopMost);
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		TArray <CTransmuterPanelContent *> m_aContentPanels;
+		CContextContent *m_pContextPanelContent;
+		CCommandInterfaceContent *m_pCommandInterfaceContent;
+		TArray <CTransmuterContent *> m_aContent;
+
+		IPanelContent *m_pFocusContent;
+
 		CTransmuterModel &m_Model;
 		CPanel m_Panel;
 	};
+

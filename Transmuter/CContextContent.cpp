@@ -6,29 +6,19 @@
 #include "PreComp.h"
 
 
-CContextContent::CContextContent(CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sName, HI, AssociatedPanel, model),
+CContextContent::CContextContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
 	m_ExtensionCollection(m_model.GetExtensionCollection()),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),
 	m_Context(m_ExtensionCollection.GetAllExtensions())
 	{
 	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
-	SetHeaderContent(refAssociatedPanel.PanelRect.GetWidth(), 40, CONSTLIT("The Universe"));
+	SetHeaderContent(strCat(m_sID, CONSTLIT(".h")), CONSTLIT("Context"), refAssociatedPanel.PanelRect.GetWidth(), 40);
 	}
 
 CContextContent::~CContextContent (void)
 	{
-	delete m_HeaderPanelContent;
-	}
-
-void CContextContent::SetHeaderContent(int iHeaderWidth, int iHeaderHeight, CString sHeaderText)
-	{
-	CPanel *pHeaderPanel = this->GetAssociatedPanel().InternalPanels.AddPanel(0, 0, iHeaderWidth, iHeaderHeight, FALSE);
-	m_HeaderPanelContent = new CHeaderPanelContent(this->m_sName, m_Context.GetDescription(), *g_pHI, *pHeaderPanel, *this);
-	}
-
-void CContextContent::UpdateHeaderContent(CString sHeaderText)
-	{
+	delete m_HeaderContent;
 	}
 
 void CContextContent::LoadLastDefinedContextInHistory(void)
@@ -41,14 +31,24 @@ void CContextContent::LoadNextDefinedContextInHistory(void)
 
 void CContextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	//  may remove panel outlining in future
+#if DEBUG
+	bool bFocusStatus = GetFocusStatus();
+#endif
+	if (GetFocusStatus() == true)
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+		}
+	else
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+		}
 	DrawPanelOutline(Screen);
 
 	int iBottomOfHeader = 0;
-	if (m_HeaderPanelContent != NULL)
+	if (m_HeaderContent != NULL)
 		{
-		m_HeaderPanelContent->OnPaint(Screen, rcInvalid);
-		iBottomOfHeader += m_HeaderPanelContent->GetAssociatedPanel().PanelRect.GetHeight();
+		m_HeaderContent->OnPaint(Screen, rcInvalid);
+		iBottomOfHeader += m_HeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
 		}
 
 	CContextObjectArray *pContextItems = m_Context.GetCurrentContextObjectList();
@@ -247,7 +247,7 @@ bool CContextObject::IsParentCollapsed (void)
 		}
 	};
 
-//CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CTransmuterPanelContent(HI, AssociatedPanel),
+//CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CTransmuterContent(HI, AssociatedPanel),
 //	m_Extension(*Extension)
 //	{
 //	//  button panels should be sticky

@@ -498,7 +498,6 @@ CPanel::CPanel (void) :
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
 	m_pAssociatedContent(NULL),
-	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this),
 	InternalPanels(*this),
@@ -512,7 +511,6 @@ CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
 	m_pAssociatedContent(NULL),
-	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
 	InternalPanels(*this),
@@ -526,7 +524,6 @@ CPanel::CPanel (IPanelContent *pAssociatedContent, int iOriginX, int iOriginY, i
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
 	m_pAssociatedContent(pAssociatedContent),
-	m_bFocus(0),
 	m_bHidden(false),
 	PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
 	InternalPanels(*this),
@@ -552,7 +549,7 @@ void CPanel::PaintContent (CG32bitImage &Screen, const RECT &rcInvalid)
 
 TArray <IPanelContent *> CPanel::GetPanelContentsContainingPoint (int x, int y)
 	{
-	TArray <IPanelContent *> aaRelevantContents;
+	TArray <IPanelContent *> aRelevantContents;
 
 	bool bIsEmpty = this->IsEmpty();
 	bool bIsHidden = this->IsHidden();
@@ -561,13 +558,34 @@ TArray <IPanelContent *> CPanel::GetPanelContentsContainingPoint (int x, int y)
 		{
 		if (IsPointInRect(x, y, PanelRect.GetAsRect()))
 			{
-			aaRelevantContents.Insert(m_pAssociatedContent);
+			aRelevantContents.Insert(m_pAssociatedContent);
 			}
 		}
 
-	aaRelevantContents.Insert(InternalPanels.GetPanelContentsContainingPoint(x, y));
+	aRelevantContents.Insert(InternalPanels.GetPanelContentsContainingPoint(x, y));
 
-	return aaRelevantContents;
+	return aRelevantContents;
+	}
+
+IPanelContent * CPanel::GetContentContainingPoint(int x, int y)
+	{
+	if (!IsPointInRect(x, y, PanelRect.GetAsRect()))
+		{
+		return NULL;
+		}
+	
+	IPanelContent *pRelevantContent;
+	for (int i = 0; i < InternalPanels.GetCount(); i++)
+		{
+		pRelevantContent = InternalPanels.GetPanel(i)->GetContentContainingPoint(x, y);
+
+		if (pRelevantContent != NULL)
+			{
+			return pRelevantContent;
+			}
+		}
+
+	return m_pAssociatedContent;
 	}
 
 void CPanel::Hide(void)

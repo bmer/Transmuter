@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-CScrollBarContent::CScrollBarContent(CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CPanel &PanelToScroll) : CTransmuterPanelContent (sName, HI, AssociatedPanel, model),
+CScrollBarContent::CScrollBarContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CPanel &PanelToScroll) : CTransmuterContent (sID, HI, AssociatedPanel, model),
 	m_PanelToScroll(PanelToScroll)
 	{
 	}

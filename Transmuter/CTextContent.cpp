@@ -6,14 +6,6 @@
 #include "PreComp.h"
 #define RGB_CURSOR								(CG32bitPixel(255,255,255))
 
-CTextContent::CTextContent (CString sName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sName, HI, AssociatedPanel, model)
-	{
-	}
-
-void CTextContent::OnPaint(CG32bitImage & Screen, const RECT & rcInvalid)
-	{
-	}
-
 //  =======================================================================
 
 CDocumentCursor::CDocumentCursor(void)
@@ -37,7 +29,7 @@ void CDocumentCursor::UpdateCursorPos(void)
 
 //  =======================================================================
 
-CTextRun::CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent("", HI, AssociatedPanel, model),
+CTextRun::CTextRun (void) : m_sText(CONSTLIT("")),
 	m_bEditable(false),
 	m_dwStyles(alignLeft),
 	m_cyLineSpacing(0),
@@ -50,7 +42,8 @@ CTextRun::CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterMod
 	m_cxJustifyWidth(0),
 	m_iTick(0),
 	m_iCursorLine(-1),
-	m_iCursorPos(0)
+	m_iCursorPos(0),
+	m_bInvalid(true)
 	{
 	m_rcPadding.left = 0;
 	m_rcPadding.top = 0;
@@ -58,14 +51,63 @@ CTextRun::CTextRun (CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterMod
 	m_rcPadding.bottom = 0;
 	}
 
-RECT CTextRun::CalcTextRect (const RECT &rcRect)
+CTextRun::CTextRun (CString sText) : m_sText(sText),
+	m_bEditable(false),
+	m_dwStyles(alignLeft),
+	m_cyLineSpacing(0),
+	m_iBorderRadius(0),
+	m_pFont(NULL),
+	m_rgbTextColor(CG32bitPixel(255, 255, 255)),
+	m_rgbBackgroundColor(CG32bitPixel::Null()),
+	m_bRTFInvalid(true),
+	m_pFontTable(NULL),
+	m_cxJustifyWidth(0),
+	m_iTick(0),
+	m_iCursorLine(-1),
+	m_iCursorPos(0),
+	m_bInvalid(true)
+	{
+	m_rcPadding.left = 0;
+	m_rcPadding.top = 0;
+	m_rcPadding.right = 0;
+	m_rcPadding.bottom = 0;
+	}
+
+CString CTextRun::GetTruncatedStrCopy(CString sInput, int iNewLength)
+	{
+	if (sInput.GetLength() < iNewLength + 1)
+		{
+		return sInput;
+		}
+	else
+		{
+		CString sTruncated = CString (sInput);
+		sTruncated.Truncate(iNewLength);
+
+		return sTruncated;
+		}
+	}
+
+
+void CTextRun::InsertAt(int iPosition, CString sText)
+	{
+	int iOriginalLength = m_sText.GetLength();
+	int iInsertionLength = sText.GetLength();
+
+	int iNewLength = iOriginalLength + iInsertionLength;
+
+	CString sTruncated = GetTruncatedStrCopy(sText, iPosition + 1);
+	s
+	}
+
+RECT CTextRun::CalcTextRect (const RECT &rcCtrlRect)
 
 //	CalcTextRect
 //
 //	Calculates the text rect given the control rect
 
 	{
-	RECT rcText = rcRect;
+	RECT rcText = rcCtrlRect;
 
 	rcText.left += m_rcPadding.left;
 	rcText.top += m_rcPadding.top;
@@ -73,16 +115,6 @@ RECT CTextRun::CalcTextRect (const RECT &rcRect)
 	rcText.bottom -= m_rcPadding.bottom;
 
 	return rcText;
-	}
-
-RECT CTextRun::CalcTextRect (void)
-
-//	CalcTextRect
-//
-//	Calculates the text rect given the control rect
-
-	{
-	return CalcTextRect(GetAssociatedPanel().PanelRect.GetAsRect());
 	}
 
 int CTextRun::Justify (const RECT &rcRect)
@@ -112,52 +144,11 @@ int CTextRun::Justify (const RECT &rcRect)
 		return 0;
 	}
 
-int CTextRun::Justify (void)
-
-//	Justify
-//
-//	Justify the text and return the height (in pixels)
-
-	{
-	return Justify(GetAssociatedPanel().PanelRect.GetAsRect());
-	}
-
-void CTextRun::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
-
-//	Paint
-//
-//	Handle paint
-
-	{
-	RECT rcText = CalcTextRect();
-	RECT rcRect = GetAssociatedPanel().PanelRect.GetAsRect();
-
-	//	Paint the background
-
-	if (m_iBorderRadius > 0)
-		CGDraw::RoundedRect(Screen, rcRect.left, rcRect.top, RectWidth(rcRect), RectHeight(rcRect), m_iBorderRadius, m_rgbBackgroundColor);
-	else
-		Screen.Fill(rcRect.left, rcRect.top, RectWidth(rcRect), RectHeight(rcRect), m_rgbBackgroundColor);
-
-	//	Paint the editable box
-
-	if (m_bEditable)
-		{
-		CG32bitPixel rgbBorderColor = CG32bitPixel::Blend(CG32bitPixel(0, 0, 0), m_rgbTextColor, (BYTE)128);
-		CGDraw::RectOutlineDotted(Screen, rcRect.left, rcRect.top, RectWidth(rcRect), RectHeight(rcRect), rgbBorderColor);
-		}
-
-	//	Paint the content
-
-	if (!m_sText.IsBlank())
-		PaintText(Screen, rcText);
-	}
-
 void CTextRun::SetText (const CString &sText)
 	{ 
 	m_sText = sText; 
 	m_cxJustifyWidth = 0; 
-	GetAssociatedPanel().Invalidate();
+	Invalidate();
 	}
 
 void CTextRun::PaintText (CG32bitImage &Dest, const RECT &rcRect)
@@ -276,4 +267,93 @@ void CTextRun::PaintText (CG32bitImage &Dest, const RECT &rcRect)
 
 		Dest.SetClipRect(rcOldClip);
 		}
+	}
+
+//	================================================================================
+
+void CTextLine::ConcatenateLines(const CTextLine &refTextLine)
+	{
+	for (int i = 0; i < refTextLine.GetCount(); i++)
+		{
+		TArray<CTextRun *>::Insert(new CTextRun(*refTextLine[i]));
+		}
+	}
+
+CTextRun *CTextLine::AddNewRun(const CTextRun &refTextRun)
+	{
+	CTextRun *pNewTextRun = new CTextRun(refTextRun);
+	TArray<CTextRun *>::Insert(pNewTextRun);
+	return pNewTextRun;
+	}
+
+void CTextLine::InsertText(int iRun, int iChar, CString sText)
+	//	Callers should guarantee that iRun and iChar are sensical.
+	//	(In other words, use 
+	//	CTextDocument::InsertText(CDocumentCursor &refIOCursor, CString sText), 
+	//  never this method)
+	{
+	CTextRun *pRelevantRun = GetAt(iRun);
+	pRelevantRun->InsertText(iChar, sText);
+	}
+
+void CTextLine::CleanUp(void)
+	{
+	for (int i = 0; i < GetCount(); i++)
+		{
+		delete GetAt(i);
+		}
+	DeleteAll();
+	}
+
+void CTextLine::Copy(const CTextLine &refTextLine)
+	{
+	InsertEmpty(refTextLine.GetCount());
+	for (int i = 0; i < refTextLine.GetCount(); i++)
+		{
+		GetAt(i) = new CTextRun(*refTextLine[i]);
+		}
+	}
+
+//	================================================================================
+
+CTextContent::CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model)
+	{
+	}
+
+void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+
+	//	Paint
+	//
+	//	Handle paint
+
+	{
+#if DEBUG
+	bool bFocusStatus = GetFocusStatus();
+#endif
+	if (GetFocusStatus() == true)
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+		}
+	else
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+		}
+	DrawPanelOutline(Screen);
+	}
+
+void CTextContent::OnContentChar(char chChar, DWORD dwKeyData)
+	{
+
+	}
+
+inline CDocumentCursor &CTextDocument::CreateNewCursor(int iLine, int iRun, int iChar)
+	{
+	if (m_Lines.GetCount() == 0)
+		{
+		CTextLine *pNewTextLine = new CTextLine();
+		AddNewLine(*pNewTextLine);
+		}
+	CDocumentCursor *pNewDocumentCursor = new CDocumentCursor(iLine, iRun, iChar);
+
+	return *pNewDocumentCursor;
 	}

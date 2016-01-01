@@ -1,14 +1,22 @@
 #include "PreComp.h"
 
-CCommandInterfaceContent::CCommandInterfaceContent(CString sName, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanelContent(sName, HI, AssociatedPanel, model),
-	m_Terminal(CONSTLIT("CLI Text Area"), HI, AssociatedPanel, model)
+CCommandInterfaceContent::CCommandInterfaceContent(CString sID, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model)
 	{
-	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
-	SetHeaderContent(40, CONSTLIT("Command Line Interface"));
+	CPanel &refAssociatedPanel = GetAssociatedPanel();
+	SetHeaderContent(strCat(sID, CONSTLIT(".h")), CONSTLIT("Command Line Interface"), refAssociatedPanel.PanelRect.GetWidth(), 40);
+
+	CPanel *pInputPanel = refAssociatedPanel.InternalPanels.AddPanel(0, refAssociatedPanel.PanelRect.GetHeight() - 40, refAssociatedPanel.PanelRect.GetWidth(), 40, false);
+	m_pInputContent = new CTextContent(CONSTLIT("Input Content"), HI, *pInputPanel, model);
+
+	CPanel *pOutputPanel = refAssociatedPanel.InternalPanels.AddPanel(0, 40, refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight() - 2 * 40, false);
+	m_pOutputContent = new CTextContent(CONSTLIT("Output Content"), HI, *pOutputPanel, model);
 	}
+
 CCommandInterfaceContent::~CCommandInterfaceContent(void)
 	{
-	delete m_HeaderPanelContent;
+	delete m_HeaderContent;
+	delete m_pInputContent;
+	delete m_pOutputContent;
 	}
 
 void CCommandInterfaceContent::OnKeyDown(int iVirtKey, DWORD dwKeyData)
@@ -19,23 +27,78 @@ void CCommandInterfaceContent::OnKeyUp(int iVirtKey, DWORD dwKeyData)
 	{
 	}
 
-void CCommandInterfaceContent::SetHeaderContent(int iHeaderHeight, CString sHeaderText)
-	{
-	CPanel *pHeaderPanel = this->GetAssociatedPanel().InternalPanels.AddPanel(0, 0, this->GetAssociatedPanel().PanelRect.GetWidth(), iHeaderHeight, false);
-	m_HeaderPanelContent = new CHeaderPanelContent(this->m_sName, sHeaderText, *g_pHI, *pHeaderPanel, *this);
-	}
-
-void CCommandInterfaceContent::UpdateHeaderContent(CString sHeaderText)
-	{
-	}
-
 void CCommandInterfaceContent::OnPaint(CG32bitImage & Screen, const RECT & rcInvalid)
 	{
 	//  may remove panel outlining in future
+#if DEBUG
+	bool bFocusStatus = GetFocusStatus();
+#endif
+	if (GetFocusStatus() == true)
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+		}
+	else
+		{
+		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+		}
 	DrawPanelOutline(Screen);
 
-	if (m_HeaderPanelContent != NULL)
+	if (m_HeaderContent != NULL)
 		{
-		m_HeaderPanelContent->OnPaint(Screen, rcInvalid);
+		m_HeaderContent->OnPaint(Screen, rcInvalid);
 		}
+
+	m_pInputContent->OnPaint(Screen, rcInvalid);
+	m_pOutputContent->OnPaint(Screen, rcInvalid);
 	}
+//
+//CInputContent::CInputContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent (sID, HI, AssociatedPanel, model),
+//	m_InputText(sID, HI, AssociatedPanel, model)
+//	{
+//	}
+//
+//void CInputContent::OnKeyDown(int iVirtKey, DWORD dwKeyData)
+//	{
+//	}
+//
+//void CInputContent::OnKeyUp(int iVirtKey, DWORD dwKeyData)
+//	{
+//	}
+//
+//void CInputContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+//	{
+//#if DEBUG
+//	bool bFocusStatus = GetFocusStatus();
+//#endif
+//	if (GetFocusStatus() == true)
+//		{
+//		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+//		}
+//	else
+//		{
+//		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+//		}
+//	DrawPanelOutline(Screen);
+//	}
+//
+//COutputContent::COutputContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+//	m_OutputText(CONSTLIT("Output Text Content"), HI, AssociatedPanel, model)
+//	{
+//	}
+//
+//void COutputContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
+//	{
+//#if DEBUG
+//	bool bFocusStatus = GetFocusStatus();
+//#endif
+//	if (GetFocusStatus() == true)
+//		{
+//		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+//		}
+//	else
+//		{
+//		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+//		}
+//	DrawPanelOutline(Screen);
+//	}
+//

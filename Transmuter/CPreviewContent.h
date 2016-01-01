@@ -6,6 +6,6 @@ class CPreviewPanelContent;
 
 #pragma once
 
-class CPreviewPanelContent : public CTransmuterPanelContent
+class CPreviewPanelContent : public CTransmuterContent
 	{
 	};

@@ -6,6 +6,6 @@ class CEditorPanelContent;
 
 #pragma once
 
-class CEditorPanelContent : public CTransmuterPanelContent
+class CEditorPanelContent : public CTransmuterContent
 	{
 	};
