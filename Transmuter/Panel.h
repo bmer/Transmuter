@@ -89,17 +89,13 @@ class CPanelOrganizer
 
 		virtual void ShiftAllOrigins (int ShiftX, int iShiftY);
 
-		virtual TArray <IPanelContent *> GetPanelContents (void);
-		virtual TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
+		virtual TArray <IPanel *> GetPanelsContainingPoint (int x, int y);
 
 		virtual int GetPanelIndex (IPanel *pPanel);
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
 		inline TArray <IPanel *> GetPanels (void) { return m_aPanels; }
-
-		TArray <IPanelContent *> GetPanelContents (void);
-		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
 
 		int GetPanelIndex (IPanel *pPanel);
 
@@ -111,21 +107,28 @@ class CPanelOrganizer
 		void ShowAll (void);
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		void Invalidate (void);
 
 		void SmoothOut (DWORD dwSmoothType);
-		IPanel *AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
+		IPanel *AddPanel (CString sName, CHumanInterface &HI, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden);
 		void DeletePanel (int iPanelIndex);
 
 		TArray <IPanel *> Split (CString sSplitType, int iSeparatorPos);
-		void ReverseSplit (int iPanelIndex);
-		void ReverseSplit (IPanel *pPanel);
+		void UndoSplit (int iPanelIndex);
+		void UndoSplit (IPanel *pPanel);
 
 	protected:
-		char m_cPanelConfigType;
+		// methods
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
+
+		// member variables
+		int m_iPanelConfigType;
 		IPanel &m_ParentPanel;
 		TArray <IPanel *> m_aPanels;
 		TArray <IPanel *> m_aLeafPanels;
+
+		int m_iSeparatorPos;
+		int m_iSeparatorThickness;
 	};
 
 //  =======================================================================
@@ -136,16 +139,15 @@ class IPanel : public IHISession
 	friend class CPanelOrganizer;
 
 	public:
-		IPanel (void);
-		IPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
-		IPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
+		IPanel (CString sContentName, CHumanInterface &HI);
+		IPanel (CString sName, CHumanInterface &HI, int iOriginX, int iOriginY, int iWidth, int iHeight);
 		~IPanel (void);
+
+		void PaintBackground (CG32bitImage & Screen);
+		void PaintOutline (CG32bitImage & Screen);
 
 		inline void SetParentPanel (IPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline IPanel *GetParentPanel (void) { return m_pParentPanel; }
-
-		inline void AssociateContent (IPanelContent *Content) { m_pAssociatedContent = Content; }
-		inline IPanelContent *GetAssociatedContent (void) { return m_pAssociatedContent; }
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
 
@@ -154,10 +156,7 @@ class IPanel : public IHISession
 		inline void SetHiddenFlag (bool bHidden) { m_bHidden = bHidden; }
 		inline bool IsHidden (void) { return m_bHidden; }
 
-		inline bool IsEmpty (void) { if (m_pAssociatedContent == NULL) { return true; } else { return false; } }
-
-		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
-		IPanelContent *GetContentContainingPoint (int x, int y);
+		TArray <IPanel *> GetPanelsContainingPoint (int x, int y);
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void Invalidate (void);
@@ -165,7 +164,7 @@ class IPanel : public IHISession
 		void SetError (CString sErrorDescription) { m_bErrorOccurred = true; m_sErrorString = sErrorDescription; }
 
 		CPanelRect PanelRect;
-		CPanelOrganizer *InternalPanels;
+		CPanelOrganizer PanelOrganizer;
 
 		void SetViewOffset (int iOffsetX, int iOffsetY);
 
@@ -196,13 +195,13 @@ class IPanel : public IHISession
 		inline bool IsRButtonDown (void) { return m_bRButtonDown; }
 		inline bool IsRClicked (void) { return m_bRClicked; }
 
-		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		// more Panel functions
 		void DrawPanelOutline (CG32bitImage &Screen);
-		inline void UpdatePanelOutlineColor (CG32bitPixel rgbColor) { m_rgbPanelOutlineColor = rgbColor; }
+		inline void UpdatePanelOutlineColor (CG32bitPixel rgbColor) { m_rgbOutlineColor = rgbColor; }
 
-		inline IPanelContent *SetFocus (void) { m_bFocus = true; return this; }
+		inline IPanel *SetFocus (void) { m_bFocus = true; return this; }
 		void RemoveFocus (void) { m_bFocus = false; }
 		inline bool GetFocusStatus (void) { return m_bFocus; }
 
@@ -215,33 +214,34 @@ class IPanel : public IHISession
 	protected:
 		IHICommand *m_pController;
 
-		virtual void OnContentLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
-		virtual void OnContentLButtonUp (int x, int y, DWORD dwFlags) { ; }
-		virtual void OnContentLButtonDblClick (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
+		virtual void OnPanelLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
+		virtual void OnPanelLButtonUp (int x, int y, DWORD dwFlags) { ; }
+		virtual void OnPanelLButtonDblClick (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
 
-		virtual void OnContentRButtonDown (int x, int y, DWORD dwFlags) { ; }
-		virtual void OnContentRButtonUp (int x, int y, DWORD dwFlags) { ; }
+		virtual void OnPanelRButtonDown (int x, int y, DWORD dwFlags) { ; }
+		virtual void OnPanelRButtonUp (int x, int y, DWORD dwFlags) { ; }
 
-		virtual void OnContentKeyDown (int iVirtKey, DWORD dwKeyData) { ; }
-		virtual void OnContentKeyUp (int iVirtKey, DWORD dwKeyData) { ; }
-		virtual void OnContentChar (char chChar, DWORD dwKeyData) { ; }
+		virtual void OnPanelKeyDown (int iVirtKey, DWORD dwKeyData) { ; }
+		virtual void OnPanelKeyUp (int iVirtKey, DWORD dwKeyData) { ; }
+		virtual void OnPanelChar (char chChar, DWORD dwKeyData) { ; }
+
+		virtual void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
 
 	private:
-		int m_iViewOffsetX;
-		int m_iViewOffsetY;
+		// methods
+		inline bool GetCurrentStatusAndReset (bool &refBool) { bool bCurrentStatus = refBool; refBool = false; return bCurrentStatus; }
 
-		int m_iSeparatorPos;
-		int m_iSeparatorWidth;
-
+		// member variables
+		CString m_sName;
 		IPanel *m_pParentPanel;
 
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
-
-		IPanelContent *m_pAssociatedContent;
+		
 		bool m_bHidden;
 
-		inline bool GetCurrentStatusAndReset (bool &refBool) { bool bCurrentStatus = refBool; refBool = false; return bCurrentStatus; }
+		int m_iViewOffsetX;
+		int m_iViewOffsetY;
 
 		bool m_bLButtonDown;
 		bool m_bLClicked;
@@ -252,10 +252,8 @@ class IPanel : public IHISession
 
 		bool m_bFocus;
 
-		//  Panels have a background color
 		CG32bitPixel m_rgbBackgroundColor;
-		//  Panels can draw an outline around themselves with color m_rgbPanelOutlineColor
-		CG32bitPixel m_rgbPanelOutlineColor;
+		CG32bitPixel m_rgbOutlineColor;
 
 		bool m_bCapture;
 
