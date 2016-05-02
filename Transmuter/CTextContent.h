@@ -169,7 +169,7 @@ class CTextDocument
 class CTextContent : public CTransmuterContent
 	{
 	public:
-		CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable=false, bool bCommandInput=false);
+		CTextContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable=false, bool bCommandInput=false);
 
 		~CTextContent (void);
 

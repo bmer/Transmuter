@@ -20,7 +20,7 @@
 #include "TransmuterModel.h"
 #include "BackgroundTasks.h"
 #include "TransmuterController.h"
-#include "CPanel.h"
+#include "IPanel.h"
 #include "CCommandParser.h"
 #include "BasicPanelContents.h"
 #include "CMainSession.h"

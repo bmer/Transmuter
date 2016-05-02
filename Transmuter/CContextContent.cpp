@@ -30,7 +30,7 @@ bool CContextEntry::IsParentCollapsed(void)
 
 // ===============================================================
 
-CContextEntryContent::CContextEntryContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CContextEntryContent::CContextEntryContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterContent(sID, HI, AssociatedPanel, model),
 	m_refAssociatedEntry(refAssociatedEntry)
 	{
 	}
@@ -78,13 +78,13 @@ void CContextEntryArray::Copy(const CContextEntryArray &refCtxObjArray)
 
 // ===============================================================
 
-CContextContent::CContextContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CContextContent::CContextContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
 	m_ExtensionCollection(m_model.GetExtensionCollection()),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),
 	m_Contextualizer(CContextualizer(HI, m_ExtensionCollection.GetAllExtensions()))
 	{
-	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
+	IPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	SetHeaderContent(strCat(m_sID, CONSTLIT(".h")), CONSTLIT("Context"), refAssociatedPanel.PanelRect.GetWidth(), 40);
 	}
 
@@ -100,7 +100,7 @@ CContextContent::~CContextContent (void)
 void CContextContent::LoadContext (void)
 	{
 
-	CPanel &refAssociatedPanel = GetAssociatedPanel();
+	IPanel &refAssociatedPanel = GetAssociatedPanel();
 	// delete all existing internal panels dealing with content
 	for (int i = 0; i < m_bLoadedContextObjectPanelIndices.GetCount(); i++)
 		{
@@ -128,7 +128,7 @@ void CContextContent::LoadContext (void)
 	int iParentPanelWidth = refAssociatedPanel.PanelRect.GetWidth();
 	int iNumEntries = pContextEntryList->GetCount();
 	m_bLoadedContextObjectPanelIndices.InsertEmpty(iNumEntries);
-	CPanel *pEntryPanel;
+	IPanel *pEntryPanel;
 
 	for (int i = 0; i < iNumEntries; i++)
 		{

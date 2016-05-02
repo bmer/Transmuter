@@ -233,7 +233,7 @@ void CTextLine::Copy(const CTextLine &refTextLine)
 
 //	================================================================================
 
-CTextContent::CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable, bool bCommandInput) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CTextContent::CTextContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable, bool bCommandInput) : CTransmuterContent(sID, HI, AssociatedPanel, model),
 m_bEditable(bEditable),
 m_bCommandInput(bCommandInput)
 	{

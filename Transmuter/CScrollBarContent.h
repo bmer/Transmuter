@@ -11,7 +11,7 @@ class CScrollBarContent;
 class CScrollBarContent : public CTransmuterContent
 	{
 	public:
-		CScrollBarContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CPanel &pPanelToScroll);
+		CScrollBarContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &pPanelToScroll);
 
 		//void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
@@ -34,7 +34,7 @@ class CScrollBarContent : public CTransmuterContent
 		CG32bitPixel m_rgbBackgroundColor;
 		DWORD dwBarOrientation;
 
-		CPanel &m_PanelToScroll;
+		IPanel &m_PanelToScroll;
 		CG32bitPixel m_ScrollBarColor;
 
 		RECT m_rcSlide;

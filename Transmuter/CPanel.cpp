@@ -5,7 +5,7 @@
 
 #include "PreComp.h"
 
-CPanelRect::CPanelRect (CPanel &AssociatedPanel) : 
+CPanelRect::CPanelRect (IPanel &AssociatedPanel) : 
 	m_iOriginX(0),
 	m_iOriginY(0),
 	m_iHeight(0),
@@ -14,7 +14,7 @@ CPanelRect::CPanelRect (CPanel &AssociatedPanel) :
 	{
 	}
 
-CPanelRect::CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight) :
+CPanelRect::CPanelRect (IPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight) :
 	m_iOriginX(iOriginX),
 	m_iOriginY(iOriginY),
 	m_iHeight(iHeight),
@@ -23,7 +23,7 @@ CPanelRect::CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int
 	{
 	}
 
-CPanelRect::CPanelRect (CPanel &AssociatedPanel, RECT rc) :
+CPanelRect::CPanelRect (IPanel &AssociatedPanel, RECT rc) :
 	m_AssociatedPanel(AssociatedPanel)
 	{
 	SetWithRect(rc);
@@ -158,7 +158,7 @@ void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 
 // ===========================================================================
 
-CPanelOrganizer::CPanelOrganizer(CPanel &ParentPanel) :
+CPanelOrganizer::CPanelOrganizer(IPanel &ParentPanel) :
 	m_ParentPanel(ParentPanel)
 	{
 	}
@@ -181,7 +181,7 @@ void CPanelOrganizer::ShiftAllOrigins (int iShiftX, int iShiftY)
 
 // ===========================================================================
 
-CPanelArray::CPanelArray (CPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
+CPanelArray::CPanelArray (IPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
 	{
 	}
 
@@ -194,7 +194,7 @@ TArray <int> CPanelArray::SortByPanelRectEdgeLocation (DWORD dwEdge)
 	{
 	TArray <int> aPanelIndices;
 	TArray <int> aEdgeLocations;
-	CPanel *pPanel;
+	IPanel *pPanel;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -240,8 +240,8 @@ void CPanelArray::SmoothOut (DWORD dwSmoothType)
 
 	int iProspectiveOtherIndex;
 
-	CPanel *pFocusPanel;
-	CPanel *pOtherPanel;
+	IPanel *pFocusPanel;
+	IPanel *pOtherPanel;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -340,12 +340,12 @@ void CPanelArray::SmoothOut (DWORD dwSmoothType)
 		}
 	}
 
-CPanel *CPanelArray::AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration)
+IPanel *CPanelArray::AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration)
 	{
 	int iOriginX = m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX;
 	int iOriginY = m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY;
 
-	CPanel *NewPanel = new CPanel(iOriginX, iOriginY, iWidth, iHeight, sPanelConfiguration);
+	IPanel *NewPanel = new IPanel(iOriginX, iOriginY, iWidth, iHeight, sPanelConfiguration);
 
 	NewPanel->SetHiddenFlag(bHidden);
 	NewPanel->SetParentPanel(&m_ParentPanel);
@@ -389,7 +389,7 @@ TArray <IPanelContent *> CPanelArray::GetPanelContentsContainingPoint (int x, in
 	return aRelevantContents;
 	}
 
-int CPanelArray::GetPanelIndex (CPanel *pPanel)
+int CPanelArray::GetPanelIndex (IPanel *pPanel)
 	{
 	int iDefaultIndex = -1;	//  not found in m_aInternalPanels
 
@@ -404,7 +404,7 @@ int CPanelArray::GetPanelIndex (CPanel *pPanel)
 	return iDefaultIndex;
 	}
 
-void CPanelArray::HidePanel (CPanel *Panel)
+void CPanelArray::HidePanel (IPanel *Panel)
 	{
 	int iPanelIndex = GetPanelIndex(Panel);
 
@@ -440,7 +440,7 @@ void CPanelArray::HideAll (void)
 	SmoothOut(SMOOTH_UPDOWN);
 	}
 
-void CPanelArray::ShowPanel (CPanel *Panel)
+void CPanelArray::ShowPanel (IPanel *Panel)
 	{
 	int iPanelIndex = GetPanelIndex(Panel);
 
@@ -449,7 +449,7 @@ void CPanelArray::ShowPanel (CPanel *Panel)
 		return;
 		}
 
-	CPanel *FocusPanel = m_aPanels[iPanelIndex];
+	IPanel *FocusPanel = m_aPanels[iPanelIndex];
 
 	//  unhide the panel so that space can be made for it
 	FocusPanel->SetHiddenFlag(false);
@@ -460,7 +460,7 @@ void CPanelArray::ShowPanel (CPanel *Panel)
 
 void CPanelArray::ShowPanel (int iPanelIndex)
 	{
-	CPanel *FocusPanel = m_aPanels[iPanelIndex];
+	IPanel *FocusPanel = m_aPanels[iPanelIndex];
 
 	//  unhide the panel so that space can be made for it
 	FocusPanel->SetHiddenFlag(false);
@@ -490,7 +490,7 @@ void CPanelArray::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 // ============================================================================
 
-CPanelTree::CPanelTree(CPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
+CPanelTree::CPanelTree(IPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
 	{
 	}
 
@@ -523,7 +523,7 @@ TArray <IPanelContent *> CPanelTree::GetPanelContentsContainingPoint (int x, int
 	return aRelevantContents;
 	}
 
-int CPanelTree::GetPanelIndex (CPanel *pPanel)
+int CPanelTree::GetPanelIndex (IPanel *pPanel)
 	{
 	int iDefaultIndex = -1;	//  not found in m_aInternalPanels
 
@@ -538,7 +538,7 @@ int CPanelTree::GetPanelIndex (CPanel *pPanel)
 	return iDefaultIndex;
 	}
 
-TArray <CPanel *> CPanelTree::Split (CString sSplitType, int iSeparatorPos)
+TArray <IPanel *> CPanelTree::Split (CString sSplitType, int iSeparatorPos)
 	{
 	if (sSplitType == CONSTLIT("vertical"))
 		{
@@ -554,7 +554,7 @@ TArray <CPanel *> CPanelTree::Split (CString sSplitType, int iSeparatorPos)
 
 // ============================================================================
 
-CPanel::CPanel (void) :
+IPanel::IPanel (void) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
@@ -568,7 +568,7 @@ CPanel::CPanel (void) :
 	{
 	}
 
-CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration) :
+IPanel::IPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
@@ -582,7 +582,7 @@ CPanel::CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPa
 	{
 	}
 
-CPanel::CPanel (IPanelContent *pAssociatedContent, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration) :
+IPanel::IPanel (IPanelContent *pAssociatedContent, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration) :
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
 	m_sErrorString(CONSTLIT("")),
@@ -596,11 +596,11 @@ CPanel::CPanel (IPanelContent *pAssociatedContent, int iOriginX, int iOriginY, i
 	{
 	}
 
-CPanel::~CPanel ()
+IPanel::~IPanel ()
 	{
 	}
 
-void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void IPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	if (!IsEmpty() && !IsHidden())
 		{
@@ -610,7 +610,7 @@ void CPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	InternalPanels.PaintAllContent(Screen, rcInvalid);
 	}
 
-TArray <IPanelContent *> CPanel::GetPanelContentsContainingPoint (int x, int y)
+TArray <IPanelContent *> IPanel::GetPanelContentsContainingPoint (int x, int y)
 	{
 	TArray <IPanelContent *> aRelevantContents;
 
@@ -630,7 +630,7 @@ TArray <IPanelContent *> CPanel::GetPanelContentsContainingPoint (int x, int y)
 	return aRelevantContents;
 	}
 
-IPanelContent * CPanel::GetContentContainingPoint(int x, int y)
+IPanelContent * IPanel::GetContentContainingPoint(int x, int y)
 	{
 	if (!IsPointInRect(x, y, PanelRect.GetAsRect()))
 		{
@@ -651,7 +651,7 @@ IPanelContent * CPanel::GetContentContainingPoint(int x, int y)
 	return m_pAssociatedContent;
 	}
 
-void CPanel::Hide(void)
+void IPanel::Hide(void)
 	{
 	m_bHidden = true;
 	InternalPanels.HideAll();
@@ -663,7 +663,7 @@ void CPanel::Hide(void)
 		}
 	}
 
-void CPanel::Show(void)
+void IPanel::Show(void)
 	{
 	m_bHidden = false;
 	InternalPanels.ShowAll();
@@ -675,7 +675,7 @@ void CPanel::Show(void)
 		}
 	}
 
-void CPanel::Invalidate()
+void IPanel::Invalidate()
 	{
 	if (!IsEmpty())
 		{
@@ -685,7 +685,7 @@ void CPanel::Invalidate()
 	InternalPanels.InvalidateAll();
 	}
 
-void CPanel::FitChildrenExactly (void)
+void IPanel::FitChildrenExactly (void)
 	{
 	if (m_pParentPanel == NULL)
 		{
@@ -693,7 +693,7 @@ void CPanel::FitChildrenExactly (void)
 		}
 
 	TArray <int> aPanelIndices = InternalPanels.SortByPanelRectEdgeLocation(EDGE_BOTTOM);
-	TArray <CPanel *> aPanels = InternalPanels.GetPanels();
+	TArray <IPanel *> aPanels = InternalPanels.GetPanels();
 
 	int iNumPanels = aPanelIndices.GetCount();
 	int iLastPanelIndex = aPanelIndices[iNumPanels-1];
@@ -709,7 +709,7 @@ void CPanel::FitChildrenExactly (void)
 	m_pParentPanel->PanelRect.SetEdgePosition(EDGE_RIGHT, iLastPanelRight);
 	}
 
-void CPanel::SetViewOffset (int iOffsetX, int iOffsetY)
+void IPanel::SetViewOffset (int iOffsetX, int iOffsetY)
 	{
 	int iShiftX = iOffsetX - m_iViewOffsetX;
 	m_iViewOffsetX = iOffsetX;

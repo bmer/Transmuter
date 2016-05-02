@@ -5,7 +5,7 @@
 #pragma once
 
 class CLoadingSession;
-class CPanel;
+class IPanel;
 class CTransmutercontent;
 class CContextContent;
 class CCommandInterfaceContent;
@@ -60,7 +60,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		IPanelContent *m_pFocusContent;
 
 		CTransmuterModel &m_Model;
-		CPanel m_Panel;
+		IPanel m_Panel;
 
 		int m_iSeparatorWidth;
 	};

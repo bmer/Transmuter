@@ -40,11 +40,11 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	// main background panel is m_Panel
 
 	//  Initializing context panel
-	CPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
+	IPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
 	m_pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
 	m_aContent.Insert(m_pContextPanelContent);
 
-	CPanel *pEmptyPanelForContextEditorSeparator = m_Panel.InternalPanels.AddPanel(iContextPanelWidth, 0, 10, iContextPanelHeight, false);
+	IPanel *pEmptyPanelForContextEditorSeparator = m_Panel.InternalPanels.AddPanel(iContextPanelWidth, 0, 10, iContextPanelHeight, false);
 	m_pContextEditorSeparatorContent = new CSeparatorContent(CONSTLIT("ConextSeparator"), HI, *pEmptyPanelForContextEditorSeparator, true);
 	m_aContent.Insert(m_pContextEditorSeparatorContent);
 	m_pContextPanelContent->SetRightSeparator(m_pContextEditorSeparatorContent);
@@ -52,13 +52,13 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
 	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight - 10;
 
-	CPanel *pEmptyPanelForCLISeparator = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, 10, false);
+	IPanel *pEmptyPanelForCLISeparator = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, 10, false);
 	m_pCLISeparator = new CSeparatorContent(CONSTLIT("CLISeparator"), HI, *pEmptyPanelForCLISeparator, false);
 	m_aContent.Insert(m_pCLISeparator);
 
 	//  Initializing command line interface
 	
-	CPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight + 10, iCommandLineWidth, iCommandLineHeight, false);
+	IPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight + 10, iCommandLineWidth, iCommandLineHeight, false);
 	m_pCommandInterfaceContent = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
 	m_aContent.Insert(m_pCommandInterfaceContent);
 	m_pCommandInterfaceContent->SetTopSeparator(m_pCLISeparator);

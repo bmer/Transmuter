@@ -15,7 +15,7 @@
 // class TransmuterException;
 class CPanelRect;
 class IPanelContent;
-class CPanel;
+class IPanel;
 class CInternalPanels;
 
 // using namespace std;
@@ -33,13 +33,13 @@ class CInternalPanels;
 
 class CPanelRect
 	{
-	friend CPanel;
+	friend IPanel;
 	friend CInternalPanels;
 
 	public:
-		CPanelRect (CPanel &AssociatedPanel);
-		CPanelRect (CPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight);
-		CPanelRect (CPanel &AssociatedPanel, RECT rc);
+		CPanelRect (IPanel &AssociatedPanel);
+		CPanelRect (IPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CPanelRect (IPanel &AssociatedPanel, RECT rc);
 
 		inline int GetOriginX (void) { return m_iOriginX; }
 		inline int GetOriginY (void) { return m_iOriginY; }
@@ -65,7 +65,7 @@ class CPanelRect
 		inline void ChangeHeightBy (int iChange) { m_iHeight += iChange;  }
 
 	private:
-		CPanel &m_AssociatedPanel;
+		IPanel &m_AssociatedPanel;
 		int m_iOriginX;
 		int m_iOriginY;
 		int m_iHeight;
@@ -76,35 +76,35 @@ class CPanelRect
 
 class CPanelOrganizer
 	{
-	friend CPanel;
+	friend IPanel;
 	friend CPanelRect;
 
 	public:
-		CPanelOrganizer (CPanel &ParentPanel);
+		CPanelOrganizer (IPanel &ParentPanel);
 		virtual ~CPanelOrganizer (void);
 
 		virtual int GetCount (void);
-		virtual TArray <CPanel *> GetPanels (void);
-		virtual inline CPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
+		virtual TArray <IPanel *> GetPanels (void);
+		virtual inline IPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
 
 		virtual void ShiftAllOrigins (int ShiftX, int iShiftY);
 
 		virtual TArray <IPanelContent *> GetPanelContents (void);
 		virtual TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
 
-		virtual int GetPanelIndex (CPanel *pPanel);
+		virtual int GetPanelIndex (IPanel *pPanel);
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
-		inline TArray <CPanel *> GetPanels (void) { return m_aPanels; }
+		inline TArray <IPanel *> GetPanels (void) { return m_aPanels; }
 
 		TArray <IPanelContent *> GetPanelContents (void);
 		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
 
-		int GetPanelIndex (CPanel *pPanel);
+		int GetPanelIndex (IPanel *pPanel);
 
-		void HidePanel (CPanel *pPanel);
-		void ShowPanel (CPanel *pPanel);
+		void HidePanel (IPanel *pPanel);
+		void ShowPanel (IPanel *pPanel);
 		void HidePanel (int iPanelIndex);
 		void ShowPanel (int iPanelIndex);
 		void HideAll (void);
@@ -113,35 +113,36 @@ class CPanelOrganizer
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void SmoothOut (DWORD dwSmoothType);
-		CPanel *AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
+		IPanel *AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
 		void DeletePanel (int iPanelIndex);
 
-		TArray <CPanel *> Split (CString sSplitType, int iSeparatorPos);
+		TArray <IPanel *> Split (CString sSplitType, int iSeparatorPos);
 		void ReverseSplit (int iPanelIndex);
-		void ReverseSplit (CPanel *pPanel);
+		void ReverseSplit (IPanel *pPanel);
 
 	protected:
+		char m_cPanelConfigType;
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
-		CPanel &m_ParentPanel;
-		TArray <CPanel *> m_aPanels;
-		TArray <CPanel *> m_aLeafPanels;
+		IPanel &m_ParentPanel;
+		TArray <IPanel *> m_aPanels;
+		TArray <IPanel *> m_aLeafPanels;
 	};
 
 //  =======================================================================
 
-class CPanel 
+class IPanel : public IHISession
 	{
 	friend class CPanelRect;
-	friend class CInternalPanels;
+	friend class CPanelOrganizer;
 
 	public:
-		CPanel (void);
-		CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
-		CPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
-		~CPanel (void);
+		IPanel (void);
+		IPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
+		IPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
+		~IPanel (void);
 
-		inline void SetParentPanel (CPanel *pPanel) { m_pParentPanel = pPanel; }
-		inline CPanel *GetParentPanel (void) { return m_pParentPanel; }
+		inline void SetParentPanel (IPanel *pPanel) { m_pParentPanel = pPanel; }
+		inline IPanel *GetParentPanel (void) { return m_pParentPanel; }
 
 		inline void AssociateContent (IPanelContent *Content) { m_pAssociatedContent = Content; }
 		inline IPanelContent *GetAssociatedContent (void) { return m_pAssociatedContent; }
@@ -173,6 +174,58 @@ class CPanel
 
 		void FitChildrenExactly (void);
 
+		//  IHISession virtuals
+		virtual void SetHeaderContent (void) {};
+		virtual void UpdateHeaderContent (void) {};
+
+		virtual void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
+		virtual void OnLButtonUp (int x, int y, DWORD dwFlags);
+		virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags, bool *retbCapture);
+
+		virtual void OnRButtonDown (int x, int y, DWORD dwFlags);
+		virtual void OnRButtonUp (int x, int y, DWORD dwFlags);
+
+		void OnKeyDown (int iVirtKey, DWORD dwKeyData);
+		void OnKeyUp (int iVirtKey, DWORD dwKeyData);
+		void OnChar (char chChar, DWORD dwKeyData);
+
+		inline bool IsLButtonDown (void) { return m_bLButtonDown; }
+		inline bool IsLClicked (void) { return m_bLClicked; }
+		inline bool IsLDblClicked (void) { return m_bLDblClicked; }
+
+		inline bool IsRButtonDown (void) { return m_bRButtonDown; }
+		inline bool IsRClicked (void) { return m_bRClicked; }
+
+		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
+
+		// more Panel functions
+		void DrawPanelOutline (CG32bitImage &Screen);
+		inline void UpdatePanelOutlineColor (CG32bitPixel rgbColor) { m_rgbPanelOutlineColor = rgbColor; }
+
+		inline IPanelContent *SetFocus (void) { m_bFocus = true; return this; }
+		void RemoveFocus (void) { m_bFocus = false; }
+		inline bool GetFocusStatus (void) { return m_bFocus; }
+
+		inline void SetController (IHICommand *pController) { m_pController = pController; }
+		inline CHumanInterface &GetHI (void) { return m_HI; }
+
+		inline void SetCaptureStatus (bool bCapture) { m_bCapture = bCapture; }
+		inline bool GetCaptureStatus (void) { return m_bCapture; }
+
+	protected:
+		IHICommand *m_pController;
+
+		virtual void OnContentLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
+		virtual void OnContentLButtonUp (int x, int y, DWORD dwFlags) { ; }
+		virtual void OnContentLButtonDblClick (int x, int y, DWORD dwFlags, bool *retbCapture) { ; }
+
+		virtual void OnContentRButtonDown (int x, int y, DWORD dwFlags) { ; }
+		virtual void OnContentRButtonUp (int x, int y, DWORD dwFlags) { ; }
+
+		virtual void OnContentKeyDown (int iVirtKey, DWORD dwKeyData) { ; }
+		virtual void OnContentKeyUp (int iVirtKey, DWORD dwKeyData) { ; }
+		virtual void OnContentChar (char chChar, DWORD dwKeyData) { ; }
+
 	private:
 		int m_iViewOffsetX;
 		int m_iViewOffsetY;
@@ -180,7 +233,7 @@ class CPanel
 		int m_iSeparatorPos;
 		int m_iSeparatorWidth;
 
-		CPanel *m_pParentPanel;
+		IPanel *m_pParentPanel;
 
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
@@ -188,7 +241,26 @@ class CPanel
 		IPanelContent *m_pAssociatedContent;
 		bool m_bHidden;
 
-		CString m_sPanelConfiguration;
+		inline bool GetCurrentStatusAndReset (bool &refBool) { bool bCurrentStatus = refBool; refBool = false; return bCurrentStatus; }
+
+		bool m_bLButtonDown;
+		bool m_bLClicked;
+		bool m_bLDblClicked;
+
+		bool m_bRButtonDown;
+		bool m_bRClicked;
+
+		bool m_bFocus;
+
+		//  Panels have a background color
+		CG32bitPixel m_rgbBackgroundColor;
+		//  Panels can draw an outline around themselves with color m_rgbPanelOutlineColor
+		CG32bitPixel m_rgbPanelOutlineColor;
+
+		bool m_bCapture;
+
+		CHeader *m_pHeader;
+		CScrollBar *m_pScrollBar;
 	};
 
 //TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));

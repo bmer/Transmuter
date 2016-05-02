@@ -7,7 +7,7 @@
 
 #pragma once
 
-IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel) : IHISession(HI),
+IPanelContent::IPanelContent(CString sContentName, CHumanInterface &HI, IPanel &AssociatedPanel) : IHISession(HI),
 m_AssociatedPanel(AssociatedPanel),
 m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
 m_rgbPanelOutlineColor(CG32bitPixel(255, 255, 255)),
@@ -134,7 +134,7 @@ void IPanelContent::UpdateEdgePositionsFromSeparators(void)
 
 //  =======================================================================
 
-CTransmuterContent::CTransmuterContent (CString sContentName, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
+CTransmuterContent::CTransmuterContent (CString sContentName, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model) : IPanelContent(sContentName, HI, AssociatedPanel),
 	m_pHeaderContent(NULL),
 	m_sID(m_sID),
 	m_model(model)
@@ -151,7 +151,7 @@ CTransmuterContent::~CTransmuterContent(void)
 
 void CTransmuterContent::SetHeaderContent(CString sID, CString sHeaderText, int iWidth, int iHeight, const CG16bitFont * pFont, CG32bitPixel rgbTextColor, CG32bitPixel rgbBackgroundColor)
 	{
-	CPanel *pHeaderPanel = GetAssociatedPanel().InternalPanels.AddPanel(0, 0, iWidth, iHeight, false);
+	IPanel *pHeaderPanel = GetAssociatedPanel().InternalPanels.AddPanel(0, 0, iWidth, iHeight, false);
 	m_pHeaderContent = new CHeaderContent(sID, sHeaderText, *g_pHI, *pHeaderPanel, *this);
 	}
 
@@ -189,7 +189,7 @@ void CTransmuterContent::UpdateHeaderBackgroundColor(CG32bitPixel rgbColor)
 
 //  =======================================================================
 
-CHeaderContent::CHeaderContent(CString sParentSessionName, CString sHeaderText, CHumanInterface & HI, CPanel &AssociatedPanel, CTransmuterContent &AssociatedContent) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
+CHeaderContent::CHeaderContent(CString sParentSessionName, CString sHeaderText, CHumanInterface & HI, IPanel &AssociatedPanel, CTransmuterContent &AssociatedContent) : IPanelContent(strCat(sParentSessionName, CONSTLIT(".Header")), HI, AssociatedPanel),
 	m_sHeaderText(sHeaderText),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbTextColor(CG32bitPixel(255,255,255)),
@@ -203,7 +203,7 @@ CHeaderContent::~CHeaderContent(void)
 
 void CHeaderContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
+	IPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	Screen.Fill(refAssociatedPanel.PanelRect.GetOriginX(), refAssociatedPanel.PanelRect.GetOriginY(), refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), m_rgbBackgroundColor);
 
 	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
@@ -222,7 +222,7 @@ void CHeaderContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 //  =======================================================================
 
-CSeparatorContent::CSeparatorContent(CString sID, CHumanInterface & HI, CPanel &AssociatedPanel, bool bHorizontal) : IPanelContent(sID, HI, AssociatedPanel),
+CSeparatorContent::CSeparatorContent(CString sID, CHumanInterface & HI, IPanel &AssociatedPanel, bool bHorizontal) : IPanelContent(sID, HI, AssociatedPanel),
 	m_rgbBackgroundColor(CG32bitPixel(90, 90, 90)),
 	m_bHorizontal(bHorizontal)
 	{
@@ -235,6 +235,6 @@ CSeparatorContent::~CSeparatorContent()
 
 void CSeparatorContent::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
+	IPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	Screen.Fill(refAssociatedPanel.PanelRect.GetOriginX(), refAssociatedPanel.PanelRect.GetOriginY(), refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight(), m_rgbBackgroundColor);
 	}

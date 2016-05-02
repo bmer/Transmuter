@@ -11,7 +11,7 @@ class CCommandInterfaceContent;
 //class CInputContent : public CTransmuterContent
 //	{
 //	public:
-//		CInputContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+//		CInputContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
 //
 //		void OnKeyDown (int iVirtKey, DWORD dwKeyData);
 //		void OnKeyUp (int iVirtKey, DWORD dwKeyData);
@@ -25,7 +25,7 @@ class CCommandInterfaceContent;
 //class COutputContent : public CTransmuterContent
 //	{
 //	public:
-//		COutputContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+//		COutputContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
 //
 //		void OnPaint (CG32bitImage &Screen, const RECT&rcInvalid);
 //
@@ -36,7 +36,7 @@ class CCommandInterfaceContent;
 class CCommandInterfaceContent : public CTransmuterContent
 	{
 	public:
-		CCommandInterfaceContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
+		CCommandInterfaceContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
 		~CCommandInterfaceContent (void);
 
 		void OnKeyDown(int iVirtKey, DWORD dwKeyData);
