@@ -158,12 +158,12 @@ void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 
 // ===========================================================================
 
-PanelOrganizer::PanelOrganizer(CPanel &ParentPanel) :
+CPanelOrganizer::CPanelOrganizer(CPanel &ParentPanel) :
 	m_ParentPanel(ParentPanel)
 	{
 	}
 
-PanelOrganizer::~PanelOrganizer()
+CPanelOrganizer::~CPanelOrganizer()
 	{
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -171,7 +171,7 @@ PanelOrganizer::~PanelOrganizer()
 		}
 	}
 
-void PanelOrganizer::ShiftAllOrigins (int iShiftX, int iShiftY)
+void CPanelOrganizer::ShiftAllOrigins (int iShiftX, int iShiftY)
 	{
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
@@ -181,7 +181,7 @@ void PanelOrganizer::ShiftAllOrigins (int iShiftX, int iShiftY)
 
 // ===========================================================================
 
-CPanelArray::CPanelArray (CPanel &ParentPanel) : PanelOrganizer(ParentPanel)
+CPanelArray::CPanelArray (CPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
 	{
 	}
 
@@ -490,7 +490,7 @@ void CPanelArray::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 // ============================================================================
 
-CPanelTree::CPanelTree(CPanel &ParentPanel) : PanelOrganizer(ParentPanel)
+CPanelTree::CPanelTree(CPanel &ParentPanel) : CPanelOrganizer(ParentPanel)
 	{
 	}
 

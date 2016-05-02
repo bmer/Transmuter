@@ -74,14 +74,14 @@ class CPanelRect
 
 //  =======================================================================
 
-class PanelOrganizer
+class CPanelOrganizer
 	{
 	friend CPanel;
 	friend CPanelRect;
 
 	public:
-		PanelOrganizer (CPanel &ParentPanel);
-		virtual ~PanelOrganizer (void);
+		CPanelOrganizer (CPanel &ParentPanel);
+		virtual ~CPanelOrganizer (void);
 
 		virtual int GetCount (void);
 		virtual TArray <CPanel *> GetPanels (void);
@@ -164,7 +164,7 @@ class CPanel
 		void SetError (CString sErrorDescription) { m_bErrorOccurred = true; m_sErrorString = sErrorDescription; }
 
 		CPanelRect PanelRect;
-		PanelOrganizer *InternalPanels;
+		CPanelOrganizer *InternalPanels;
 
 		void SetViewOffset (int iOffsetX, int iOffsetY);
 
