@@ -5,35 +5,148 @@
 
 #include "PreComp.h"
 
+CContextEntry::CContextEntry(CContextEntry *pParentEntry, CString sDisplayText, int iLevel, bool bCollapsed, DWORD dwUNID) : m_pParentEntry(pParentEntry),
+	m_sDisplayText(sDisplayText),
+	m_iLevel(iLevel),
+	m_bCollapsed(bCollapsed),
+	m_dwUNID(dwUNID)
+	{
+	m_sUNID = strPatternSubst("0x%08x", m_dwUNID);
+	}
+
+// ===============================================================
+
+bool CContextEntry::IsParentCollapsed(void)
+	{
+	if (m_pParentEntry != NULL)
+		{
+		return m_pParentEntry->GetCollapseStatus();
+		}
+	else
+		{
+		return false;
+		}
+	}
+
+// ===============================================================
+
+CContextEntryContent::CContextEntryContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+	m_refAssociatedEntry(refAssociatedEntry)
+	{
+	}
+
+// ===============================================================
+
+void CContextEntryArray::Insert(const CContextEntryArray & refCtxObjArray)
+	{
+	for (int i = 0; i < refCtxObjArray.GetCount(); i++)
+		{
+		TArray<CContextEntry *>::Insert(new CContextEntry(*refCtxObjArray[i]));
+		}
+	}
+
+// ===============================================================
+
+CContextEntry *CContextEntryArray::Insert(const CContextEntry &refCtxObj)
+	{
+	CContextEntry *pNewCtxObj = new CContextEntry(refCtxObj);
+	TArray<CContextEntry *>::Insert(pNewCtxObj);
+	return pNewCtxObj;
+	}
+
+// ===============================================================
+
+void CContextEntryArray::CleanUp(void)
+	{
+	for (int i = 0; i < GetCount(); i++)
+		{
+		delete GetAt(i);
+		}
+	DeleteAll();
+	}
+
+// ===============================================================
+
+void CContextEntryArray::Copy(const CContextEntryArray &refCtxObjArray)
+	{
+	InsertEmpty(refCtxObjArray.GetCount());
+	for (int i = 0; i < refCtxObjArray.GetCount(); i++)
+		{
+		GetAt(i) = new CContextEntry(*refCtxObjArray[i]);
+		}
+	}
+
+// ===============================================================
 
 CContextContent::CContextContent(CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
 	m_ExtensionCollection(m_model.GetExtensionCollection()),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),
-	m_Context(m_ExtensionCollection.GetAllExtensions())
+	m_Contextualizer(CContextualizer(HI, m_ExtensionCollection.GetAllExtensions()))
 	{
 	CPanel &refAssociatedPanel = this->GetAssociatedPanel();
 	SetHeaderContent(strCat(m_sID, CONSTLIT(".h")), CONSTLIT("Context"), refAssociatedPanel.PanelRect.GetWidth(), 40);
 	}
 
+// ===============================================================
+
 CContextContent::~CContextContent (void)
 	{
-	delete m_HeaderContent;
+	delete m_pHeaderContent;
 	}
 
-void CContextContent::LoadLastDefinedContextInHistory(void)
+// ===============================================================
+
+void CContextContent::LoadContext (void)
 	{
+
+	CPanel &refAssociatedPanel = GetAssociatedPanel();
+	// delete all existing internal panels dealing with content
+	for (int i = 0; i < m_bLoadedContextObjectPanelIndices.GetCount(); i++)
+		{
+		//// first we must take care to delete the associated content!
+		//iThisPanelIndex = m_bLoadedContextObjectPanelIndices[i];
+		//delete refAssociatedPanel.InternalPanels.GetPanel(iThisPanelIndex)->GetAssociatedSession();
+
+		// now we can delete the panel itself
+		refAssociatedPanel.InternalPanels.DeletePanel(i);
+		}
+	// deleting all the old stored panel indices
+	m_bLoadedContextObjectPanelIndices.DeleteAll();
+
+	CContextEntryArray *pContextEntryList = m_Contextualizer.GetCurrentContextEntries();
+
+	int iBottomOfHeader = 0;
+	if (m_pHeaderContent != NULL)
+		{
+		iBottomOfHeader += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
+		}
+
+	int iEntryHeight = 15;
+	int iIndentWidth = 10;
+
+	int iParentPanelWidth = refAssociatedPanel.PanelRect.GetWidth();
+	int iNumEntries = pContextEntryList->GetCount();
+	m_bLoadedContextObjectPanelIndices.InsertEmpty(iNumEntries);
+	CPanel *pEntryPanel;
+
+	for (int i = 0; i < iNumEntries; i++)
+		{
+		// create new internal panels, content
+		CContextEntry *pEntry = pContextEntryList->GetAt(i);
+		pEntryPanel = refAssociatedPanel.InternalPanels.AddPanel(0, iBottomOfHeader + i*iEntryHeight, iParentPanelWidth, iEntryHeight, false);
+		m_bLoadedContextObjectPanelIndices[i] = refAssociatedPanel.InternalPanels.GetPanelIndex(pEntryPanel);
+
+		CString sToConcatenate = strCat(CONSTLIT("_"), pEntry->GetUNIDAsString());
+		pEntryPanel->AssociateSession(new CContextEntryContent(strCat(GetStringID(), sToConcatenate), GetHI(), *pEntryPanel, GetModel(), *pEntry));
+		}
 	}
 
-void CContextContent::LoadNextDefinedContextInHistory(void)
-	{
-	}
+// ===============================================================
 
 void CContextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-#if DEBUG
 	bool bFocusStatus = GetFocusStatus();
-#endif
 	if (GetFocusStatus() == true)
 		{
 		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
@@ -42,35 +155,35 @@ void CContextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 		{
 		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
 		}
-	DrawPanelOutline(Screen);
+	DrawPanelOutline(Screen);/*
 
 	int iBottomOfHeader = 0;
-	if (m_HeaderContent != NULL)
+	if (m_pHeaderContent != NULL)
 		{
-		m_HeaderContent->OnPaint(Screen, rcInvalid);
-		iBottomOfHeader += m_HeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
+		m_pHeaderContent->OnPaint(Screen, rcInvalid);
+		iBottomOfHeader += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
 		}
 
-	CContextObjectArray *pContextItems = m_Context.GetCurrentContextObjectList();
+	CContextEntryArray *pContextEntries = m_Contextualizer.GetCurrentContextEntries();
 	int iIndentWidth = 10;
 	int iThisPanelLeftEdge = this->GetAssociatedPanel().PanelRect.GetEdgePosition(EDGE_LEFT);
-	if (pContextItems != NULL)
+	if (pContextEntries != NULL)
 		{
-		CContextObject *CurrentCtxObj;
+		CContextEntry *CurrentEntry;
 		int iCurrentYOffset = 0;
-		for (int i = 0; i < pContextItems->GetCount(); i++)
+		for (int i = 0; i < pContextEntries->GetCount(); i++)
 			{
-			CurrentCtxObj = pContextItems->GetAt(i);
+			CurrentEntry = pContextEntries->GetAt(i);
 
 #ifdef DEBUG
-			int iLevel = CurrentCtxObj->GetLevel();
-			CString sDisplayText = CurrentCtxObj->GetDisplayText();
-			bool bIsParentCollapsed = CurrentCtxObj->IsParentCollapsed();
-			bool bCollapseStatus = CurrentCtxObj->GetCollapseStatus();
+			int iLevel = CurrentEntry->GetLevel();
+			CString sDisplayText = CurrentEntry->GetDisplayText();
+			bool bIsParentCollapsed = CurrentEntry->IsParentCollapsed();
+			bool bCollapseStatus = CurrentEntry->GetCollapseStatus();
 
 			if (bIsParentCollapsed == false && iLevel > 0)
 				{
-				if (CurrentCtxObj->GetParent() != NULL)
+				if (CurrentEntry->GetParent() != NULL)
 					{
 					CString sParentDisplayText = CurrentCtxObj->GetParent()->GetDisplayText();
 					Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfHeader + iCurrentYOffset, *m_pFont, CG32bitPixel(255, 0, 0), sParentDisplayText);
@@ -86,38 +199,39 @@ void CContextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 				}
 			}
 		}
-
+*/
 	}
 
 //  =======================================================================
 
-CContext::CContext(TArray<CExtension*> AllExtensions) : m_sContextDescription(CONSTLIT("The Universe")),
+CContextualizer::CContextualizer(CHumanInterface &HI, TArray<CExtension*> AllExtensions) : m_sContextDescription(CONSTLIT("The Universe")),
 	m_AllExtensions(AllExtensions),
-	m_iCurrentContextIndex(-1)
+	m_iCurrentContextIndex(-1),
+	m_HI(HI)
 	{
 	ApplyQuery(CONSTLIT("universe"));
 	}
 
-CContext::~CContext(void)
+CContextualizer::~CContextualizer(void)
 	{
 	}
 
-void CContext::ApplyQuery (CString sQuery)
+void CContextualizer::ApplyQuery (CString sQuery)
 	{
-	m_aContextObjectListHistory.Insert(DetermineContextObjectList(sQuery));
+	m_aContextObjectListHistory.Insert(DetermineContextEntries(sQuery));
 	m_aQueryHistory.Insert(sQuery);
 	m_iCurrentContextIndex += 1;
 	}
 
-CContextObjectArray CContext::DetermineContextObjectList(CString sQuery)
+CContextEntryArray CContextualizer::DetermineContextEntries(CString sQuery)
 	{
-	CContextObjectArray NewContextObjectList;
+	CContextEntryArray NewContextObjectList;
 
 	if (strCompare(sQuery, CONSTLIT("universe")) == 0)
 		{
 		if (m_aContextObjectListHistory.GetCount() == 0)
 			{
-			CContextObjectArray  ContextObjListForThisExt;
+			CContextEntryArray  ContextObjListForThisExt;
 			for (int i = 0; i < m_AllExtensions.GetCount(); i++)
 				{
 				ContextObjListForThisExt = CreateContextObjectListForExtension(m_AllExtensions[i]);
@@ -133,7 +247,7 @@ CContextObjectArray CContext::DetermineContextObjectList(CString sQuery)
 	return NewContextObjectList;
 	}
 
-CContextObjectArray *CContext::GetCurrentContextObjectList (void)
+CContextEntryArray *CContextualizer::GetCurrentContextEntries (void)
 	{
 	int iContextCount = m_aContextObjectListHistory.GetCount();
 	if (iContextCount > 0)
@@ -146,7 +260,7 @@ CContextObjectArray *CContext::GetCurrentContextObjectList (void)
 		}
 	}
 
-void CContext::ChangeToLastContextInHistory (void)
+void CContextualizer::ChangeToLastContextInHistory (void)
 	{
 	int iContextCount = m_aContextObjectListHistory.GetCount();
 	if (iContextCount > 0)
@@ -158,7 +272,7 @@ void CContext::ChangeToLastContextInHistory (void)
 		}
 	}
 
-void CContext::ChangeToNextContextInHistory (void)
+void CContextualizer::ChangeToNextContextInHistory (void)
 	{
 	int iContextCount = m_aContextObjectListHistory.GetCount();
 	if (iContextCount > 0)
@@ -170,9 +284,9 @@ void CContext::ChangeToNextContextInHistory (void)
 		}
 	}
 
-void CContext::CleanUpHistory(int iNewHistoryLength)
+void CContextualizer::CleanUpHistory(int iNewHistoryLength)
 	{
-	TArray <CContextObjectArray> NewContextObjectListHistory;
+	TArray <CContextEntryArray> NewContextObjectListHistory;
 	TArray <CString> NewQueryHistory;
 
 	int iStartIndex = m_iCurrentContextIndex - iNewHistoryLength - 1;
@@ -188,7 +302,7 @@ void CContext::CleanUpHistory(int iNewHistoryLength)
 			}
 		}
 	else
-		{
+		{										                                                                         
 		if (m_iCurrentContextIndex > 0)
 			{
 			NewContextObjectListHistory.Insert(m_aContextObjectListHistory[iStartIndex]);
@@ -196,129 +310,44 @@ void CContext::CleanUpHistory(int iNewHistoryLength)
 		}
 	}
 
-CContextObjectArray CContext::CreateContextObjectListForExtension (CExtension *Extension)
+CContextEntryArray CContextualizer::CreateContextObjectListForExtension (CExtension *Extension)
 	{
-	CContextObjectArray CtxObjList;
+	CContextEntryArray ContextEntries;
 
-	//  top level entry
-	CContextObject ExtCtxObj = CContextObject(NULL, Extension->GetName(), 0, true);
-	CContextObject *pExtCtxObject = CtxObjList.Insert(ExtCtxObj);
-	
-	CDesignTable ExtensionDesignTable = Extension->GetDesignTypes();
-
-	for (int i = 0; i < designCount; i++)
+	if (Extension->GetUNID() != 0)
 		{
-		DesignTypes iType = DesignTypes(i);
-		CContextObject DesignTypeClassCtxObj = CContextObject(pExtCtxObject, CDesignType::GetTypeClassName(iType), 1, true);
-		CContextObject *pDesignTypeClassCtxObj = CtxObjList.Insert(DesignTypeClassCtxObj);
-
-		CDesignType *CurrentDesignType;
-		for (int j = 0; j < ExtensionDesignTable.GetCount(); j++)
+		//  top level entry
+		CString sDisplayString = Extension->GetName();
+		DWORD dwExtensionUNID = Extension->GetUNID();
+		if (sDisplayString.GetLength() == 0)
 			{
-			CurrentDesignType = ExtensionDesignTable.GetEntry(j);
-			if (CurrentDesignType->GetType() == iType)
+			sDisplayString = strPatternSubst("0x%08x", dwExtensionUNID);
+			}
+
+		CContextEntry ExtensionContextEntry = CContextEntry(NULL, sDisplayString, 0, true, dwExtensionUNID);
+		CContextEntry *pExtensionEntry = ContextEntries.Insert(ExtensionContextEntry);
+
+		CDesignTable ExtensionDesignTable = Extension->GetDesignTypes();
+
+		for (int i = 0; i < designCount; i++)
+			{
+			DesignTypes iType = DesignTypes(i);
+			CContextEntry DesignTypeEntry = CContextEntry(pExtensionEntry, CDesignType::GetTypeClassName(iType), 1, true, -1);
+			CContextEntry *pDesignTypeEntry = ContextEntries.Insert(DesignTypeEntry);
+
+			CDesignType *CurrentDesignType;
+			for (int j = 0; j < ExtensionDesignTable.GetCount(); j++)
 				{
-				CtxObjList.Insert(CContextObject(pDesignTypeClassCtxObj, CurrentDesignType->GetTypeName(), 2, true));
+				CurrentDesignType = ExtensionDesignTable.GetEntry(j);
+				if (CurrentDesignType->GetType() == iType)
+					{
+					ContextEntries.Insert(CContextEntry(pDesignTypeEntry, CurrentDesignType->GetTypeName(), 2, true, CurrentDesignType->GetUNID()));
+					}
 				}
 			}
 		}
 
-	return CtxObjList;
+	return ContextEntries;
 	}
 
 //  =======================================================================
-
-CContextObject::CContextObject(CContextObject *ParentCtxObj, CString sDisplayText, int iLevel, bool bCollapsed) : m_sDisplayText(sDisplayText),
-	m_iLevel(iLevel),
-	m_bCollapsed(bCollapsed),
-	m_ParentCtxObj(ParentCtxObj)
-	{
-	}
-
-bool CContextObject::IsParentCollapsed (void)
-	{
-	if (m_ParentCtxObj != NULL) 
-		{ 
-		return m_ParentCtxObj->GetCollapseStatus(); 
-		}
-	else 
-		{ 
-		return false; 
-		}
-	};
-
-//CSExtensionMenuItem::CSExtensionMenuItem (CHumanInterface &HI, CPanel &AssociatedPanel, CExtension *Extension) : CTransmuterContent(HI, AssociatedPanel),
-//	m_Extension(*Extension)
-//	{
-//	//  button panels should be sticky
-//	CPanel *ButtonPanel = m_AssociatedPanel.InternalPanels.AddPanel(0, 0, 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
-//	m_Button = new CButtonSession(HI, *ButtonPanel, 0.8, CG32bitPixel(100, 100, 100));
-//	ButtonPanel->AssociateSession(m_Button);
-//
-//	CPanel *TextPanel = m_AssociatedPanel.InternalPanels.AddPanel(40, 0, m_AssociatedPanel.PanelRect.GetWidth() - 40, m_AssociatedPanel.PanelRect.GetHeight(), false);
-//	m_TextArea = new CTextContent(HI, *TextPanel);
-//	m_TextArea->SetFontTable(&HI.GetVisuals());
-//	m_TextArea->SetFont(&HI.GetVisuals().GetFont(fontConsoleMediumHeavy));
-//	TextPanel->AssociateSession(m_TextArea);
-//
-//	m_TextArea->SetPadding(10);
-//	m_TextArea->SetAsRichText(Extension->GetName());
-//	m_TextArea->Justify();
-//
-//	}
-//
-//CSExtensionMenuItem::~CSExtensionMenuItem(void)
-//	{
-//	delete m_Button;
-//	delete m_TextArea;
-//	}
-//
-//void CSExtensionMenuItem::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
-//	{
-//	if (!m_AssociatedPanel.IsHidden())
-//		{
-//		if (m_Button->CheckIfLPressed())
-//			{
-//			m_AssociatedPanel.Hide();
-//			}
-//		else
-//			{
-//			DrawPanelOutline(Screen);
-//			m_Button->OnPaint(Screen, rcInvalid);
-//			m_TextArea->OnPaint(Screen, rcInvalid);
-//			}
-//		}
-//	}
-
-void CContextObjectArray::Insert(const CContextObjectArray & refCtxObjArray)
-	{
-	for (int i = 0; i < refCtxObjArray.GetCount(); i++)
-		{
-		TArray<CContextObject *>::Insert(new CContextObject(*refCtxObjArray[i]));
-		}
-	}
-
-CContextObject *CContextObjectArray::Insert(const CContextObject &refCtxObj)
-	{
-	CContextObject *pNewCtxObj = new CContextObject(refCtxObj);
-	TArray<CContextObject *>::Insert(pNewCtxObj);
-	return pNewCtxObj;
-	}
-
-void CContextObjectArray::CleanUp(void)
-	{
-	for (int i = 0; i < GetCount(); i++)
-		{
-		delete GetAt(i);
-		}
-	DeleteAll();
-	}
-
-void CContextObjectArray::Copy(const CContextObjectArray &refCtxObjArray)
-	{
-	InsertEmpty(refCtxObjArray.GetCount());
-	for (int i = 0; i < refCtxObjArray.GetCount(); i++)
-		{
-		GetAt(i) = new CContextObject(*refCtxObjArray[i]);
-		}
-	}

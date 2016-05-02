@@ -3,6 +3,8 @@
 //	User settings definition.
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
+#pragma once
+
 CUserSettings::SOptionDef g_UserSettings[] =
 	{
 		//	Installation options

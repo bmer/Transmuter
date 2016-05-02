@@ -4,19 +4,7 @@
 
 #pragma once
 
-#ifndef INCL_TSE
-#include "TSE.h"
-#endif
-
-#ifndef INCL_TSUI
-#include "TSUI.h"
-#endif
-
 class CTransmuterController;
-
-#include "TransmuterModel.h"
-#include "BasicPanelContents.h"
-#include "BackgroundTasks.h"
 
 class CTransmuterController : 
 		public IHIController,

@@ -26,24 +26,48 @@ void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_Panel(0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight())
+	m_Panel(0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
+	m_pCapture(NULL),
+	m_iSeparatorWidth(5)
 	//	CMainSession constructor
 	{
+	m_Panel.SeparatePanel(true, m_iSeparatorWidth, true);
 	int iContextPanelWidth = 300;
 	int iContextPanelHeight = 600;
+
+	// slider -- should have a parent
+
+	// main background panel is m_Panel
 
 	//  Initializing context panel
 	CPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
 	m_pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
 	m_aContent.Insert(m_pContextPanelContent);
 
+	CPanel *pEmptyPanelForContextEditorSeparator = m_Panel.InternalPanels.AddPanel(iContextPanelWidth, 0, 10, iContextPanelHeight, false);
+	m_pContextEditorSeparatorContent = new CSeparatorContent(CONSTLIT("ConextSeparator"), HI, *pEmptyPanelForContextEditorSeparator, true);
+	m_aContent.Insert(m_pContextEditorSeparatorContent);
+	m_pContextPanelContent->SetRightSeparator(m_pContextEditorSeparatorContent);
+
+	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
+	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight - 10;
+
+	CPanel *pEmptyPanelForCLISeparator = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, 10, false);
+	m_pCLISeparator = new CSeparatorContent(CONSTLIT("CLISeparator"), HI, *pEmptyPanelForCLISeparator, false);
+	m_aContent.Insert(m_pCLISeparator);
 
 	//  Initializing command line interface
-	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
-	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight;
-	CPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, iCommandLineHeight, false);
+	
+	CPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight + 10, iCommandLineWidth, iCommandLineHeight, false);
 	m_pCommandInterfaceContent = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
 	m_aContent.Insert(m_pCommandInterfaceContent);
+	m_pCommandInterfaceContent->SetTopSeparator(m_pCLISeparator);
+	m_pContextPanelContent->SetBottomSeparator(m_pCLISeparator);
+
+	CTextContent *pInputContent = m_pCommandInterfaceContent->GetInputContent();
+	pInputContent->SetController(this);
+
+	// Initializing text editor 
 	}
 
 CMainSession::~CMainSession(void)
@@ -56,31 +80,62 @@ CMainSession::~CMainSession(void)
 	delete m_pCommandInterfaceContent;
 	}
 
+ALERROR CMainSession::OnCommand(const CString &sCmd, void *pData)
+	{
+	CTextContent *pOutputContent = m_pCommandInterfaceContent->GetOutputContent();
+	pOutputContent->WriteText(strCat(">> ", sCmd));
+
+	TArray <CString> aParsedCmd = CCommandParser::ParseStr(sCmd);
+	CString *pCommandToken = &aParsedCmd[0];
+
+	if (strEquals(*pCommandToken, CONSTLIT("open")))
+		{										                 
+		// m_pContextPanelContent->m_Context.ApplyQuery(aParsedCmd[1]);
+		}
+	else
+		{
+		pOutputContent->WriteText("unknown command\n");
+		}
+	return ALERROR();
+	}
+
 void CMainSession::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
 	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
 	if (pRelevantContent != NULL)
 		{
+		if (pRelevantContent->GetCaptureStatus())
+			{
+			m_pCapture = pRelevantContent;
+			}
 		pRelevantContent->OnLButtonDown(x, y, dwFlags, retbCapture);
 		}
 	}
 
 void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 	{
-	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
-
-	if (pRelevantContent != NULL)
+	if (m_pCapture != NULL)
 		{
-		pRelevantContent->OnLButtonUp(x, y, dwFlags);
+		m_pCapture->OnLButtonUp(x, y, dwFlags);
+		m_pCapture = NULL;
+		}
+	else
+		{
+		IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
 
-		if (pRelevantContent->IsLClicked())
+		if (pRelevantContent != NULL)
 			{
-			if (m_pFocusContent != NULL)
+			pRelevantContent->OnLButtonUp(x, y, dwFlags);
+
+			if (pRelevantContent->IsLClicked())
 				{
-				m_pFocusContent->RemoveFocus();
+				if (m_pFocusContent != NULL)
+					{
+					m_pFocusContent->RemoveFocus();
+					}
+				m_pFocusContent = pRelevantContent->SetFocus();
 				}
-			m_pFocusContent = pRelevantContent->SetFocus();
 			}
 		}
 	}
@@ -147,10 +202,14 @@ void CMainSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	//	call paint functions of all subsessions
 	for (int i = 0; i < m_aContent.GetCount(); i++)
 		{
-		CTransmuterContent *pContent = m_aContent[i];
+		IPanelContent *pContent = m_aContent[i];
 		rcClip = (pContent->GetAssociatedPanel()).PanelRect.GetAsRect();
 		Screen.SetClipRect(rcClip);
+		// should only be called if bOverlay
+		pContent->UpdateEdgePositionsFromSeparators();
 		pContent->OnPaint(Screen, rcInvalid);
 		}
 	Screen.ResetClipRect();
+
+	// now do overlay stuff	 -- loop again, but call OnPaint if bOverlay == True
 	} 

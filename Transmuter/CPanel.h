@@ -74,25 +74,44 @@ class CPanelRect
 
 //  =======================================================================
 
-class CInternalPanels
+class IInternalPanelling
 	{
 	friend CPanel;
 	friend CPanelRect;
 
 	public:
-		CInternalPanels (CPanel &ParentPanel);
-		~CInternalPanels (void);
+		IInternalPanelling (CPanel &ParentPanel);
+		virtual ~IInternalPanelling (void);
+
+		virtual int GetCount (void);
+		virtual TArray <CPanel *> GetPanels (void);
+		virtual inline CPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
+
+		virtual void ShiftAllOrigins (int ShiftX, int iShiftY);
+
+		virtual TArray <IPanelContent *> GetPanelContents (void);
+		virtual TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
+
+		virtual int GetPanelIndex (CPanel *pPanel);
+		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+
+	protected:
+		CPanel &m_ParentPanel;
+		TArray <CPanel *> m_aPanels;
+	};
+
+//  =======================================================================
+
+class CPanelArray : public IInternalPanelling
+	{
+	friend CPanel;
+	friend CPanelRect;
+
+	public:
+		CPanelArray (CPanel &ParentPanel);
 
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
-		inline TArray <CPanel *> GetPanels (void) {return m_aPanels; }
-		inline CPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
-		void ShiftAllOrigins (int iShiftX, int iShiftY);
-
-		void SmoothOut (DWORD dwSmoothType);
-
-		CPanel *AddPanel (int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden);
-
-		void DeletePanel (int iPanelIndex);
+		inline TArray <CPanel *> GetPanels (void) { return m_aPanels; }
 
 		TArray <IPanelContent *> GetPanelContents (void);
 		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
@@ -106,16 +125,44 @@ class CInternalPanels
 		void HideAll (void);
 		void ShowAll (void);
 
-		void InvalidateAll (void);
-		void PaintAllContent (CG32bitImage &Screen, const RECT &rcInvalid);
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+
+		void SmoothOut (DWORD dwSmoothType);
+		CPanel * AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
+		void DeletePanel (int iPanelIndex);
 
 	protected:
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
+	};
+
+//  =======================================================================
+
+class CPanelTree : public IInternalPanelling
+	{
+	public:
+		CPanelTree (CPanel &ParentPanel);
+		~CPanelTree (void);
+
+		inline int GetCount (void) { return m_aLeafPanels.GetCount(); }
+		inline TArray <CPanel *> GetPanels (void) { return m_aLeafPanels; }
+		inline CPanel *GetPanel (int iPanelIndex) { return m_aPanels[iPanelIndex]; }
+
+		TArray <IPanelContent *> GetPanelContents (void);
+		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
+
+		int GetPanelIndex (CPanel *pPanel);
+
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+
+		TArray <CPanel *> Split (CString sSplitType, int iSeparatorPos);
+		void ReverseSplit (int iPanelIndex);
+		void ReverseSplit (CPanel *pPanel);
 
 	private:
-		CPanel &m_ParentPanel;
-		TArray <CPanel *> m_aPanels;
+		TArray <CPanel *> m_aLeafPanels;
 	};
+
+//  =======================================================================
 
 class CPanel 
 	{
@@ -124,15 +171,15 @@ class CPanel
 
 	public:
 		CPanel (void);
-		CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight);
-		CPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CPanel (int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
+		CPanel (IPanelContent *pAssociatedSession, int iOriginX, int iOriginY, int iWidth, int iHeight, CString sPanelConfiguration);
 		~CPanel (void);
 
 		inline void SetParentPanel (CPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline CPanel *GetParentPanel (void) { return m_pParentPanel; }
 
-		inline void AssociateSession (IPanelContent *Session) { m_pAssociatedContent = Session; }
-		inline IPanelContent *GetAssociatedSession (void) { return m_pAssociatedContent; }
+		inline void AssociateContent (IPanelContent *Content) { m_pAssociatedContent = Content; }
+		inline IPanelContent *GetAssociatedContent (void) { return m_pAssociatedContent; }
 
 		inline bool ErrorOccurred (void) { return m_bErrorOccurred; }
 
@@ -145,14 +192,14 @@ class CPanel
 
 		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
 		IPanelContent *GetContentContainingPoint (int x, int y);
-		void PaintContent (CG32bitImage &Screen, const RECT &rcInvalid);
+		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void Invalidate (void);
 
 		void SetError (CString sErrorDescription) { m_bErrorOccurred = true; m_sErrorString = sErrorDescription; }
 
 		CPanelRect PanelRect;
-		CInternalPanels InternalPanels;
+		IInternalPanelling *InternalPanels;
 
 		void SetViewOffset (int iOffsetX, int iOffsetY);
 
@@ -165,15 +212,18 @@ class CPanel
 		int m_iViewOffsetX;
 		int m_iViewOffsetY;
 
+		int m_iSeparatorPos;
+		int m_iSeparatorWidth;
+
 		CPanel *m_pParentPanel;
-		
+
 		bool m_bErrorOccurred;
 		CString m_sErrorString;
 
 		IPanelContent *m_pAssociatedContent;
 		bool m_bHidden;
 
-		bool m_bInvalid;					//  if panel is space is changed, then its made "invalid?"
+		CString m_sPanelConfiguration;
 	};
 
 //TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));

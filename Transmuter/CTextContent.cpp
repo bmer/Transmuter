@@ -6,24 +6,23 @@
 #include "PreComp.h"
 #define RGB_CURSOR								(CG32bitPixel(255,255,255))
 
+SDocumentPaintCtx::SDocumentPaintCtx(void) : Screen(NULL),
+x(-1),
+y(-1)
+	{
+
+	}
+
 //  =======================================================================
 
-CDocumentCursor::CDocumentCursor(void)
+CDocumentCursor::CDocumentCursor(void) : m_bIsPlaced(false)
 	{
 	}
 
 CDocumentCursor::CDocumentCursor(int iLine, int iRun, int iChar) : m_iLine(iLine),
 	m_iRun(iRun),
-	m_iChar(iChar)
-	{
-	}
-
-int CDocumentCursor::GetCursorPos(void)
-	{
-	return 0;
-	}
-
-void CDocumentCursor::UpdateCursorPos(void)
+	m_iChar(iChar),
+	m_bIsPlaced(false)
 	{
 	}
 
@@ -31,19 +30,12 @@ void CDocumentCursor::UpdateCursorPos(void)
 
 CTextRun::CTextRun (void) : m_sText(CONSTLIT("")),
 	m_bEditable(false),
-	m_dwStyles(alignLeft),
-	m_cyLineSpacing(0),
-	m_iBorderRadius(0),
-	m_pFont(NULL),
+	m_pFont(&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy))),
 	m_rgbTextColor(CG32bitPixel(255, 255, 255)),
 	m_rgbBackgroundColor(CG32bitPixel::Null()),
-	m_bRTFInvalid(true),
-	m_pFontTable(NULL),
-	m_cxJustifyWidth(0),
-	m_iTick(0),
-	m_iCursorLine(-1),
-	m_iCursorPos(0),
-	m_bInvalid(true)
+	m_bInvalid(true),
+	m_iRunWidth(0),
+	m_iRunHeight(0)
 	{
 	m_rcPadding.left = 0;
 	m_rcPadding.top = 0;
@@ -53,19 +45,12 @@ CTextRun::CTextRun (void) : m_sText(CONSTLIT("")),
 
 CTextRun::CTextRun (CString sText) : m_sText(sText),
 	m_bEditable(false),
-	m_dwStyles(alignLeft),
-	m_cyLineSpacing(0),
-	m_iBorderRadius(0),
-	m_pFont(NULL),
+	m_pFont(&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy))),
 	m_rgbTextColor(CG32bitPixel(255, 255, 255)),
 	m_rgbBackgroundColor(CG32bitPixel::Null()),
-	m_bRTFInvalid(true),
-	m_pFontTable(NULL),
-	m_cxJustifyWidth(0),
-	m_iTick(0),
-	m_iCursorLine(-1),
-	m_iCursorPos(0),
-	m_bInvalid(true)
+	m_bInvalid(true),
+	m_iRunWidth(0),
+	m_iRunHeight(0)
 	{
 	m_rcPadding.left = 0;
 	m_rcPadding.top = 0;
@@ -73,210 +58,86 @@ CTextRun::CTextRun (CString sText) : m_sText(sText),
 	m_rcPadding.bottom = 0;
 	}
 
-CString CTextRun::GetTruncatedStrCopy(CString sInput, int iNewLength)
-	{
-	if (sInput.GetLength() < iNewLength + 1)
-		{
-		return sInput;
-		}
-	else
-		{
-		CString sTruncated = CString (sInput);
-		sTruncated.Truncate(iNewLength);
-
-		return sTruncated;
-		}
-	}
-
-
-void CTextRun::InsertAt(int iPosition, CString sText)
+void CTextRun::InsertAt(int iInsertPosition, CString sText)
+//	Say we want to insert "black" inside the string "hellokitty",
+//  then we do InsertAt(5, CONSTLIT("black")), because 5 is the position of 
+//	character 'k' in "hellokitty".
 	{
 	int iOriginalLength = m_sText.GetLength();
 	int iInsertionLength = sText.GetLength();
 
-	int iNewLength = iOriginalLength + iInsertionLength;
+	CString sHead = strSubString(m_sText, 0, iInsertPosition);
+	CString sTail = strSubString(m_sText, iInsertPosition, iOriginalLength - iInsertPosition);
 
-	CString sTruncated = GetTruncatedStrCopy(sText, iPosition + 1);
-	s
+	m_sText = strCat(strCat(sHead, sText), sTail);
+	UpdateMetrics();
+
+	m_bInvalid = true;
 	}
 
-RECT CTextRun::CalcTextRect (const RECT &rcCtrlRect)
-
-//	CalcTextRect
-//
-//	Calculates the text rect given the control rect
-
+int CTextRun::DeleteAt(int iStartPosition, int iNumDeletions)
 	{
-	RECT rcText = rcCtrlRect;
+	int iNumOrigChars = m_sText.GetLength();
 
-	rcText.left += m_rcPadding.left;
-	rcText.top += m_rcPadding.top;
-	rcText.right -= m_rcPadding.right;
-	rcText.bottom -= m_rcPadding.bottom;
+	int iEndPosition = iStartPosition - iNumDeletions;
 
-	return rcText;
-	}
-
-int CTextRun::Justify (const RECT &rcRect)
-
-//	Justify
-//
-//	Justify the text and return the height (in pixels)
-
-	{
-	RECT rcText = CalcTextRect(rcRect);
-
-	if (!m_sText.IsBlank())
+	if (iEndPosition < 0)
 		{
-		if (m_pFont == NULL)
-			return 0;
-
-		if (m_cxJustifyWidth != RectWidth(rcText))
-			{
-			m_cxJustifyWidth = RectWidth(rcText);
-			m_Lines.DeleteAll();
-			m_pFont->BreakText(m_sText, m_cxJustifyWidth, &m_Lines, CG16bitFont::SmartQuotes);
-			}
-
-		return m_rcPadding.top + (m_Lines.GetCount() * m_pFont->GetHeight() + (m_Lines.GetCount() - 1) * m_cyLineSpacing) + m_rcPadding.bottom;
+		iEndPosition = 0;
 		}
-	else
-		return 0;
+
+	CString sHead = strSubString(m_sText, 0, iEndPosition);
+	CString sTail = strSubString(m_sText, iStartPosition, -1);
+	
+	m_sText = strCat(sHead, sTail);
+	int iNumFinalChars = m_sText.GetLength();
+
+	UpdateMetrics();
+
+	m_bInvalid = true;
+
+	return iNumOrigChars - iNumFinalChars;
+	}
+
+void CTextRun::Paint(SDocumentPaintCtx &refPaintCtx)
+	{
+	refPaintCtx.Screen->DrawText(refPaintCtx.x, refPaintCtx.y, *m_pFont, m_rgbTextColor, m_sText);
+	}
+
+void CTextRun::UpdateMetrics(void)
+	{
+	m_iRunWidth = m_pFont->MeasureText(m_sText, &m_iRunHeight);
 	}
 
 void CTextRun::SetText (const CString &sText)
 	{ 
 	m_sText = sText; 
-	m_cxJustifyWidth = 0; 
 	Invalidate();
 	}
 
-void CTextRun::PaintText (CG32bitImage &Dest, const RECT &rcRect)
 
-//	PaintText
-//
-//	Paint plain text
-
-	{
-	//	Paint the text
-
-	if (m_pFont)
-		{
-		//	If we haven't justified the text for this size, do it now
-
-		if (m_cxJustifyWidth != RectWidth(rcRect))
-			{
-			m_cxJustifyWidth = RectWidth(rcRect);
-			m_Lines.DeleteAll();
-			m_pFont->BreakText(m_sText, m_cxJustifyWidth, &m_Lines, CG16bitFont::SmartQuotes);
-			}
-
-		//	Compute the rect within which we draw the text
-
-		RECT rcText = rcRect;
-		if (m_bEditable)
-			{
-			int iVSpacing = (RectHeight(rcRect) - m_pFont->GetHeight()) / 2;
-			rcText.left += iVSpacing;
-			rcText.right -= iVSpacing;
-			rcText.top += iVSpacing;
-			rcText.bottom -= iVSpacing;
-			}
-
-		//	Clip to text rect
-
-		RECT rcOldClip = Dest.GetClipRect();
-		Dest.SetClipRect(rcText);
-
-		//	Figure out how many lines fit in the rect
-
-		int iMaxLineCount = RectHeight(rcText) / m_pFont->GetHeight();
-
-		//	If there are too many lines, and we're editable, start at the end
-
-		int iStart = 0;
-		if (m_bEditable && iMaxLineCount < m_Lines.GetCount())
-			iStart = m_Lines.GetCount() - iMaxLineCount;
-
-		//	Paint each line
-
-		int x = rcText.left;
-		int y = rcText.top;
-		for (int i = iStart; i < m_Lines.GetCount(); i++)
-			{
-			CString sLine = m_Lines[i];
-
-			//	Trim the last space in the line, if necessary
-
-			char *pPos = sLine.GetASCIIZPointer();
-			if (sLine.GetLength() > 0 && pPos[sLine.GetLength() - 1] == ' ')
-				sLine = strTrimWhitespace(sLine);
-
-			//	Alignment
-
-			int xLine;
-			if (m_dwStyles & alignCenter)
-				{
-				int cxWidth = m_pFont->MeasureText(sLine);
-				xLine = x + (RectWidth(rcText) - cxWidth) / 2;
-				}
-			else if (m_dwStyles & alignRight)
-				{
-				int cxWidth = m_pFont->MeasureText(sLine);
-				xLine = x + (RectWidth(rcRect) - cxWidth);
-				}
-			else
-				xLine = x;
-
-			Dest.DrawText(xLine, y, *m_pFont, m_rgbTextColor, sLine);
-
-			//	Next
-
-			y += m_pFont->GetHeight() + m_cyLineSpacing;
-			if (y >= rcText.bottom)
-				break;
-			}
-
-		//	Paint the cursor
-
-		if (m_bEditable && m_iCursorLine >= iStart)
-			{
-			int cxPos = (m_iCursorLine < m_Lines.GetCount() ? m_pFont->MeasureText(CString(m_Lines[m_iCursorLine].GetASCIIZPointer(), m_iCursorPos, true)) : 0);
-			int y = rcText.top + (m_iCursorLine - iStart) * (m_pFont->GetHeight() + m_cyLineSpacing);
-			int x = rcText.left;
-			if (m_dwStyles & alignCenter)
-				{
-				int cxWidth = (m_iCursorLine < m_Lines.GetCount() ? m_pFont->MeasureText(m_Lines[m_iCursorLine]) : 0);
-				x += ((RectWidth(rcText) - cxWidth) / 2) + cxPos;
-				}
-			else if (m_dwStyles & alignRight)
-				{
-				int cxWidth = (m_iCursorLine < m_Lines.GetCount() ? m_pFont->MeasureText(m_Lines[m_iCursorLine]) : 0);
-				x += (RectWidth(rcText) - cxWidth) + cxPos;
-				}
-			else
-				x += cxPos;
-
-			if (((m_iTick / 30) % 2) > 0)
-				{
-				Dest.Fill(x, y, 2, m_pFont->GetHeight(), RGB_CURSOR);
-				}
-			}
-
-		//	Restore clip
-
-		Dest.SetClipRect(rcOldClip);
-		}
-	}
 
 //	================================================================================
 
-void CTextLine::ConcatenateLines(const CTextLine &refTextLine)
+CTextLine::CTextLine (void) : m_iLineWidth(0), 
+	m_iLineHeight(0)
+	{
+	CreateNewRun();
+	}
+
+void CTextLine::AppendLine(const CTextLine &refTextLine)
 	{
 	for (int i = 0; i < refTextLine.GetCount(); i++)
 		{
 		TArray<CTextRun *>::Insert(new CTextRun(*refTextLine[i]));
 		}
+	}
+
+CTextRun *CTextLine::CreateNewRun(void)
+	{
+	CTextRun *pNewRun = new CTextRun("");
+	Insert(pNewRun);
+	return pNewRun;
 	}
 
 CTextRun *CTextLine::AddNewRun(const CTextRun &refTextRun)
@@ -293,7 +154,61 @@ void CTextLine::InsertText(int iRun, int iChar, CString sText)
 	//  never this method)
 	{
 	CTextRun *pRelevantRun = GetAt(iRun);
-	pRelevantRun->InsertText(iChar, sText);
+	pRelevantRun->InsertAt(iChar, sText);
+	}
+
+int CTextLine::DeleteText(int iRun, int iChar, int iNumDeletions)
+	{
+	CTextRun *pRelevantRun = GetAt(iRun);
+	return pRelevantRun->DeleteAt(iChar, iNumDeletions);
+	}
+
+void CTextLine::Paint(SDocumentPaintCtx &refPaintCtx)
+	{
+	CTextRun *pRelevantRun;
+	UpdateMetrics();
+
+	for (int i = 0; i < GetCount(); i++)
+		{
+		pRelevantRun = GetAt(i);
+		pRelevantRun->Paint(refPaintCtx);
+		
+		refPaintCtx.x += pRelevantRun->GetWidth();
+		}
+	}
+
+CString CTextLine::GetAsPlainText(void)
+	{
+	CString sPlainText = CString(CONSTLIT(""));
+
+	for (int i = 0; i < GetCount(); i++)
+		{
+		sPlainText.Append(GetAt(i)->GetText());
+		}
+
+	return sPlainText;
+	}
+
+void CTextLine::UpdateMetrics(void)
+	{
+	CTextRun *pRun;
+	int iMaxRunHeight = 0;
+	int iCurrentRunHeight;
+
+	for (int i = 0; i < GetCount(); i++)
+		{
+		pRun = GetAt(i);
+		pRun->UpdateMetrics();
+
+		iCurrentRunHeight = pRun->GetHeight();
+		if (iCurrentRunHeight > iMaxRunHeight)
+			{
+			iMaxRunHeight = iCurrentRunHeight;
+			}
+		m_iLineWidth += pRun->GetWidth();
+		}
+
+	m_iLineHeight = iMaxRunHeight;
 	}
 
 void CTextLine::CleanUp(void)
@@ -307,6 +222,8 @@ void CTextLine::CleanUp(void)
 
 void CTextLine::Copy(const CTextLine &refTextLine)
 	{
+	CleanUp();
+
 	InsertEmpty(refTextLine.GetCount());
 	for (int i = 0; i < refTextLine.GetCount(); i++)
 		{
@@ -316,7 +233,17 @@ void CTextLine::Copy(const CTextLine &refTextLine)
 
 //	================================================================================
 
-CTextContent::CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model)
+CTextContent::CTextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable, bool bCommandInput) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+m_bEditable(bEditable),
+m_bCommandInput(bCommandInput)
+	{
+	m_IOCursor.SetCharPos(0);
+	m_IOCursor.SetRunPos(0);
+	m_IOCursor.SetLinePos(0);
+	m_Document.PlaceCursor(m_IOCursor);
+	}
+
+CTextContent::~CTextContent(void)
 	{
 	}
 
@@ -339,21 +266,236 @@ void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
 		}
 	DrawPanelOutline(Screen);
+
+	SDocumentPaintCtx PaintCtx = SDocumentPaintCtx();
+	PaintCtx.x = GetAssociatedPanel().PanelRect.GetOriginX();
+	PaintCtx.y = GetAssociatedPanel().PanelRect.GetOriginY();
+	PaintCtx.Screen = &Screen;
+
+	m_Document.Paint(PaintCtx);
+	}
+
+void CTextContent::OnContentKeyDown(int iVirtKey, DWORD dwKeyData)
+	{
+	if (m_bEditable || m_bCommandInput)
+		{
+		if (iVirtKey == VK_BACK)
+			{
+			m_Document.DeleteText(m_IOCursor, 1);
+			}
+		else if (iVirtKey == VK_RETURN)
+			{
+			if (m_pController != NULL)
+				{
+				if (m_bCommandInput)
+					{
+					m_pController->HICommand(m_Document.GetAsPlainText());
+					m_Document.ClearText(m_IOCursor);
+					}
+				// make new line
+				}
+			}
+		}
 	}
 
 void CTextContent::OnContentChar(char chChar, DWORD dwKeyData)
 	{
-
+	int iChar = int(chChar);
+	if (m_bEditable && iChar > 31 && iChar < 127)
+		{
+		CString sInsertionText = CString(&chChar);
+		m_Document.InsertText(m_IOCursor, sInsertionText);
+		}
 	}
 
-inline CDocumentCursor &CTextDocument::CreateNewCursor(int iLine, int iRun, int iChar)
+void CTextContent::WriteText(CString sText)
+	{
+	m_Document.PlaceCursor(m_IOCursor);
+	m_Document.InsertText(m_IOCursor, sText);
+	}
+
+CTextDocument::CTextDocument(void)
+	{
+	CreateNewLine();
+	}
+
+CTextDocument::~CTextDocument(void)
+	{
+	}
+
+void CTextDocument::CreateNewLine(void)
+	{
+	m_Lines.Insert(CTextLine());
+	}
+
+void CTextDocument::PlaceCursor(CDocumentCursor &refCursor)
+	{
+	int iNumLines = m_Lines.GetCount();
+
+	int iCursorLinePos = refCursor.GetLinePos();
+	if (!(iCursorLinePos < iNumLines || iCursorLinePos > -1))
+		{
+		refCursor.SetLinePos(iNumLines - 1);
+		}
+
+	CTextLine &refRelevantLine = m_Lines[refCursor.GetLinePos()];
+	int iNumRuns = refRelevantLine.GetRunCount();
+	int iCursorRunPos = refCursor.GetRunPos();
+	if (!(iCursorRunPos < iNumRuns || iCursorRunPos > -1))
+		{
+		refCursor.SetRunPos(iNumRuns - 1);
+		}
+
+	CTextRun &refRelevantRun = *(refRelevantLine.GetRunAt(refCursor.GetRunPos()));
+	int iNumChars = refRelevantRun.GetText().GetLength();
+	int iCursorCharPos = refCursor.GetCharPos();
+	if (!(iCursorCharPos < iNumChars || iCursorCharPos > -1))
+		{
+		refCursor.SetCharPos(iNumChars - 1);
+		}
+
+	refCursor.ValidatePlacement();
+	}
+
+inline CDocumentCursor CTextDocument::CreateNewCursor(int iLine, int iRun, int iChar)
 	{
 	if (m_Lines.GetCount() == 0)
 		{
-		CTextLine *pNewTextLine = new CTextLine();
-		AddNewLine(*pNewTextLine);
+		CreateNewLine();
 		}
-	CDocumentCursor *pNewDocumentCursor = new CDocumentCursor(iLine, iRun, iChar);
+	CDocumentCursor NewCursor(iLine, iRun, iChar);
+	PlaceCursor(NewCursor);
 
-	return *pNewDocumentCursor;
+	return NewCursor;
 	}
+
+int CTextDocument::InsertText(CDocumentCursor &refIOCursor, CString sText)
+	{
+	if (refIOCursor.GetPlacementStatus() == false)
+		{
+		return 0;
+		}
+	else
+		{
+		const char *pStrChars = sText.GetPointer();
+		bool bIsNewLineCharInString = false;
+
+		for (int i = 0; i < sText.GetLength(); i++)
+			{
+			if (pStrChars[i] == '\n')
+				{
+				bIsNewLineCharInString = true;
+				break;
+				}
+			}
+
+		if (bIsNewLineCharInString == true)
+			{
+			TArray <int> aNewLineCharPositions;
+			TArray <int> aLineStartPositions;
+			TArray <int> aLineLengths;
+			int iNumLines = 0;
+
+			bool bLineStarted = false;
+
+			for (int i = 0; i < sText.GetLength(); i++)
+				{
+				if (!bLineStarted)
+					{
+					if (pStrChars[i] == '\n')
+						{
+						aLineStartPositions.Insert(i);
+						aLineLengths.Insert(0);
+						iNumLines += 1;
+						}
+					else
+						{
+						aLineStartPositions.Insert(i);
+						bLineStarted = true;
+						}
+					}
+				else
+					{
+					if (pStrChars[i] == '\n')
+						{
+						bool bLineStarted = false;
+						aLineLengths.Insert(i - aLineStartPositions[iNumLines]);
+						iNumLines += 1;
+						}
+					}
+				}
+
+			for (int i = 0; i < iNumLines; i++)
+				{
+				m_Lines[refIOCursor.GetLinePos()].InsertText(refIOCursor.GetRunPos(), refIOCursor.GetCharPos(), strSubString(sText, aLineStartPositions[i], aLineLengths[i]));
+				CreateNewLine();
+				refIOCursor.MoveLinePos(1);
+				PlaceCursor(refIOCursor);
+				}
+			}
+		else
+			{
+			m_Lines[refIOCursor.GetLinePos()].InsertText(refIOCursor.GetRunPos(), refIOCursor.GetCharPos(), sText);
+			refIOCursor.SetCharPos(refIOCursor.GetCharPos() + sText.GetLength());
+			PlaceCursor(refIOCursor);
+			}
+
+		return 1;
+		}
+	}
+
+int CTextDocument::DeleteText(CDocumentCursor & refIOCursor, int iNumDeletions)
+	{
+	if (refIOCursor.GetPlacementStatus() == false)
+		{
+		return 0;
+		}
+	else
+		{
+		int iNumDeletionsPerformed = m_Lines[refIOCursor.GetLinePos()].DeleteText(refIOCursor.GetRunPos(), refIOCursor.GetCharPos(), iNumDeletions);
+		refIOCursor.SetCharPos(refIOCursor.GetCharPos() - iNumDeletionsPerformed);
+		PlaceCursor(refIOCursor);
+		return 1;
+		}
+	}
+
+void CTextDocument::ClearText(CDocumentCursor & refIOCursor)
+	{
+	m_Lines.DeleteAll();
+	CreateNewLine();
+
+	refIOCursor.SetLinePos(0);
+	refIOCursor.SetRunPos(0);
+	refIOCursor.SetCharPos(0);
+
+	PlaceCursor(refIOCursor);
+	}
+
+void CTextDocument::Paint(SDocumentPaintCtx &refPaintCtx)
+	{
+	CTextLine *pRelevantLine;
+	int iOriginX = refPaintCtx.x;
+
+	for (int i = 0; i < m_Lines.GetCount(); i++)
+		{
+		pRelevantLine = &m_Lines[i];
+		pRelevantLine->Paint(refPaintCtx);
+		refPaintCtx.x = iOriginX;
+		refPaintCtx.y += pRelevantLine->GetHeight();
+		}
+	}
+
+CString CTextDocument::GetAsPlainText(void)
+	{
+	CString sPlainText = CString(CONSTLIT(""));
+
+	for (int i = 0; i < m_Lines.GetCount(); i++)
+		{
+		sPlainText.Append(m_Lines[i].GetAsPlainText());
+		sPlainText.Append("\n");
+		}
+
+	return sPlainText;
+	}
+
+

@@ -6,7 +6,7 @@ CCommandInterfaceContent::CCommandInterfaceContent(CString sID, CHumanInterface 
 	SetHeaderContent(strCat(sID, CONSTLIT(".h")), CONSTLIT("Command Line Interface"), refAssociatedPanel.PanelRect.GetWidth(), 40);
 
 	CPanel *pInputPanel = refAssociatedPanel.InternalPanels.AddPanel(0, refAssociatedPanel.PanelRect.GetHeight() - 40, refAssociatedPanel.PanelRect.GetWidth(), 40, false);
-	m_pInputContent = new CTextContent(CONSTLIT("Input Content"), HI, *pInputPanel, model);
+	m_pInputContent = new CTextContent(CONSTLIT("Input Content"), HI, *pInputPanel, model, true, true);
 
 	CPanel *pOutputPanel = refAssociatedPanel.InternalPanels.AddPanel(0, 40, refAssociatedPanel.PanelRect.GetWidth(), refAssociatedPanel.PanelRect.GetHeight() - 2 * 40, false);
 	m_pOutputContent = new CTextContent(CONSTLIT("Output Content"), HI, *pOutputPanel, model);
@@ -14,7 +14,7 @@ CCommandInterfaceContent::CCommandInterfaceContent(CString sID, CHumanInterface 
 
 CCommandInterfaceContent::~CCommandInterfaceContent(void)
 	{
-	delete m_HeaderContent;
+	delete m_pHeaderContent;
 	delete m_pInputContent;
 	delete m_pOutputContent;
 	}
@@ -43,9 +43,9 @@ void CCommandInterfaceContent::OnPaint(CG32bitImage & Screen, const RECT & rcInv
 		}
 	DrawPanelOutline(Screen);
 
-	if (m_HeaderContent != NULL)
+	if (m_pHeaderContent != NULL)
 		{
-		m_HeaderContent->OnPaint(Screen, rcInvalid);
+		m_pHeaderContent->OnPaint(Screen, rcInvalid);
 		}
 
 	m_pInputContent->OnPaint(Screen, rcInvalid);

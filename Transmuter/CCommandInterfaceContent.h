@@ -44,6 +44,9 @@ class CCommandInterfaceContent : public CTransmuterContent
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
+		inline CTextContent *GetInputContent(void) { return m_pInputContent; }
+		inline CTextContent *GetOutputContent(void) { return m_pOutputContent; }
+
 	private:
 		int m_iCurrentLine;
 		CTextContent *m_pInputContent;

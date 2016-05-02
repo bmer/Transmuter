@@ -3,15 +3,16 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #pragma once
-
-class CContextContent;
+class CContextEntry;
+class CContextEntryArray;
+class CContextEntryContent;
 class CContext;
-class CContextObject;
+class CContextContent;
 
-class CContextObject
+class CContextEntry
 	{
 	public:
-		CContextObject (CContextObject *ParentContextObj, CString sDisplayText, int iLevel, bool bCollapsed);
+		CContextEntry (CContextEntry *pParentEntry, CString sDisplayText, int iLevel, bool bCollapsed, DWORD dwUNID);
 
 		inline void SetLevel (int iLevel) { m_iLevel = iLevel; }
 		inline int GetLevel (void) { return m_iLevel; }
@@ -20,63 +21,81 @@ class CContextObject
 		inline bool GetCollapseStatus (void) { return m_bCollapsed; }
 		bool IsParentCollapsed (void);
 
-		inline CContextObject *GetParent (void) { return m_ParentCtxObj; }
+		inline CContextEntry *GetParent (void) { return m_pParentEntry; }
 
 		inline CString GetDisplayText (void) { return m_sDisplayText; }
+		inline DWORD GetUNID (void) { return m_dwUNID; }
+		inline CString GetUNIDAsString (void) { return m_sUNID; }
+		
 
 	private:
+		CContextEntry *m_pParentEntry;
 		CString m_sDisplayText;
 		int m_iLevel;
 		bool m_bCollapsed;
-		CContextObject *m_ParentCtxObj;
+		DWORD m_dwUNID;
+		CString m_sUNID;
 	};
 
 //  =======================================================================
 
-class CContextObjectArray : public TArray <CContextObject *>
+class CContextEntryContent : public CTransmuterContent
 	{
 	public:
-		inline CContextObjectArray (void) { ; }
-		inline CContextObjectArray (const CContextObjectArray &refCtxObjArray) { Copy(refCtxObjArray); }
-		inline ~CContextObjectArray (void) { CleanUp(); }
+		CContextEntryContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry);
 
-		void Insert (const CContextObjectArray &refCtxObjArray);
-		CContextObject *Insert (const CContextObject &refCtxObj);
-		inline CContextObjectArray &operator=(const CContextObjectArray &refCtxObjArray) { CleanUp(); Copy(refCtxObjArray); return *this; }
+		inline CContextEntry &GetAssociatedEntry (void) { return m_refAssociatedEntry; }
+	private:					  
+		CContextEntry &m_refAssociatedEntry;
+	};
+
+//  =======================================================================
+
+class CContextEntryArray : public TArray <CContextEntry *>
+	{
+	public:
+		inline CContextEntryArray (void) { ; }
+		inline CContextEntryArray (const CContextEntryArray &refCtxEntryArray) { Copy(refCtxEntryArray); }
+		inline ~CContextEntryArray (void) { CleanUp(); }
+
+		void Insert (const CContextEntryArray &refCtxObjArray);
+		CContextEntry *Insert (const CContextEntry &refCtxObj);
+		inline CContextEntryArray &operator=(const CContextEntryArray &refCtxEntryArray) { CleanUp(); Copy(refCtxEntryArray); return *this; }
 
 	private:
 		void CleanUp (void);
-		void Copy (const CContextObjectArray &refCtxObjArray);
+		void Copy (const CContextEntryArray &refCtxEntryArray);
 	};
 
 //  =======================================================================
 
-class CContext
+class CContextualizer
 	{
 	public:
-		CContext (TArray <CExtension *> m_AllExtensions);
-		~CContext (void);
+		CContextualizer (CHumanInterface &HI, TArray<CExtension*> AllExtensions);
+		~CContextualizer (void);
 
 		void ApplyQuery (CString sQuery);
 
 		inline CString GetDescription (void) { return m_sContextDescription; }
 
-		CContextObjectArray DetermineContextObjectList (CString sQuery);
-		CContextObjectArray *GetCurrentContextObjectList (void);
+		CContextEntryArray DetermineContextEntries (CString sQuery);
+		CContextEntryArray *GetCurrentContextEntries (void);
 		void ChangeToLastContextInHistory (void);
 		void ChangeToNextContextInHistory (void);
 
 		void CleanUpHistory (int iNewHistoryLength);
 
 	private:
+		CHumanInterface &m_HI;
 		inline void SetDescription (CString sContextDescription) { m_sContextDescription = sContextDescription; }
-		CContextObjectArray CreateContextObjectListForExtension (CExtension *Extension);
+		CContextEntryArray CreateContextObjectListForExtension (CExtension *Extension);
 		CString m_sContextDescription;
 		TArray <CExtension *> &m_AllExtensions;
 		
 		int m_iCurrentContextIndex = 0;
 		TArray <CString> m_aQueryHistory;
-		TArray <CContextObjectArray> m_aContextObjectListHistory;
+		TArray <CContextEntryArray> m_aContextObjectListHistory;
 	};
 
 //  =======================================================================
@@ -87,15 +106,15 @@ class CContextContent : public CTransmuterContent
 		CExtensionCollection &m_ExtensionCollection;
 		const CG16bitFont *m_pFont;
 		CG32bitPixel m_rgbFontColor;
+		TArray <int> m_bLoadedContextObjectPanelIndices;
 
 	public:
 		CContextContent (CString sID, CHumanInterface &HI, CPanel &AssociatedPanel, CTransmuterModel &model);
 		~CContextContent (void);
 		
-		CContext m_Context;
+		CContextualizer m_Contextualizer;
 
-		void LoadLastDefinedContextInHistory (void);
-		void LoadNextDefinedContextInHistory (void);
+		void LoadContext (void);
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 	};

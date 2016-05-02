@@ -66,6 +66,15 @@
     <ClInclude Include="CPreviewContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ICommandContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCommandParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringManipulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CTransmuterController.cpp">
@@ -102,6 +111,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CContextContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CCommandParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringManipulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

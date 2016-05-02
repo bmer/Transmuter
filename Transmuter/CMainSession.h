@@ -33,7 +33,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		//	IHISession virtuals
 
 		//virtual void OnCleanUp (void);
-		//virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
+		virtual ALERROR OnCommand (const CString &sCmd, void *pData = NULL);
 		//virtual ALERROR OnInit (CString *retsError);
 		//virtual void OnLButtonDblClick (int x, int y, DWORD dwFlags);
 		void OnLButtonDown (int x, int y, DWORD dwFlags, bool *retbCapture);
@@ -50,12 +50,18 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 
 	private:
 		CContextContent *m_pContextPanelContent;
+		CSeparatorContent *m_pContextEditorSeparatorContent;
+		CSeparatorContent *m_pCLISeparator;
 		CCommandInterfaceContent *m_pCommandInterfaceContent;
-		TArray <CTransmuterContent *> m_aContent;
+		TArray <IPanelContent *> m_aContent;
+
+		IPanelContent *m_pCapture;
 
 		IPanelContent *m_pFocusContent;
 
 		CTransmuterModel &m_Model;
 		CPanel m_Panel;
+
+		int m_iSeparatorWidth;
 	};
 

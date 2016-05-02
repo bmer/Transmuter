@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
+    <ClInclude Include="CCommandParser.h" />
     <ClInclude Include="CContextContent.h" />
     <ClInclude Include="CEditorContent.h" />
     <ClInclude Include="CCommandInterfaceContent.h" />
@@ -135,10 +136,12 @@
     <ClInclude Include="CScrollBarContent.h" />
     <ClInclude Include="BasicPanelContents.h" />
     <ClInclude Include="CPanel.h" />
+    <ClInclude Include="ICommandContent.h" />
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SimpleGeometry.h" />
     <ClInclude Include="SimpleSorting.h" />
+    <ClInclude Include="StringManipulation.h" />
     <ClInclude Include="TransmuterController.h" />
     <ClInclude Include="TransmuterModel.h" />
     <ClInclude Include="UserSettingsDef.h" />
@@ -146,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="BasicPanelContents.cpp" />
     <ClCompile Include="CCommandInterfaceContent.cpp" />
+    <ClCompile Include="CCommandParser.cpp" />
     <ClCompile Include="CPanel.cpp" />
     <ClCompile Include="CContextContent.cpp" />
     <ClCompile Include="CScrollBarContent.cpp" />
@@ -155,6 +159,7 @@
     <ClCompile Include="CMainSession.cpp" />
     <ClCompile Include="SimpleGeometry.cpp" />
     <ClCompile Include="SimpleSorting.cpp" />
+    <ClCompile Include="StringManipulation.cpp" />
     <ClCompile Include="Transmuter.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreComp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

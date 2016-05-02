@@ -5,6 +5,7 @@
 
 #pragma once
 
+class CTransmuterController;
 class CTransmuterModel;
 
 struct SEditorSettings
