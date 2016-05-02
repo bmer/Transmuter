@@ -4,6 +4,7 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
+#include "Panel.h"
 
 CPanelRect::CPanelRect (IPanel &AssociatedPanel) : 
 	m_iOriginX(0),
@@ -537,6 +538,32 @@ IPanel::IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight) : I
 	{
 	}
 
+IPanel::IPanel (CString sName, CHumanInterface &HI, int iOriginX, int iOriginY, int iWidth, int iHeight) : IHISession(HI),
+m_sName(sName),
+m_pParentPanel(NULL),
+m_bErrorOccurred(false),
+m_sErrorString(CONSTLIT("")),
+m_bHidden(false),
+m_iViewOffsetX(0),
+m_iViewOffsetY(0),
+m_bLButtonDown(false),
+m_bLClicked(false),
+m_bLDblClicked(false),
+m_bRButtonDown(false),
+m_bRClicked(false),
+m_bFocus(false),
+m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
+m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
+m_bCapture(false),
+m_bIsPlaced(false),
+m_pHeader(NULL),
+m_pScrollBar(NULL),
+PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
+PanelOrganizer(*this)
+	{
+	ConfirmPlacement();
+	}
+
 IPanel::~IPanel ()
 	{
 	}
@@ -572,12 +599,35 @@ void IPanel::PaintOutline (CG32bitImage &Screen)
 
 void IPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	PaintBackground(Screen);
-	PaintOutline(Screen);
+	if (IsPlaced())
+		{
+#if DEBUG
+		bool bFocusStatus = GetFocusStatus();
+#endif
+		if (GetFocusStatus() == true)
+			{
+			UpdateOutlineColor(CG32bitPixel(255, 0, 0));
+			}
+		else
+			{
+			UpdateOutlineColor(CG32bitPixel(255, 255, 255));
+			}
 
-	OnPanelPaint(Screen, rcInvalid);
+		PaintBackground(Screen);
+		PaintOutline(Screen);
 
-	PanelOrganizer.OnPaint(Screen, rcInvalid);
+		OnPanelPaint(Screen, rcInvalid);
+
+		PanelOrganizer.OnPaint(Screen, rcInvalid);
+		}
+	}
+
+CString IPanel::CreateSubPanelName(CString sSubPanelNamePart)
+	{
+	CString sSubPanelName = strCat(m_sName, CONSTLIT("."));
+	sSubPanelName = strCat(sSubPanelName, sSubPanelNamePart);
+	
+	return sSubPanelName;
 	}
 
 TArray <IPanel *> IPanel::GetPanelsContainingPoint (int x, int y)

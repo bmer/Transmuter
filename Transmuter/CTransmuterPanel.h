@@ -10,9 +10,10 @@ class CTitlePanel;
 class CTransmuterPanel : public IPanel
 	{
 	public:
-		CTransmuterPanel(CString sPanelName, CHumanInterface &HI, CTransmuterModel &model);
+		CTransmuterPanel(CString sPanelName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight);
+		CTransmuterPanel(CString sPanelName, CHumanInterface &HI, CTransmuterModel &model, int iOriginX, int iOriginY, int iWidth, int iHeight);
 
-		void CreateTitlePanel (CString sPanelName, CString sTitleText, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
+		void CreateTitlePanel (CString sPanelName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
 
 		void UpdateTitleText (CString sText);
 		inline CString GetTitleText (void) { if (m_pTitlePanel != NULL) { return m_pTitlePanel->GetText(); } }

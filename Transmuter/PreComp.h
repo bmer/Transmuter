@@ -30,7 +30,7 @@
 #include "CEditorContent.h"
 #include "CPreviewContent.h"
 #include "CTextContent.h"
-#include "CCommandInterfaceContent.h"
+#include "CCommandInterface.h"
 #include "UserSettingsDef.h"
 #include "SimpleGeometry.h"
 #include "SimpleSorting.h"

@@ -42,12 +42,6 @@
     <ClInclude Include="CMainSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicPanelContents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CTextContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,9 +49,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CContextContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CCommandInterfaceContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CEditorContent.h">
@@ -73,6 +64,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StringManipulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTransmuterPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTitlePanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCommandInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,16 +101,10 @@
     <ClCompile Include="CMainSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasicPanelContents.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CTextContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CScrollBarContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CCommandInterfaceContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CContextContent.cpp">
@@ -117,6 +114,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StringManipulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTransmuterPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTitlePanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CCommandInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

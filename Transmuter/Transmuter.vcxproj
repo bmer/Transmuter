@@ -129,13 +129,14 @@
     <ClInclude Include="CCommandParser.h" />
     <ClInclude Include="CContextContent.h" />
     <ClInclude Include="CEditorContent.h" />
-    <ClInclude Include="CCommandInterfaceContent.h" />
+    <ClInclude Include="CCommandInterface.h" />
     <ClInclude Include="CMainSession.h" />
     <ClInclude Include="CPreviewContent.h" />
     <ClInclude Include="CTextContent.h" />
     <ClInclude Include="CScrollBarContent.h" />
-    <ClInclude Include="BasicPanelContents.h" />
-    <ClInclude Include="CPanel.h" />
+    <ClInclude Include="CTitlePanel.h" />
+    <ClInclude Include="CTransmuterPanel.h" />
+    <ClInclude Include="Panel.h" />
     <ClInclude Include="ICommandContent.h" />
     <ClInclude Include="PreComp.h" />
     <ClInclude Include="Resource.h" />
@@ -147,8 +148,9 @@
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicPanelContents.cpp" />
-    <ClCompile Include="CCommandInterfaceContent.cpp" />
+    <ClCompile Include="CTitlePanel.cpp" />
+    <ClCompile Include="CTransmuterPanel.cpp" />
+    <ClCompile Include="CCommandInterface.cpp" />
     <ClCompile Include="CCommandParser.cpp" />
     <ClCompile Include="CPanel.cpp" />
     <ClCompile Include="CContextContent.cpp" />

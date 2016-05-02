@@ -139,6 +139,7 @@ class IPanel : public IHISession
 	public:
 		IPanel (CString sContentName, CHumanInterface &HI);
 		IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight);
+		IPanel(CString sName, CHumanInterface & HI, int iOriginX, int iOriginY, int iWidth, int iHeight);
 		~IPanel (void);
 
 		void PaintBackground (CG32bitImage & Screen);
@@ -208,6 +209,8 @@ class IPanel : public IHISession
 		inline bool GetCaptureStatus (void) { return m_bCapture; }
 
 		bool IsPlaced (void) { return m_bIsPlaced; }
+		CString GetName (void) { return m_sName; }
+		CString CreateSubPanelName (CString sSubPanelNamePart);
 
 	protected:
 		IHICommand *m_pController;

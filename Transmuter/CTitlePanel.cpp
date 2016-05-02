@@ -16,21 +16,19 @@ CTitlePanel::CTitlePanel(CString sName, CHumanInterface &HI, int iWidth, int iHe
 
 void CTitlePanel::OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	if (IsPlaced())
-		{
-		Screen.Fill(PanelRect.GetOriginX(), PanelRect.GetOriginY(), PanelRect.GetWidth(), PanelRect.GetHeight(), m_rgbBackgroundColor);
+	Screen.Fill(PanelRect.GetOriginX(), PanelRect.GetOriginY(), PanelRect.GetWidth(), PanelRect.GetHeight(), m_rgbBackgroundColor);
 
-		CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
+	CG32bitPixel TextColor = CG32bitPixel(255, 255, 255);
 
-		const CVisualPalette &VI = g_pHI->GetVisuals();
-		const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
+	const CVisualPalette &VI = g_pHI->GetVisuals();
+	const CG16bitFont &font = VI.GetFont(fontConsoleMediumHeavy);
 
-		// this->DrawPanelOutline(Screen);
-		int iEdgeLeft = PanelRect.GetEdgePosition(EDGE_LEFT);
-		int iEdgeTop = PanelRect.GetEdgePosition(EDGE_TOP);
-		int iWidth = PanelRect.GetWidth();
-		int iHeight = PanelRect.GetHeight();
+	// this->DrawPanelOutline(Screen);
+	int iEdgeLeft = PanelRect.GetEdgePosition(EDGE_LEFT);
+	int iEdgeTop = PanelRect.GetEdgePosition(EDGE_TOP);
+	int iWidth = PanelRect.GetWidth();
+	int iHeight = PanelRect.GetHeight();
 
-		Screen.DrawText(iEdgeLeft + 10, iEdgeTop + 10, *m_pFont, m_rgbTextColor, m_sTitleText);
-		}
+	Screen.DrawText(iEdgeLeft + 10, iEdgeTop + 10, *m_pFont, m_rgbTextColor, m_sTitleText);
 	}
+

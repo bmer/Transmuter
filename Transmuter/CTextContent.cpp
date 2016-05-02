@@ -233,7 +233,7 @@ void CTextLine::Copy(const CTextLine &refTextLine)
 
 //	================================================================================
 
-CTextContent::CTextContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable, bool bCommandInput) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CTextContent::CTextContent (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight, bool bEditable, bool bCommandInput) : CTransmuterPanel(sName, HI, model, iWidth, iHeight),
 m_bEditable(bEditable),
 m_bCommandInput(bCommandInput)
 	{
@@ -247,35 +247,17 @@ CTextContent::~CTextContent(void)
 	{
 	}
 
-void CTextContent::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
-
-	//	Paint
-	//
-	//	Handle paint
-
+void CTextContent::OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-#if DEBUG
-	bool bFocusStatus = GetFocusStatus();
-#endif
-	if (GetFocusStatus() == true)
-		{
-		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
-		}
-	else
-		{
-		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
-		}
-	DrawPanelOutline(Screen);
-
 	SDocumentPaintCtx PaintCtx = SDocumentPaintCtx();
-	PaintCtx.x = GetAssociatedPanel().PanelRect.GetOriginX();
-	PaintCtx.y = GetAssociatedPanel().PanelRect.GetOriginY();
+	PaintCtx.x = PanelRect.GetOriginX();
+	PaintCtx.y = PanelRect.GetOriginY();
 	PaintCtx.Screen = &Screen;
 
 	m_Document.Paint(PaintCtx);
 	}
 
-void CTextContent::OnContentKeyDown(int iVirtKey, DWORD dwKeyData)
+void CTextContent::OnPanelKeyDown(int iVirtKey, DWORD dwKeyData)
 	{
 	if (m_bEditable || m_bCommandInput)
 		{
@@ -298,7 +280,7 @@ void CTextContent::OnContentKeyDown(int iVirtKey, DWORD dwKeyData)
 		}
 	}
 
-void CTextContent::OnContentChar(char chChar, DWORD dwKeyData)
+void CTextContent::OnPanelChar(char chChar, DWORD dwKeyData)
 	{
 	int iChar = int(chChar);
 	if (m_bEditable && iChar > 31 && iChar < 127)

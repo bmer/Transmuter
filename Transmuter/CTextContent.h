@@ -166,16 +166,16 @@ class CTextDocument
 
 //  =======================================================================
 
-class CTextContent : public CTransmuterContent
+class CTextContent : public CTransmuterPanel
 	{
 	public:
-		CTextContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, bool bEditable=false, bool bCommandInput=false);
+		CTextContent (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight, bool bEditable=false, bool bCommandInput=false);
 
 		~CTextContent (void);
 
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-		void OnContentKeyDown (int iVirtKey, DWORD dwKeyData);
-		void OnContentChar (char chChar, DWORD dwKeyData);
+		void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		void OnPanelKeyDown (int iVirtKey, DWORD dwKeyData);
+		void OnPanelChar (char chChar, DWORD dwKeyData);
 
 		void WriteText (CString sText);
 
