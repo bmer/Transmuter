@@ -23,6 +23,15 @@ CPanelRect::CPanelRect (IPanel &AssociatedPanel, int iOriginX, int iOriginY, int
 	{
 	}
 
+CPanelRect::CPanelRect(IPanel & AssociatedPanel, int iWidth, int iHeight) :
+	m_iOriginX(0),
+	m_iOriginY(0),
+	m_iHeight(iHeight),
+	m_iWidth(iWidth),
+	m_AssociatedPanel(AssociatedPanel)
+	{
+	}
+
 CPanelRect::CPanelRect (IPanel &AssociatedPanel, RECT rc) :
 	m_AssociatedPanel(AssociatedPanel)
 	{
@@ -336,23 +345,20 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 		}
 	}
 
-IPanel *CPanelOrganizer::AddPanel (CString sName, CHumanInterface &HI, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden)
+void CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
 	{
 	int iOriginX = m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX;
 	int iOriginY = m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY;
 
-	IPanel *NewPanel = new IPanel(sName, HI, iOriginX, iOriginY, iWidth, iHeight);
+	pPanel->PanelRect.SetOrigin(iOriginX, iOriginY);
+	m_aPanels.Insert(pPanel);
+	pPanel->ConfirmPlacement();
 
-	NewPanel->SetHiddenFlag(bHidden);
-	NewPanel->SetParentPanel(&m_ParentPanel);
-	NewPanel->SetViewOffset(m_ParentPanel.GetViewOffsetX(), m_ParentPanel.GetViewOffsetY());
-
-	m_aPanels.Insert(NewPanel);
+	pPanel->SetParentPanel(&m_ParentPanel);
+	pPanel->SetViewOffset(m_ParentPanel.GetViewOffsetX(), m_ParentPanel.GetViewOffsetY());
 
 	SmoothOut(SMOOTH_LEFTRIGHT);
 	SmoothOut(SMOOTH_UPDOWN);
-
-	return NewPanel;
 	}
 
 void CPanelOrganizer::DeletePanel (int iPanelIndex)
@@ -479,20 +485,6 @@ void CPanelOrganizer::Invalidate(void)
 		}
 	}
 
-TArray <IPanel *> CPanelOrganizer::Split (CString sSplitType, int iSeparatorPos)
-	{
-	if (sSplitType == CONSTLIT("vertical"))
-		{
-		int iMinX = m_ParentPanel.PanelRect.GetOriginX;
-		int iMaxX = iMinX + m_ParentPanel.PanelRect.GetWidth();
-		
-		if (iMinX <= iSeparatorPos && iMaxX >= iSeparatorPos)
-			{
-
-			}
-		}
-	}
-
 // ============================================================================
 
 IPanel::IPanel (CString sName, CHumanInterface &HI) : IHISession(HI),
@@ -512,6 +504,7 @@ IPanel::IPanel (CString sName, CHumanInterface &HI) : IHISession(HI),
 	m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
 	m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
 	m_bCapture(false),
+	m_bIsPlaced(false),
 	m_pHeader(NULL),
 	m_pScrollBar(NULL),
 	PanelRect(*this),
@@ -519,7 +512,7 @@ IPanel::IPanel (CString sName, CHumanInterface &HI) : IHISession(HI),
 	{
 	}
 
-IPanel::IPanel (CString sName, CHumanInterface &HI, int iOriginX, int iOriginY, int iWidth, int iHeight) : IHISession(HI),
+IPanel::IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight) : IHISession(HI),
 	m_sName(sName),
 	m_pParentPanel(NULL),
 	m_bErrorOccurred(false),
@@ -536,9 +529,10 @@ IPanel::IPanel (CString sName, CHumanInterface &HI, int iOriginX, int iOriginY, 
 	m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
 	m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
 	m_bCapture(false),
+	m_bIsPlaced(false),
 	m_pHeader(NULL),
 	m_pScrollBar(NULL),
-	PanelRect(*this),
+	PanelRect(*this, iWidth, iHeight),
 	PanelOrganizer(*this)
 	{
 	}
@@ -669,4 +663,67 @@ void IPanel::SetViewOffset (int iOffsetX, int iOffsetY)
 
 	PanelRect.ShiftOrigin(iShiftX, iShiftY);
 	PanelOrganizer.ShiftAllOrigins(iShiftX, iShiftY);
+	}
+
+void IPanel::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
+	{
+	m_bLButtonDown = true;
+	OnPanelLButtonDown(x, y, dwFlags, retbCapture);
+	}
+
+void IPanel::OnLButtonUp(int x, int y, DWORD dwFlags)
+	{
+	bool bPointInRect = IsPointInRect(x, y, PanelRect.GetAsRect());
+
+	if (IsLButtonDown())
+		{
+		m_bLButtonDown = false;
+		if (bPointInRect)
+			{
+			m_bLClicked = true;
+			}
+		}
+
+	OnPanelLButtonUp(x, y, dwFlags);
+	}
+
+void IPanel::OnLButtonDblClick(int x, int y, DWORD dwFlags, bool * retbCapture)
+	{
+	m_bLDblClicked = true;
+	m_bLButtonDown = false;
+	m_bLClicked = false;
+
+	OnPanelLButtonDblClick(x, y, dwFlags, retbCapture);
+	}
+
+void IPanel::OnRButtonDown(int x, int y, DWORD dwFlags)
+	{
+	m_bRButtonDown = true;
+
+	OnPanelRButtonDown(x, y, dwFlags);
+	}
+
+void IPanel::OnRButtonUp(int x, int y, DWORD dwFlags)
+	{
+	if (IsRButtonDown())
+		{
+		m_bRButtonDown = false;
+		m_bRClicked = true;
+		}
+	OnPanelRButtonUp(x, y, dwFlags);
+	}
+
+void IPanel::OnKeyDown(int iVirtKey, DWORD dwKeyData)
+	{
+	OnPanelKeyDown(iVirtKey, dwKeyData);
+	}
+
+void IPanel::OnKeyUp(int iVirtKey, DWORD dwKeyData)
+	{
+	OnPanelKeyUp(iVirtKey, dwKeyData);
+	}
+
+void IPanel::OnChar(char chChar, DWORD dwKeyData)
+	{
+	OnPanelChar(chChar, dwKeyData);
 	}

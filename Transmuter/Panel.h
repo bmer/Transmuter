@@ -39,6 +39,7 @@ class CPanelRect
 	public:
 		CPanelRect (IPanel &AssociatedPanel);
 		CPanelRect (IPanel &AssociatedPanel, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CPanelRect (IPanel &AssociatedPanel, int iWidth, int iHeight);
 		CPanelRect (IPanel &AssociatedPanel, RECT rc);
 
 		inline int GetOriginX (void) { return m_iOriginX; }
@@ -110,12 +111,9 @@ class CPanelOrganizer
 		void Invalidate (void);
 
 		void SmoothOut (DWORD dwSmoothType);
-		IPanel *AddPanel (CString sName, CHumanInterface &HI, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden);
+		void PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY);
+		void PlacePanel (IPanel *pPanel, char cPosition, float fSeparatorPos=0.5, int iSeparatorThickness=5);
 		void DeletePanel (int iPanelIndex);
-
-		TArray <IPanel *> Split (CString sSplitType, int iSeparatorPos);
-		void UndoSplit (int iPanelIndex);
-		void UndoSplit (IPanel *pPanel);
 
 	protected:
 		// methods
@@ -140,11 +138,12 @@ class IPanel : public IHISession
 
 	public:
 		IPanel (CString sContentName, CHumanInterface &HI);
-		IPanel (CString sName, CHumanInterface &HI, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight);
 		~IPanel (void);
 
 		void PaintBackground (CG32bitImage & Screen);
 		void PaintOutline (CG32bitImage & Screen);
+		inline void UpdateOutlineColor (CG32bitPixel rgbColor) { m_rgbOutlineColor = rgbColor; }
 
 		inline void SetParentPanel (IPanel *pPanel) { m_pParentPanel = pPanel; }
 		inline IPanel *GetParentPanel (void) { return m_pParentPanel; }
@@ -197,10 +196,7 @@ class IPanel : public IHISession
 
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
-		// more Panel functions
-		void DrawPanelOutline (CG32bitImage &Screen);
-		inline void UpdatePanelOutlineColor (CG32bitPixel rgbColor) { m_rgbOutlineColor = rgbColor; }
-
+		// more Panel methods
 		inline IPanel *SetFocus (void) { m_bFocus = true; return this; }
 		void RemoveFocus (void) { m_bFocus = false; }
 		inline bool GetFocusStatus (void) { return m_bFocus; }
@@ -210,6 +206,8 @@ class IPanel : public IHISession
 
 		inline void SetCaptureStatus (bool bCapture) { m_bCapture = bCapture; }
 		inline bool GetCaptureStatus (void) { return m_bCapture; }
+
+		bool IsPlaced (void) { return m_bIsPlaced; }
 
 	protected:
 		IHICommand *m_pController;
@@ -227,6 +225,7 @@ class IPanel : public IHISession
 
 		virtual void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
 
+		void ConfirmPlacement (void) { m_bIsPlaced = true; }
 	private:
 		// methods
 		inline bool GetCurrentStatusAndReset (bool &refBool) { bool bCurrentStatus = refBool; refBool = false; return bCurrentStatus; }
@@ -256,6 +255,8 @@ class IPanel : public IHISession
 		CG32bitPixel m_rgbOutlineColor;
 
 		bool m_bCapture;
+
+		bool m_bIsPlaced;
 
 		CHeader *m_pHeader;
 		CScrollBar *m_pScrollBar;
