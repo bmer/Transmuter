@@ -74,14 +74,14 @@ class CPanelRect
 
 //  =======================================================================
 
-class IInternalPanelling
+class PanelOrganizer
 	{
 	friend CPanel;
 	friend CPanelRect;
 
 	public:
-		IInternalPanelling (CPanel &ParentPanel);
-		virtual ~IInternalPanelling (void);
+		PanelOrganizer (CPanel &ParentPanel);
+		virtual ~PanelOrganizer (void);
 
 		virtual int GetCount (void);
 		virtual TArray <CPanel *> GetPanels (void);
@@ -94,21 +94,6 @@ class IInternalPanelling
 
 		virtual int GetPanelIndex (CPanel *pPanel);
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-
-	protected:
-		CPanel &m_ParentPanel;
-		TArray <CPanel *> m_aPanels;
-	};
-
-//  =======================================================================
-
-class CPanelArray : public IInternalPanelling
-	{
-	friend CPanel;
-	friend CPanelRect;
-
-	public:
-		CPanelArray (CPanel &ParentPanel);
 
 		inline int GetCount (void) { return m_aPanels.GetCount(); }
 		inline TArray <CPanel *> GetPanels (void) { return m_aPanels; }
@@ -128,37 +113,17 @@ class CPanelArray : public IInternalPanelling
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		void SmoothOut (DWORD dwSmoothType);
-		CPanel * AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
+		CPanel *AddPanel(int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, bool bHidden, CString sPanelConfiguration);
 		void DeletePanel (int iPanelIndex);
-
-	protected:
-		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
-	};
-
-//  =======================================================================
-
-class CPanelTree : public IInternalPanelling
-	{
-	public:
-		CPanelTree (CPanel &ParentPanel);
-		~CPanelTree (void);
-
-		inline int GetCount (void) { return m_aLeafPanels.GetCount(); }
-		inline TArray <CPanel *> GetPanels (void) { return m_aLeafPanels; }
-		inline CPanel *GetPanel (int iPanelIndex) { return m_aPanels[iPanelIndex]; }
-
-		TArray <IPanelContent *> GetPanelContents (void);
-		TArray <IPanelContent *> GetPanelContentsContainingPoint (int x, int y);
-
-		int GetPanelIndex (CPanel *pPanel);
-
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 		TArray <CPanel *> Split (CString sSplitType, int iSeparatorPos);
 		void ReverseSplit (int iPanelIndex);
 		void ReverseSplit (CPanel *pPanel);
 
-	private:
+	protected:
+		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
+		CPanel &m_ParentPanel;
+		TArray <CPanel *> m_aPanels;
 		TArray <CPanel *> m_aLeafPanels;
 	};
 
@@ -199,7 +164,7 @@ class CPanel
 		void SetError (CString sErrorDescription) { m_bErrorOccurred = true; m_sErrorString = sErrorDescription; }
 
 		CPanelRect PanelRect;
-		IInternalPanelling *InternalPanels;
+		PanelOrganizer *InternalPanels;
 
 		void SetViewOffset (int iOffsetX, int iOffsetY);
 
