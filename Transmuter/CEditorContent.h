@@ -6,6 +6,6 @@
 
 class CEditorPanelContent;
 
-class CEditorPanelContent : public CTransmuterContent
+class CEditorPanelContent : public CTransmuterPanel
 	{
 	};

@@ -30,7 +30,7 @@ bool CContextEntry::IsParentCollapsed(void)
 
 // ===============================================================
 
-CContextEntryContent::CContextEntryContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CContextEntryContent::CContextEntryContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterPanel(sID, HI, AssociatedPanel, model),
 	m_refAssociatedEntry(refAssociatedEntry)
 	{
 	}
@@ -78,7 +78,7 @@ void CContextEntryArray::Copy(const CContextEntryArray &refCtxObjArray)
 
 // ===============================================================
 
-CContextContent::CContextContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterContent(sID, HI, AssociatedPanel, model),
+CContextContent::CContextContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanel(sID, HI, AssociatedPanel, model),
 	m_ExtensionCollection(m_model.GetExtensionCollection()),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),

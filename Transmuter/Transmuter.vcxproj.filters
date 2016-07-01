@@ -45,9 +45,6 @@
     <ClInclude Include="CTextContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CScrollBarContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CContextContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CCommandInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CScrollBarPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

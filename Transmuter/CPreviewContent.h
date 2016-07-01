@@ -7,6 +7,6 @@
 
 class CPreviewPanelContent;
 
-class CPreviewPanelContent : public CTransmuterContent
+class CPreviewPanelContent : public CTransmuterPanel
 	{
 	};

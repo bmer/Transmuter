@@ -5,19 +5,19 @@
 
 #include "PreComp.h"
 
-CScrollBarContent::CScrollBarContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &PanelToScroll) : CTransmuterContent (sID, HI, AssociatedPanel, model),
+CScrollBarPanel::CScrollBarPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &PanelToScroll) : CTransmuterPanel (sID, HI, AssociatedPanel, model),
 	m_PanelToScroll(PanelToScroll)
 	{
 	}
 
-void CScrollBarContent::DetermineVisibility(void)
+void CScrollBarPanel::DetermineVisibility(void)
 	{
 	}
 
-void CScrollBarContent::CalculateBarRect(void)
+void CScrollBarPanel::CalculateBarRect(void)
 	{
 	}
 
-void CScrollBarContent::CalculateSlideRect(void)
+void CScrollBarPanel::CalculateSlideRect(void)
 	{
 	}

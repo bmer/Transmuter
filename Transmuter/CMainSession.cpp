@@ -31,7 +31,6 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	m_iSeparatorWidth(5)
 	//	CMainSession constructor
 	{
-	m_Panel.SeparatePanel(true, m_iSeparatorWidth, true);
 	int iContextPanelWidth = 300;
 	int iContextPanelHeight = 600;
 

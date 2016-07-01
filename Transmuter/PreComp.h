@@ -25,7 +25,7 @@
 #include "CTitlePanel.h"
 #include "CTransmuterPanel.h"
 #include "CMainSession.h"
-#include "CScrollBarContent.h"
+#include "CScrollBarPanel.h"
 #include "CContextContent.h"
 #include "CEditorContent.h"
 #include "CPreviewContent.h"

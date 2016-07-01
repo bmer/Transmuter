@@ -5,13 +5,13 @@
 
 #pragma once
 
-class CTransmuterContent;
-class CScrollBarContent;
+class CTransmuterPanel;
+class CScrollBarPanel;
 
-class CScrollBarContent : public CTransmuterContent
+class CScrollBarPanel : public CTransmuterPanel
 	{
 	public:
-		CScrollBarContent(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &pPanelToScroll);
+		CScrollBarPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &pPanelToScroll);
 
 		//void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 

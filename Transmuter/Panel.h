@@ -84,21 +84,16 @@ class CPanelOrganizer
 		CPanelOrganizer (IPanel &ParentPanel);
 		virtual ~CPanelOrganizer (void);
 
-		virtual int GetCount (void);
-		virtual TArray <IPanel *> GetPanels (void);
-		virtual inline IPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
-
 		virtual void ShiftAllOrigins (int ShiftX, int iShiftY);
 
+		virtual inline int GetCount (void) { return m_aPanels.GetCount(); }
+		virtual inline TArray <IPanel *> GetPanels (void) { return m_aPanels; }
+
 		virtual TArray <IPanel *> GetPanelsContainingPoint (int x, int y);
-
 		virtual int GetPanelIndex (IPanel *pPanel);
+		virtual inline IPanel *GetPanel(int iPanelIndex) { return m_aPanels[iPanelIndex]; }
+
 		virtual void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-
-		inline int GetCount (void) { return m_aPanels.GetCount(); }
-		inline TArray <IPanel *> GetPanels (void) { return m_aPanels; }
-
-		int GetPanelIndex (IPanel *pPanel);
 
 		void HidePanel (IPanel *pPanel);
 		void ShowPanel (IPanel *pPanel);
@@ -107,7 +102,6 @@ class CPanelOrganizer
 		void HideAll (void);
 		void ShowAll (void);
 
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 		void Invalidate (void);
 
 		void SmoothOut (DWORD dwSmoothType);
@@ -195,8 +189,6 @@ class IPanel : public IHISession
 		inline bool IsRButtonDown (void) { return m_bRButtonDown; }
 		inline bool IsRClicked (void) { return m_bRClicked; }
 
-		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
-
 		// more Panel methods
 		inline IPanel *SetFocus (void) { m_bFocus = true; return this; }
 		void RemoveFocus (void) { m_bFocus = false; }
@@ -261,8 +253,9 @@ class IPanel : public IHISession
 
 		bool m_bIsPlaced;
 
-		CHeader *m_pHeader;
-		CScrollBar *m_pScrollBar;
+		// CHeader *m_pHeader;
+		// CScrollBar *m_pScrollBar;
 	};
 
-//TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));
+// TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));
+

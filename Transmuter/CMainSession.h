@@ -50,8 +50,6 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 
 	private:
 		CContextContent *m_pContextPanelContent;
-		CSeparatorContent *m_pContextEditorSeparatorContent;
-		CSeparatorContent *m_pCLISeparator;
 		CCommandInterfaceContent *m_pCommandInterfaceContent;
 		TArray <IPanelContent *> m_aContent;
 

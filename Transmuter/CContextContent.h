@@ -39,7 +39,7 @@ class CContextEntry
 
 //  =======================================================================
 
-class CContextEntryContent : public CTransmuterContent
+class CContextEntryContent : public CTransmuterPanel
 	{
 	public:
 		CContextEntryContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry);
@@ -100,7 +100,7 @@ class CContextualizer
 
 //  =======================================================================
 
-class CContextContent : public CTransmuterContent
+class CContextContent : public CTransmuterPanel
 	{
 	private:
 		CExtensionCollection &m_ExtensionCollection;
