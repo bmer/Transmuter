@@ -34,13 +34,11 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	int iContextPanelWidth = 300;
 	int iContextPanelHeight = 600;
 
-	// slider -- should have a parent
-
 	// main background panel is m_Panel
 
 	//  Initializing context panel
 	IPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
-	m_pContextPanelContent = new CContextContent(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
+	m_pContextPanelContent = new CContextPanel(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
 	m_aContent.Insert(m_pContextPanelContent);
 
 	IPanel *pEmptyPanelForContextEditorSeparator = m_Panel.InternalPanels.AddPanel(iContextPanelWidth, 0, 10, iContextPanelHeight, false);

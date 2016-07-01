@@ -238,7 +238,7 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 		aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_TOP);
 		}
 
-	int iFocusIndex;
+	int iCurrentIndex;
 	int iOtherIndex;
 
 	int iFocusLocation;
@@ -246,15 +246,15 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 
 	int iProspectiveOtherIndex;
 
-	IPanel *pFocusPanel;
+	IPanel *pCurrentPanel;
 	IPanel *pOtherPanel;
 
 	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
-		iFocusIndex = aSortedPanelIndices[i];
-		pFocusPanel = m_aPanels[iFocusIndex];
+		iCurrentIndex = aSortedPanelIndices[i];
+		pCurrentPanel = m_aPanels[iCurrentIndex];
 
-		if (pFocusPanel->IsHidden())
+		if (pCurrentPanel->IsHidden())
 			continue;
 
 		if (i != 0)
@@ -308,11 +308,11 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 
 		if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			iFocusLocation = pFocusPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
+			iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			iFocusLocation = pFocusPanel->PanelRect.GetEdgePosition(EDGE_TOP);
+			iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_TOP);
 			}
 			
 		iShift = (iFocusLocation - iOtherEdgeLocation);
@@ -324,30 +324,32 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 
 		 if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			pFocusPanel->PanelRect.ShiftOrigin(iShift, 0);
+			pCurrentPanel->PanelRect.ShiftOrigin(iShift, 0);
 
-			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&pFocusPanel->PanelRect.GetAsRect(), &rcOther);
+			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
 
 			if (!(iSharedRectBoundary > 0))
 				{
-				pFocusPanel->PanelRect.ShiftOrigin(-1*iShift, 0);
+				pCurrentPanel->PanelRect.ShiftOrigin(-1*iShift, 0);
 				}
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			pFocusPanel->PanelRect.ShiftOrigin(0, iShift);
+			pCurrentPanel->PanelRect.ShiftOrigin(0, iShift);
 
-			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&pFocusPanel->PanelRect.GetAsRect(), &rcOther);
+			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
 			if (!(iSharedRectBoundary > 0))
 				{
-				pFocusPanel->PanelRect.ShiftOrigin(0, -1*iShift);
+				pCurrentPanel->PanelRect.ShiftOrigin(0, -1*iShift);
 				}
 			}
 		}
 	}
 
-void CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
+bool CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
 	{
+	m_iPanelConfigType = ORG_LIST;
+
 	int iOriginX = m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX;
 	int iOriginY = m_ParentPanel.PanelRect.GetOriginY() + iRelativeOriginY;
 
@@ -360,8 +362,84 @@ void CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRel
 
 	SmoothOut(SMOOTH_LEFTRIGHT);
 	SmoothOut(SMOOTH_UPDOWN);
+
+	return true;
 	}
 
+bool CPanelOrganizer::PlacePanel (IPanel *pPanel, char cSplitDirn, float fSeparatorPos = 0.5, int iSeparatorThickness = 5)
+	{
+	if (m_iPanelConfigType != -1)
+		{
+		if (m_iPanelConfigType == ORG_LIST || cSplitDirn != m_cSplitDirn)
+			{
+			return false;
+			}
+		}
+	else
+		{
+		m_iPanelConfigType = ORG_TREE;
+		}
+
+	if (cSplitDirn != 'h' || cSplitDirn != 'c')
+		{
+		return false;
+		}
+
+	int iNumLeafPanels = m_aLeafPanels.GetCount();
+	int iOriginX;
+	int iOriginY;
+
+	if (iNumLeafPanels >= 2)
+		{
+		return false;
+		}
+	else if (iNumLeafPanels == 1)
+		{
+		IPanel *pSiblingPanel = m_aLeafPanels[0];
+		
+		if (cSplitDirn == 'h')
+			{
+			iOriginX = m_iSeparatorPos + m_iSeparatorThickness;
+			iOriginY = pSiblingPanel->PanelRect.GetEdgePosition(EDGE_TOP);
+			}
+		else
+			{
+			iOriginX = pSiblingPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
+			iOriginY = m_iSeparatorPos + m_iSeparatorThickness;
+			}
+		}
+	else if (iNumLeafPanels == 0)
+		{
+		m_cSplitDirn = cSplitDirn;
+
+		iOriginX = m_ParentPanel.PanelRect.GetEdgePosition(EDGE_LEFT);
+		iOriginY = m_ParentPanel.PanelRect.GetEdgePosition(EDGE_TOP);
+
+		m_iSeparatorThickness = iSeparatorThickness;
+
+		if (cSplitDirn == 'h')
+			{
+			pPanel->PanelRect.SetWidth(int(fSeparatorPos*m_ParentPanel.PanelRect.GetWidth()));
+			m_iSeparatorPos = pPanel->PanelRect.GetEdgePosition(EDGE_RIGHT);
+
+			}
+		else
+			{
+			pPanel->PanelRect.SetHeight(int(fSeparatorPos*m_ParentPanel.PanelRect.GetHeight()));
+			m_iSeparatorPos = pPanel->PanelRect.GetEdgePosition(EDGE_BOTTOM);
+			}
+		}
+
+
+	pPanel->PanelRect.SetOrigin(iOriginX, iOriginY);
+	m_aLeafPanels.Insert(pPanel);
+	pPanel->ConfirmPlacement();
+
+	pPanel->SetParentPanel(&m_ParentPanel);
+	pPanel->SetViewOffset(m_ParentPanel.GetViewOffsetX(), m_ParentPanel.GetViewOffsetY());
+
+	return true;
+	}
 void CPanelOrganizer::DeletePanel (int iPanelIndex)
 	{
 	m_aPanels.Delete(iPanelIndex);
@@ -506,8 +584,6 @@ IPanel::IPanel (CString sName, CHumanInterface &HI) : IHISession(HI),
 	m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
 	m_bCapture(false),
 	m_bIsPlaced(false),
-	m_pHeader(NULL),
-	m_pScrollBar(NULL),
 	PanelRect(*this),
 	PanelOrganizer(*this)
 	{
@@ -531,8 +607,6 @@ IPanel::IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight) : I
 	m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
 	m_bCapture(false),
 	m_bIsPlaced(false),
-	m_pHeader(NULL),
-	m_pScrollBar(NULL),
 	PanelRect(*this, iWidth, iHeight),
 	PanelOrganizer(*this)
 	{
@@ -556,8 +630,6 @@ m_rgbBackgroundColor(CG32bitPixel(0, 0, 0)),
 m_rgbOutlineColor(CG32bitPixel(255, 255, 255)),
 m_bCapture(false),
 m_bIsPlaced(false),
-m_pHeader(NULL),
-m_pScrollBar(NULL),
 PanelRect(*this, iOriginX, iOriginY, iWidth, iHeight),
 PanelOrganizer(*this)
 	{

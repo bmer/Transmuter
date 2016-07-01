@@ -4,37 +4,26 @@
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #pragma once
+
 #define EDGE_LEFT			0
 #define EDGE_TOP			1
 #define EDGE_RIGHT			2
 #define EDGE_BOTTOM			3
 
-#define SMOOTH_UPDOWN		4
-#define SMOOTH_LEFTRIGHT	5
+#define SMOOTH_UPDOWN		0
+#define SMOOTH_LEFTRIGHT	1
 
-// class TransmuterException;
+#define ORG_LIST	0
+#define ORG_TREE	1
+
 class CPanelRect;
-class IPanelContent;
+class CPanelOrganizer;
 class IPanel;
-class CInternalPanels;
-
-// using namespace std;
-
-//class CMessageException: public exception
-//	{
-//	public: 
-//		CMessageException (const char* ExceptionMessage);
-//
-//		virtual const char* what() const throw() { return m_ExceptionMessage; }
-//
-//	private:
-//		const char* m_ExceptionMessage;
-//	};
 
 class CPanelRect
 	{
 	friend IPanel;
-	friend CInternalPanels;
+	friend CPanelOrganizer;
 
 	public:
 		CPanelRect (IPanel &AssociatedPanel);
@@ -105,8 +94,8 @@ class CPanelOrganizer
 		void Invalidate (void);
 
 		void SmoothOut (DWORD dwSmoothType);
-		void PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY);
-		void PlacePanel (IPanel *pPanel, char cPosition, float fSeparatorPos=0.5, int iSeparatorThickness=5);
+		bool PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY);
+		bool PlacePanel (IPanel *pPanel, char cSplitDirn, float fSeparatorPos=0.5, int iSeparatorThickness=5);
 		void DeletePanel (int iPanelIndex);
 
 	protected:
@@ -115,6 +104,8 @@ class CPanelOrganizer
 
 		// member variables
 		int m_iPanelConfigType;
+		char m_cSplitDirn;
+
 		IPanel &m_ParentPanel;
 		TArray <IPanel *> m_aPanels;
 		TArray <IPanel *> m_aLeafPanels;
@@ -252,10 +243,5 @@ class IPanel : public IHISession
 		bool m_bCapture;
 
 		bool m_bIsPlaced;
-
-		// CHeader *m_pHeader;
-		// CScrollBar *m_pScrollBar;
 	};
-
-// TransmuterException UndefinedEdgeError = TransmuterException(CONSTLIT(""));
 

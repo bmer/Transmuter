@@ -42,21 +42,6 @@
     <ClInclude Include="CMainSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CTextContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CContextContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CEditorContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPreviewContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ICommandContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CCommandParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +63,21 @@
     <ClInclude Include="CScrollBarPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CContextPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTextPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPreviewPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CEditorPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CTransmuterController.cpp">
@@ -92,22 +92,10 @@
     <ClCompile Include="SimpleGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CPanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SimpleSorting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CMainSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CTextContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CScrollBarContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CContextContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CCommandParser.cpp">
@@ -123,6 +111,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CCommandInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTextPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CScrollBarPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CContextPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

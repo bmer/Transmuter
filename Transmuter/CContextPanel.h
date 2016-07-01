@@ -1,13 +1,13 @@
-//	CContextContent.h
+//	CContextPanel.h
 //
 //	Copyright (c) 2015 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #pragma once
 class CContextEntry;
 class CContextEntryArray;
-class CContextEntryContent;
+class CContextEntryPanel;
 class CContext;
-class CContextContent;
+class CContextPanel;
 
 class CContextEntry
 	{
@@ -39,10 +39,10 @@ class CContextEntry
 
 //  =======================================================================
 
-class CContextEntryContent : public CTransmuterPanel
+class CContextEntryPanel : public CTransmuterPanel
 	{
 	public:
-		CContextEntryContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry);
+		CContextEntryPanel (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry);
 
 		inline CContextEntry &GetAssociatedEntry (void) { return m_refAssociatedEntry; }
 	private:					  
@@ -100,7 +100,7 @@ class CContextualizer
 
 //  =======================================================================
 
-class CContextContent : public CTransmuterPanel
+class CContextPanel : public CTransmuterPanel
 	{
 	private:
 		CExtensionCollection &m_ExtensionCollection;
@@ -109,8 +109,8 @@ class CContextContent : public CTransmuterPanel
 		TArray <int> m_bLoadedContextObjectPanelIndices;
 
 	public:
-		CContextContent (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
-		~CContextContent (void);
+		CContextPanel (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
+		~CContextPanel (void);
 		
 		CContextualizer m_Contextualizer;
 
