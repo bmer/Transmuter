@@ -170,8 +170,12 @@ void CPanelRect::ShiftEdgePosition (DWORD dwEdge, int iShift)
 
 CPanelOrganizer::CPanelOrganizer(IPanel &ParentPanel) : m_iPanelConfigType(-1),
 	m_ParentPanel(ParentPanel),
+	m_cSplitDirn('i'),
+	m_fSeparatorPosFactor(0.5),
 	m_iSeparatorPos(-1),
-	m_iSeparatorThickness(-1)
+	m_iSeparatorThickness(5),
+	m_pLeafPanel0(NULL),
+	m_pLeafPanel1(NULL)
 	{
 	}
 
@@ -185,9 +189,18 @@ CPanelOrganizer::~CPanelOrganizer()
 
 void CPanelOrganizer::ShiftAllOrigins (int iShiftX, int iShiftY)
 	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		m_aPanels[i]->PanelRect.ShiftOrigin(iShiftX, iShiftY);
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			m_aPanels[i]->PanelRect.ShiftOrigin(iShiftX, iShiftY);
+			}
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		m_pLeafPanel0->PanelRect.ShiftOrigin(iShiftX, iShiftY);
+		m_pLeafPanel1->PanelRect.ShiftOrigin(iShiftX, iShiftY);
 		}
 	}
 
@@ -198,149 +211,222 @@ TArray <int> CPanelOrganizer::SortByPanelRectEdgeLocation (DWORD dwEdge)
 //  in the m_aInternalPanels array. Panel indices are sorted by edge location
 //  (smallest location value first), where the specific edge is specified by dwEdge .
 	{
-	TArray <int> aPanelIndices;
-	TArray <int> aEdgeLocations;
-	IPanel *pPanel;
-
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		aPanelIndices.Insert(i);
-		pPanel = m_aPanels[i];
-		if (pPanel->IsHidden())
+		TArray <int> aPanelIndices;
+		TArray <int> aEdgeLocations;
+		IPanel *pPanel;
+
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
 			{
-			aEdgeLocations.Insert(-1);
+			aPanelIndices.Insert(i);
+			pPanel = m_aPanels[i];
+			if (pPanel->IsHidden())
+				{
+				aEdgeLocations.Insert(-1);
+				}
+			else
+				{
+				aEdgeLocations.Insert(pPanel->PanelRect.GetEdgePosition(dwEdge));
+				}
 			}
-		else
-			{
-			aEdgeLocations.Insert(pPanel->PanelRect.GetEdgePosition(dwEdge));
-			}
+
+		TArray <int> aSortedPanelIndices = QuickSortIntegerArray(aEdgeLocations, aPanelIndices);
+
+		return aSortedPanelIndices;
 		}
-
-	TArray <int> aSortedPanelIndices = QuickSortIntegerArray(aEdgeLocations, aPanelIndices);
-
-	return aSortedPanelIndices;
 	}
 
-void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
+void CPanelOrganizer::SmoothOut (DWORD dwSmoothType=SMOOTH_NONE)
 	{
-	TArray <int> aSortedPanelIndices;
-	int iShift;
-	int iSharedRectBoundary;
-
-	RECT rcOther;
-
-	if (dwSmoothType == SMOOTH_LEFTRIGHT)
+	if (m_iPanelConfigType == ORG_LIST && dwSmoothType != SMOOTH_NONE)
 		{
-		aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_LEFT);
+		SmoothOutList(dwSmoothType);
 		}
-	else if (dwSmoothType == SMOOTH_UPDOWN)
+	else if (m_iPanelConfigType == ORG_TREE)
 		{
-		aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_TOP);
+		SmoothOutTree();
 		}
+	}
 
-	int iCurrentIndex;
-	int iOtherIndex;
-
-	int iFocusLocation;
-	int iOtherEdgeLocation;
-
-	int iProspectiveOtherIndex;
-
-	IPanel *pCurrentPanel;
-	IPanel *pOtherPanel;
-
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+void CPanelOrganizer::SmoothOutList (DWORD dwSmoothType)
+	{
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		iCurrentIndex = aSortedPanelIndices[i];
-		pCurrentPanel = m_aPanels[iCurrentIndex];
+		TArray <int> aSortedPanelIndices;
+		int iShift;
+		int iSharedRectBoundary;
 
-		if (pCurrentPanel->IsHidden())
-			continue;
-
-		if (i != 0)
-			{
-			iOtherIndex = -1;
-			
-			for (int iLoopCount = 0; iLoopCount < i; iLoopCount++)
-				{
-				iProspectiveOtherIndex = aSortedPanelIndices[i - 1 - iLoopCount];
-				pOtherPanel = m_aPanels[iProspectiveOtherIndex];
-
-				if (!(pOtherPanel->IsHidden()))
-					{
-					iOtherIndex = iProspectiveOtherIndex;
-					break;
-					}
-				}
-			}
-		else
-			{
-			iOtherIndex = -1;
-			}
-			
-		if (iOtherIndex != -1)
-			{
-			pOtherPanel = m_aPanels[iOtherIndex];
-			rcOther = pOtherPanel->PanelRect.GetAsRect();
-
-			if (dwSmoothType == SMOOTH_LEFTRIGHT)
-				{
-				iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_RIGHT);
-				}
-			else if (dwSmoothType == SMOOTH_UPDOWN)
-				{
-				iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_BOTTOM);
-				}
-			}
-		else
-			{
-			rcOther = m_ParentPanel.PanelRect.GetAsRect();
-
-			if (dwSmoothType == SMOOTH_LEFTRIGHT)
-				{
-				iOtherEdgeLocation = rcOther.left;
-				}
-			else if (dwSmoothType == SMOOTH_UPDOWN)
-				{
-				iOtherEdgeLocation = rcOther.top;
-				}
-			}
+		RECT rcOther;
 
 		if (dwSmoothType == SMOOTH_LEFTRIGHT)
 			{
-			iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
+			aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_LEFT);
 			}
 		else if (dwSmoothType == SMOOTH_UPDOWN)
 			{
-			iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_TOP);
-			}
-			
-		iShift = (iFocusLocation - iOtherEdgeLocation);
-
-		if (iShift == 0)
-			{
-			continue;
+			aSortedPanelIndices = SortByPanelRectEdgeLocation(EDGE_TOP);
 			}
 
-		 if (dwSmoothType == SMOOTH_LEFTRIGHT)
+		int iCurrentIndex;
+		int iOtherIndex;
+
+		int iFocusLocation;
+		int iOtherEdgeLocation;
+
+		int iProspectiveOtherIndex;
+
+		IPanel *pCurrentPanel;
+		IPanel *pOtherPanel;
+
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
 			{
-			pCurrentPanel->PanelRect.ShiftOrigin(iShift, 0);
+			iCurrentIndex = aSortedPanelIndices[i];
+			pCurrentPanel = m_aPanels[iCurrentIndex];
 
-			iSharedRectBoundary = GetSharedLeftRightEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
+			if (pCurrentPanel->IsHidden())
+				continue;
 
-			if (!(iSharedRectBoundary > 0))
+			if (i != 0)
 				{
-				pCurrentPanel->PanelRect.ShiftOrigin(-1*iShift, 0);
+				iOtherIndex = -1;
+
+				for (int iLoopCount = 0; iLoopCount < i; iLoopCount++)
+					{
+					iProspectiveOtherIndex = aSortedPanelIndices[i - 1 - iLoopCount];
+					pOtherPanel = m_aPanels[iProspectiveOtherIndex];
+
+					if (!(pOtherPanel->IsHidden()))
+						{
+						iOtherIndex = iProspectiveOtherIndex;
+						break;
+						}
+					}
+				}
+			else
+				{
+				iOtherIndex = -1;
+				}
+
+			if (iOtherIndex != -1)
+				{
+				pOtherPanel = m_aPanels[iOtherIndex];
+				rcOther = pOtherPanel->PanelRect.GetAsRect();
+
+				if (dwSmoothType == SMOOTH_LEFTRIGHT)
+					{
+					iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_RIGHT);
+					}
+				else if (dwSmoothType == SMOOTH_UPDOWN)
+					{
+					iOtherEdgeLocation = pOtherPanel->PanelRect.GetEdgePosition(EDGE_BOTTOM);
+					}
+				}
+			else
+				{
+				rcOther = m_ParentPanel.PanelRect.GetAsRect();
+
+				if (dwSmoothType == SMOOTH_LEFTRIGHT)
+					{
+					iOtherEdgeLocation = rcOther.left;
+					}
+				else if (dwSmoothType == SMOOTH_UPDOWN)
+					{
+					iOtherEdgeLocation = rcOther.top;
+					}
+				}
+
+			if (dwSmoothType == SMOOTH_LEFTRIGHT)
+				{
+				iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
+				}
+			else if (dwSmoothType == SMOOTH_UPDOWN)
+				{
+				iFocusLocation = pCurrentPanel->PanelRect.GetEdgePosition(EDGE_TOP);
+				}
+
+			iShift = (iFocusLocation - iOtherEdgeLocation);
+
+			if (iShift == 0)
+				{
+				continue;
+				}
+
+			if (dwSmoothType == SMOOTH_LEFTRIGHT)
+				{
+				pCurrentPanel->PanelRect.ShiftOrigin(iShift, 0);
+
+				iSharedRectBoundary = GetSharedLeftRightEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
+
+				if (!(iSharedRectBoundary > 0))
+					{
+					pCurrentPanel->PanelRect.ShiftOrigin(-1 * iShift, 0);
+					}
+				}
+			else if (dwSmoothType == SMOOTH_UPDOWN)
+				{
+				pCurrentPanel->PanelRect.ShiftOrigin(0, iShift);
+
+				iSharedRectBoundary = GetSharedTopBottomEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
+				if (!(iSharedRectBoundary > 0))
+					{
+					pCurrentPanel->PanelRect.ShiftOrigin(0, -1 * iShift);
+					}
 				}
 			}
-		else if (dwSmoothType == SMOOTH_UPDOWN)
-			{
-			pCurrentPanel->PanelRect.ShiftOrigin(0, iShift);
+		}
+	}
 
-			iSharedRectBoundary = GetSharedTopBottomEdgeLength(&pCurrentPanel->PanelRect.GetAsRect(), &rcOther);
-			if (!(iSharedRectBoundary > 0))
+void CPanelOrganizer::SmoothOutTree (void)
+	{
+	if (m_pLeafPanel0 == NULL || m_pLeafPanel0->IsHidden())
+		{
+		if (m_pLeafPanel1 == NULL || m_pLeafPanel1->IsHidden())
+			{
+			return;
+			}
+		else
+			{
+			m_pLeafPanel1->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX, m_ParentPanel.PanelRect.GetOriginY);
+			m_pLeafPanel1->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
+			m_pLeafPanel1->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
+			m_iSeparatorPos = -1;
+			}
+		}
+	else
+		{
+		if (m_pLeafPanel1 == NULL || m_pLeafPanel1->IsHidden())
+			{
+			m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX, m_ParentPanel.PanelRect.GetOriginY);
+			m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
+			m_pLeafPanel0->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
+			m_iSeparatorPos = -1;
+			}
+		else
+			{
+			if (m_cSplitDirn == 'h')
 				{
-				pCurrentPanel->PanelRect.ShiftOrigin(0, -1*iShift);
+				m_iSeparatorPos = int(m_fSeparatorPosFactor*m_ParentPanel.PanelRect.GetWidth());
+
+				m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_ParentPanel.PanelRect.GetOriginY());
+				m_pLeafPanel0->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth() - m_iSeparatorPos);
+				m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight);
+
+				m_pLeafPanel1->PanelRect.SetOrigin(m_iSeparatorPos + m_iSeparatorThickness, m_ParentPanel.PanelRect.GetOriginY());
+				m_pLeafPanel1->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth() - m_pLeafPanel0->PanelRect.GetWidth() - m_iSeparatorThickness);
+				m_pLeafPanel1->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
+				}
+			else if (m_cSplitDirn == 'v')
+				{
+				m_iSeparatorPos = int(m_fSeparatorPosFactor*m_ParentPanel.PanelRect.GetHeight());
+
+				m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_ParentPanel.PanelRect.GetOriginY());
+				m_pLeafPanel0->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
+				m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight() - m_iSeparatorPos);
+
+				m_pLeafPanel1->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_iSeparatorPos + m_iSeparatorThickness);
+				m_pLeafPanel1->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
+				m_pLeafPanel1->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight() - m_pLeafPanel0->PanelRect.GetHeight() - m_iSeparatorThickness);
 				}
 			}
 		}
@@ -348,6 +434,11 @@ void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 
 bool CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
 	{
+	if (m_iPanelConfigType == ORG_TREE)
+		{
+		return false;
+		}
+
 	m_iPanelConfigType = ORG_LIST;
 
 	int iOriginX = m_ParentPanel.PanelRect.GetOriginX() + iRelativeOriginX;
@@ -366,7 +457,7 @@ bool CPanelOrganizer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRel
 	return true;
 	}
 
-bool CPanelOrganizer::PlacePanel (IPanel *pPanel, char cSplitDirn, float fSeparatorPos = 0.5, int iSeparatorThickness = 5)
+bool CPanelOrganizer::PlacePanel (IPanel *pPanel, char cSplitDirn, int iInsertIndex)
 	{
 	if (m_iPanelConfigType != -1)
 		{
@@ -384,92 +475,152 @@ bool CPanelOrganizer::PlacePanel (IPanel *pPanel, char cSplitDirn, float fSepara
 		{
 		return false;
 		}
-
-	int iNumLeafPanels = m_aLeafPanels.GetCount();
-	int iOriginX;
-	int iOriginY;
-
-	if (iNumLeafPanels >= 2)
+							 
+	if (m_pLeafPanel0 != NULL && m_pLeafPanel1 != NULL)
 		{
 		return false;
 		}
-	else if (iNumLeafPanels == 1)
+
+	if (iInsertIndex == 0)
 		{
-		IPanel *pSiblingPanel = m_aLeafPanels[0];
-		
-		if (cSplitDirn == 'h')
+		if (m_pLeafPanel0 != NULL)
 			{
-			iOriginX = m_iSeparatorPos + m_iSeparatorThickness;
-			iOriginY = pSiblingPanel->PanelRect.GetEdgePosition(EDGE_TOP);
+			m_pLeafPanel1 = m_pLeafPanel0;
 			}
-		else
-			{
-			iOriginX = pSiblingPanel->PanelRect.GetEdgePosition(EDGE_LEFT);
-			iOriginY = m_iSeparatorPos + m_iSeparatorThickness;
-			}
+		m_pLeafPanel0 = pPanel;
 		}
-	else if (iNumLeafPanels == 0)
+	else
 		{
-		m_cSplitDirn = cSplitDirn;
-
-		iOriginX = m_ParentPanel.PanelRect.GetEdgePosition(EDGE_LEFT);
-		iOriginY = m_ParentPanel.PanelRect.GetEdgePosition(EDGE_TOP);
-
-		m_iSeparatorThickness = iSeparatorThickness;
-
-		if (cSplitDirn == 'h')
+		if (m_pLeafPanel1 != NULL)
 			{
-			pPanel->PanelRect.SetWidth(int(fSeparatorPos*m_ParentPanel.PanelRect.GetWidth()));
-			m_iSeparatorPos = pPanel->PanelRect.GetEdgePosition(EDGE_RIGHT);
-
+			m_pLeafPanel0 = m_pLeafPanel1;
 			}
-		else
-			{
-			pPanel->PanelRect.SetHeight(int(fSeparatorPos*m_ParentPanel.PanelRect.GetHeight()));
-			m_iSeparatorPos = pPanel->PanelRect.GetEdgePosition(EDGE_BOTTOM);
-			}
+		m_pLeafPanel1 = pPanel;
 		}
 
+	SmoothOutTree();
 
-	pPanel->PanelRect.SetOrigin(iOriginX, iOriginY);
-	m_aLeafPanels.Insert(pPanel);
 	pPanel->ConfirmPlacement();
-
-	pPanel->SetParentPanel(&m_ParentPanel);
-	pPanel->SetViewOffset(m_ParentPanel.GetViewOffsetX(), m_ParentPanel.GetViewOffsetY());
 
 	return true;
 	}
+
+void CPanelOrganizer::ChangePanelIndex(int iOldPanelIndex, int iNewPanelIndex)
+	{
+	if (m_iPanelConfigType == ORG_LIST)
+		{
+		if (0 <= iOldPanelIndex &&
+			iOldPanelIndex < m_aPanels.GetCount() &&
+			0 <= iNewPanelIndex && 
+			iNewPanelIndex < m_aPanels.GetCount() && 
+			iOldPanelIndex != iNewPanelIndex)
+			{
+			IPanel *pTempA = m_aPanels[iOldPanelIndex];
+			IPanel *pTempB = m_aPanels[iNewPanelIndex];
+
+			m_aPanels[iOldPanelIndex] = pTempB;
+			m_aPanels[iNewPanelIndex] = pTempA;
+			}
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if ((iOldPanelIndex == 0 || iOldPanelIndex == 1) &&
+			(iNewPanelIndex == 0 || iNewPanelIndex == 1) &&
+			iOldPanelIndex != iNewPanelIndex)
+			{
+			IPanel *pTemp = m_pLeafPanel0;
+
+			m_pLeafPanel0 = m_pLeafPanel1;
+			m_pLeafPanel1 = pTemp;
+			}
+		}
+	}
+
 void CPanelOrganizer::DeletePanel (int iPanelIndex)
 	{
-	m_aPanels.Delete(iPanelIndex);
+	if (m_iPanelConfigType == ORG_LIST)
+		{
+		m_aPanels.Delete(iPanelIndex);
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (iPanelIndex == 0)
+			{
+			if (m_pLeafPanel0 != NULL)
+				{
+				delete m_pLeafPanel0;
+				m_pLeafPanel0 = NULL;
+				}
+			}
+		else
+			{
+			if (m_pLeafPanel1 != NULL)
+				{
+				delete m_pLeafPanel1;
+				m_pLeafPanel1 = NULL;
+				}
+			}
+		}
 	}
 
 TArray <IPanel *> CPanelOrganizer::GetPanelsContainingPoint (int x, int y)
 	{
 	TArray <IPanel *> aRelevantPanels;
 
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		aRelevantPanels.Insert(m_aPanels[i]->GetPanelsContainingPoint(x, y));
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			aRelevantPanels.Insert(m_aPanels[i]->GetPanelsContainingPoint(x, y));
+			}
 		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			aRelevantPanels.Insert(m_pLeafPanel0->GetPanelsContainingPoint(x, y));
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			aRelevantPanels.Insert(m_pLeafPanel1->GetPanelsContainingPoint(x, y));
+			}
+		}
+	
 
 	return aRelevantPanels;
 	}
 
 int CPanelOrganizer::GetPanelIndex (IPanel *pPanel)
 	{
-	int iDefaultIndex = -1;	//  not found in m_aInternalPanels
-
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		if (m_aPanels[i] == pPanel)
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
 			{
-			return i;
+			if (m_aPanels[i] == pPanel)
+				{
+				return i;
+				}
+			}
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			if (m_pLeafPanel0 == pPanel)
+				{
+				return 0;
+				}
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			if (m_pLeafPanel1 == pPanel)
+				{
+				return 1;
+				}
 			}
 		}
 
-	return iDefaultIndex;
+	return -1;
 	}
 
 void CPanelOrganizer::HidePanel (IPanel *Panel)
@@ -480,32 +631,67 @@ void CPanelOrganizer::HidePanel (IPanel *Panel)
 		{
 		return;
 		}
-
-	//  hide the panel first so other panels can take its space during rearrangement
-	m_aPanels[iPanelIndex]->SetHiddenFlag(true);
-
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+	else
+		{
+		HidePanel(iPanelIndex);
+		}
 	}
 
 void CPanelOrganizer::HidePanel (int iPanelIndex)
 	{
-	//  hide the panel first so other panels can take its space during rearrangement
-	m_aPanels[iPanelIndex]->SetHiddenFlag(true);
+	if (m_iPanelConfigType == ORG_LIST)
+		{
+		//  hide the panel first so other panels can take its space during rearrangement
+		m_aPanels[iPanelIndex]->SetHiddenFlag(true);
 
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+		SmoothOut(SMOOTH_LEFTRIGHT);
+		SmoothOut(SMOOTH_UPDOWN);
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (iPanelIndex == 0)
+			{
+			if (m_pLeafPanel0 != NULL)
+				{
+				m_pLeafPanel0->SetHiddenFlag(true);
+				SmoothOutTree();
+				}
+			}
+		else if (iPanelIndex == 1)
+			{
+			if (m_pLeafPanel1 != NULL)
+				{
+				m_pLeafPanel1->SetHiddenFlag(true);
+				SmoothOutTree();
+				}
+			}
+		}
 	}
 
 void CPanelOrganizer::HideAll (void)
 	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		m_aPanels[i]->SetHiddenFlag(true);
-		}
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			m_aPanels[i]->SetHiddenFlag(true);
+			}
 
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+		SmoothOut(SMOOTH_LEFTRIGHT);
+		SmoothOut(SMOOTH_UPDOWN);
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			m_pLeafPanel0->SetHiddenFlag(true);
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			m_pLeafPanel1->SetHiddenFlag(true);
+			}
+		SmoothOutTree();
+		}
 	}
 
 void CPanelOrganizer::ShowPanel (IPanel *Panel)
@@ -516,51 +702,107 @@ void CPanelOrganizer::ShowPanel (IPanel *Panel)
 		{
 		return;
 		}
-
-	IPanel *FocusPanel = m_aPanels[iPanelIndex];
-
-	//  unhide the panel so that space can be made for it
-	FocusPanel->SetHiddenFlag(false);
-
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+	else
+		{
+		ShowPanel(iPanelIndex);
+		}
 	}
 
 void CPanelOrganizer::ShowPanel (int iPanelIndex)
 	{
-	IPanel *FocusPanel = m_aPanels[iPanelIndex];
+	if (m_iPanelConfigType == ORG_LIST)
+		{
+		IPanel *FocusPanel = m_aPanels[iPanelIndex];
 
-	//  unhide the panel so that space can be made for it
-	FocusPanel->SetHiddenFlag(false);
+		//  unhide the panel so that space can be made for it
+		FocusPanel->SetHiddenFlag(false);
 
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+		SmoothOut(SMOOTH_LEFTRIGHT);
+		SmoothOut(SMOOTH_UPDOWN);
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (iPanelIndex == 0)
+			{
+			m_pLeafPanel0->SetHiddenFlag(false);
+			}
+		else if (iPanelIndex == 1)
+			{
+			m_pLeafPanel1->SetHiddenFlag(false);
+			}
+
+		SmoothOutTree();
+		}
 	}
 
 void CPanelOrganizer::ShowAll (void)
 	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		m_aPanels[i]->SetHiddenFlag(false);
-		}
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			m_aPanels[i]->SetHiddenFlag(false);
+			}
 
-	SmoothOut(SMOOTH_LEFTRIGHT);
-	SmoothOut(SMOOTH_UPDOWN);
+		SmoothOut(SMOOTH_LEFTRIGHT);
+		SmoothOut(SMOOTH_UPDOWN);
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			m_pLeafPanel0->SetHiddenFlag(false);
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			m_pLeafPanel1->SetHiddenFlag(false);
+			}
+
+		SmoothOutTree();
+		}
 	}
 
 void CPanelOrganizer::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		m_aPanels[i]->OnPaint(Screen, rcInvalid);
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			m_aPanels[i]->OnPaint(Screen, rcInvalid);
+			}
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			m_pLeafPanel0->OnPaint(Screen, rcInvalid);
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			m_pLeafPanel1->OnPaint(Screen, rcInvalid);
+			}
 		}
 	}
 
 void CPanelOrganizer::Invalidate(void)
 	{
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
+	if (m_iPanelConfigType == ORG_LIST)
 		{
-		m_aPanels[i]->Invalidate();
+		for (int i = 0; i < m_aPanels.GetCount(); i++)
+			{
+			m_aPanels[i]->Invalidate();
+			}
+		}
+	else if (m_iPanelConfigType == ORG_TREE)
+		{
+		if (m_pLeafPanel0 != NULL)
+			{
+			m_pLeafPanel0->Invalidate();
+			}
+		if (m_pLeafPanel1 != NULL)
+			{
+			m_pLeafPanel1->Invalidate();
+			}
 		}
 	}
 

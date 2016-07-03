@@ -12,9 +12,11 @@
 
 #define SMOOTH_UPDOWN		0
 #define SMOOTH_LEFTRIGHT	1
+#define SMOOTH_NONE			2
 
-#define ORG_LIST	0
-#define ORG_TREE	1
+#define ORG_LIST			0
+#define ORG_TREE			1
+#define ORG_NONE			2
 
 class CPanelRect;
 class CPanelOrganizer;
@@ -93,25 +95,37 @@ class CPanelOrganizer
 
 		void Invalidate (void);
 
-		void SmoothOut (DWORD dwSmoothType);
+		void SmoothOut (DWORD dwSmoothType=SMOOTH_NONE);
 		bool PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY);
-		bool PlacePanel (IPanel *pPanel, char cSplitDirn, float fSeparatorPos=0.5, int iSeparatorThickness=5);
+		bool PlacePanel (IPanel *pPanel, char cSplitDirn, int iPanelIndex);
+		void ChangePanelIndex (int iOldPanelIndex, int iNewPanelIndex);
+
+		void inline SetSeparatorPosition (int iSeparatorPos) { m_iSeparatorPos = iSeparatorPos; }
+		void inline SetSeparatorPositionFactor (float fSeparatorPosFactor) { m_fSeparatorPosFactor = fSeparatorPosFactor; }
+		void inline SetSeparatorThickness (int iSeparatorThickness) { m_iSeparatorThickness = iSeparatorThickness; }
+		inline int GetSeparatorPosition (void) { return m_iSeparatorPos; }
+		inline float GetSeparatorPositionFactor (void) { return m_fSeparatorPosFactor; }
+		inline int GetSeparatorThickness (void) { return m_iSeparatorThickness; }
+
 		void DeletePanel (int iPanelIndex);
 
 	protected:
 		// methods
+		void SmoothOutList (DWORD dwEdge);
+		void SmoothOutTree (void);
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
 
 		// member variables
 		int m_iPanelConfigType;
 		char m_cSplitDirn;
+		float m_fSeparatorPosFactor;
+		int m_iSeparatorPos;
+		int m_iSeparatorThickness;
 
 		IPanel &m_ParentPanel;
 		TArray <IPanel *> m_aPanels;
-		TArray <IPanel *> m_aLeafPanels;
-
-		int m_iSeparatorPos;
-		int m_iSeparatorThickness;
+		IPanel *m_pLeafPanel0;
+		IPanel *m_pLeafPanel1;
 	};
 
 //  =======================================================================
