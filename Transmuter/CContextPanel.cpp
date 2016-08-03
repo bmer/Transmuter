@@ -30,7 +30,7 @@ bool CContextEntry::IsParentCollapsed(void)
 
 // ===============================================================
 
-CContextEntryPanel::CContextEntryPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry) : CTransmuterPanel(sID, HI, AssociatedPanel, model),
+CContextEntryPanel::CContextEntryPanel(CString sID, CHumanInterface &HI, CTransmuterModel &model, CContextEntry &refAssociatedEntry, int iWidth, int iHeight) : CTransmuterPanel(sID, HI, model, iWidth, iHeight),
 	m_refAssociatedEntry(refAssociatedEntry)
 	{
 	}
@@ -78,54 +78,54 @@ void CContextEntryArray::Copy(const CContextEntryArray &refCtxObjArray)
 
 // ===============================================================
 
-CContextPanel::CContextPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model) : CTransmuterPanel(sID, HI, AssociatedPanel, model),
-	m_ExtensionCollection(m_model.GetExtensionCollection()),
+CContextPanel::CContextPanel(CString sID, CHumanInterface &HI, CTransmuterModel &model, int iPanelWidth, int iPanelHeight) : CTransmuterPanel(sID, HI, model, iPanelWidth, iPanelHeight),
+	m_ExtensionCollection(m_Model.GetExtensionCollection()),
 	m_pFont(&((g_pHI->GetVisuals()).GetFont(fontConsoleMediumHeavy))),
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),
 	m_Contextualizer(CContextualizer(HI, m_ExtensionCollection.GetAllExtensions()))
 	{
-	IPanel &refAssociatedPanel = this->GetAssociatedPanel();
-	SetHeaderContent(strCat(m_sID, CONSTLIT(".h")), CONSTLIT("Context"), refAssociatedPanel.PanelRect.GetWidth(), 40);
+	CreateTitlePanel (CreateSubPanelName(CONSTLIT("TitlePanel")), CONSTLIT("Context"), 0, 0, PanelRect.GetWidth(), 40);
 	}
 
 // ===============================================================
 
 CContextPanel::~CContextPanel (void)
 	{
-	delete m_pHeaderContent;
+	if (m_pTitlePanel != NULL)
+		{
+		delete m_pTitlePanel;
+		}
 	}
 
 // ===============================================================
 
 void CContextPanel::LoadContext (void)
 	{
-
-	IPanel &refAssociatedPanel = GetAssociatedPanel();
 	// delete all existing internal panels dealing with content
 	for (int i = 0; i < m_bLoadedContextObjectPanelIndices.GetCount(); i++)
 		{
 		//// first we must take care to delete the associated content!
 		//iThisPanelIndex = m_bLoadedContextObjectPanelIndices[i];
-		//delete refAssociatedPanel.InternalPanels.GetPanel(iThisPanelIndex)->GetAssociatedSession();
+		//delete refAssociatedPanel.PanelOrganizer.GetPanel(iThisPanelIndex)->GetAssociatedSession();
 
 		// now we can delete the panel itself
-		refAssociatedPanel.InternalPanels.DeletePanel(i);
+		PanelOrganizer.DeletePanel(i);
 		}
 	// deleting all the old stored panel indices
 	m_bLoadedContextObjectPanelIndices.DeleteAll();
 
 	CContextEntryArray *pContextEntryList = m_Contextualizer.GetCurrentContextEntries();
 
-	int iBottomOfHeader = 0;
-	if (m_pHeaderContent != NULL)
+	int iBottomOfTitle = 0;
+	if (m_pTitlePanel != NULL)
 		{
-		iBottomOfHeader += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
+		iBottomOfTitle += m_pTitlePanel->PanelRect.GetHeight();
 		}
 
 	int iEntryHeight = 15;
 	int iIndentWidth = 10;
 
-	int iParentPanelWidth = refAssociatedPanel.PanelRect.GetWidth();
+	int iParentPanelWidth = PanelRect.GetWidth();
 	int iNumEntries = pContextEntryList->GetCount();
 	m_bLoadedContextObjectPanelIndices.InsertEmpty(iNumEntries);
 	IPanel *pEntryPanel;
@@ -134,11 +134,9 @@ void CContextPanel::LoadContext (void)
 		{
 		// create new internal panels, content
 		CContextEntry *pEntry = pContextEntryList->GetAt(i);
-		pEntryPanel = refAssociatedPanel.InternalPanels.AddPanel(0, iBottomOfHeader + i*iEntryHeight, iParentPanelWidth, iEntryHeight, false);
-		m_bLoadedContextObjectPanelIndices[i] = refAssociatedPanel.InternalPanels.GetPanelIndex(pEntryPanel);
-
-		CString sToConcatenate = strCat(CONSTLIT("_"), pEntry->GetUNIDAsString());
-		pEntryPanel->AssociateSession(new CContextEntryPanel(strCat(GetStringID(), sToConcatenate), GetHI(), *pEntryPanel, GetModel(), *pEntry));
+		pEntryPanel = new CContextEntryPanel(CreateSubPanelName(pEntry->GetUNIDAsString()), m_HI, m_Model, *pEntry, iParentPanelWidth, iEntryHeight);
+		PanelOrganizer.PlacePanel(pEntryPanel, 0, iBottomOfTitle + i*iEntryHeight);
+		m_bLoadedContextObjectPanelIndices[i] = PanelOrganizer.GetPanelIndex(pEntryPanel);
 		}
 	}
 
@@ -149,19 +147,24 @@ void CContextPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	bool bFocusStatus = GetFocusStatus();
 	if (GetFocusStatus() == true)
 		{
-		UpdatePanelOutlineColor(CG32bitPixel(255, 0, 0));
+		UpdateOutlineColor(CG32bitPixel(255, 0, 0));
 		}
 	else
 		{
-		UpdatePanelOutlineColor(CG32bitPixel(255, 255, 255));
+		UpdateOutlineColor(CG32bitPixel(255, 255, 255));
 		}
-	DrawPanelOutline(Screen);/*
+	PaintOutline(Screen);
 
-	int iBottomOfHeader = 0;
+	if (m_pTitlePanel != NULL)
+		{
+		m_pTitlePanel->OnPaint(Screen, rcInvalid);
+		}
+	/*
+	int iBottomOfTitle = 0;
 	if (m_pHeaderContent != NULL)
 		{
 		m_pHeaderContent->OnPaint(Screen, rcInvalid);
-		iBottomOfHeader += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
+		iBottomOfTitle += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
 		}
 
 	CContextEntryArray *pContextEntries = m_Contextualizer.GetCurrentContextEntries();
@@ -186,7 +189,7 @@ void CContextPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 				if (CurrentEntry->GetParent() != NULL)
 					{
 					CString sParentDisplayText = CurrentCtxObj->GetParent()->GetDisplayText();
-					Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfHeader + iCurrentYOffset, *m_pFont, CG32bitPixel(255, 0, 0), sParentDisplayText);
+					Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, CG32bitPixel(255, 0, 0), sParentDisplayText);
 					iCurrentYOffset += 15;
 					}
 				}
@@ -194,7 +197,7 @@ void CContextPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 			if (CurrentCtxObj->GetLevel() == 0 || CurrentCtxObj->IsParentCollapsed() == false)
 				{
-				Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfHeader + iCurrentYOffset, *m_pFont, m_rgbFontColor, CurrentCtxObj->GetDisplayText());
+				Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, m_rgbFontColor, CurrentCtxObj->GetDisplayText());
 				iCurrentYOffset += 15;
 				}
 			}

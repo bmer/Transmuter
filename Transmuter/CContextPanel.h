@@ -42,7 +42,7 @@ class CContextEntry
 class CContextEntryPanel : public CTransmuterPanel
 	{
 	public:
-		CContextEntryPanel (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, CContextEntry &refAssociatedEntry);
+		CContextEntryPanel (CString sID, CHumanInterface &HI, CTransmuterModel &model, CContextEntry &refAssociatedEntry, int iWidth, int iHeight);
 
 		inline CContextEntry &GetAssociatedEntry (void) { return m_refAssociatedEntry; }
 	private:					  
@@ -109,7 +109,7 @@ class CContextPanel : public CTransmuterPanel
 		TArray <int> m_bLoadedContextObjectPanelIndices;
 
 	public:
-		CContextPanel (CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model);
+		CContextPanel (CString sID, CHumanInterface &HI, CTransmuterModel &model, int iPanelWidth, int iPanelHeight);
 		~CContextPanel (void);
 		
 		CContextualizer m_Contextualizer;

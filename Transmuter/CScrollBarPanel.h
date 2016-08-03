@@ -11,7 +11,7 @@ class CScrollBarPanel;
 class CScrollBarPanel : public CTransmuterPanel
 	{
 	public:
-		CScrollBarPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &pPanelToScroll);
+		CScrollBarPanel(CString sID, CHumanInterface &HI, CTransmuterModel &model, IPanel &refPanelToScroll, int iThickness, char cScrollDirection);
 
 		//void OnPaint(CG32bitImage &Screen, const RECT &rcInvalid);
 
@@ -25,14 +25,13 @@ class CScrollBarPanel : public CTransmuterPanel
 
 		inline void SetScrollBarColor (CG32bitPixel ScrollBarColor) { m_ScrollBarColor = ScrollBarColor; }
 
-		void DetermineVisibility (void);
 		void CalculateBarRect (void);
 		void CalculateSlideRect (void);
-		inline bool IsBarVisible (void) { return m_bVisible; }
 
 	private:
 		CG32bitPixel m_rgbBackgroundColor;
-		DWORD dwBarOrientation;
+		char m_cScrollDirection;
+		int m_iThickness;
 
 		IPanel &m_PanelToScroll;
 		CG32bitPixel m_ScrollBarColor;

@@ -211,6 +211,8 @@ TArray <int> CPanelOrganizer::SortByPanelRectEdgeLocation (DWORD dwEdge)
 //  in the m_aInternalPanels array. Panel indices are sorted by edge location
 //  (smallest location value first), where the specific edge is specified by dwEdge .
 	{
+	TArray<int> aSortedPanelIndices;
+
 	if (m_iPanelConfigType == ORG_LIST)
 		{
 		TArray <int> aPanelIndices;
@@ -231,13 +233,13 @@ TArray <int> CPanelOrganizer::SortByPanelRectEdgeLocation (DWORD dwEdge)
 				}
 			}
 
-		TArray <int> aSortedPanelIndices = QuickSortIntegerArray(aEdgeLocations, aPanelIndices);
-
-		return aSortedPanelIndices;
+		aSortedPanelIndices = QuickSortIntegerArray(aEdgeLocations, aPanelIndices);
 		}
+
+	return aSortedPanelIndices;
 	}
 
-void CPanelOrganizer::SmoothOut (DWORD dwSmoothType=SMOOTH_NONE)
+void CPanelOrganizer::SmoothOut (DWORD dwSmoothType)
 	{
 	if (m_iPanelConfigType == ORG_LIST && dwSmoothType != SMOOTH_NONE)
 		{
@@ -387,7 +389,7 @@ void CPanelOrganizer::SmoothOutTree (void)
 			}
 		else
 			{
-			m_pLeafPanel1->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX, m_ParentPanel.PanelRect.GetOriginY);
+			m_pLeafPanel1->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_ParentPanel.PanelRect.GetOriginY());
 			m_pLeafPanel1->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
 			m_pLeafPanel1->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
 			m_iSeparatorPos = -1;
@@ -397,7 +399,7 @@ void CPanelOrganizer::SmoothOutTree (void)
 		{
 		if (m_pLeafPanel1 == NULL || m_pLeafPanel1->IsHidden())
 			{
-			m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX, m_ParentPanel.PanelRect.GetOriginY);
+			m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_ParentPanel.PanelRect.GetOriginY());
 			m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
 			m_pLeafPanel0->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth());
 			m_iSeparatorPos = -1;
@@ -410,7 +412,7 @@ void CPanelOrganizer::SmoothOutTree (void)
 
 				m_pLeafPanel0->PanelRect.SetOrigin(m_ParentPanel.PanelRect.GetOriginX(), m_ParentPanel.PanelRect.GetOriginY());
 				m_pLeafPanel0->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth() - m_iSeparatorPos);
-				m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight);
+				m_pLeafPanel0->PanelRect.SetHeight(m_ParentPanel.PanelRect.GetHeight());
 
 				m_pLeafPanel1->PanelRect.SetOrigin(m_iSeparatorPos + m_iSeparatorThickness, m_ParentPanel.PanelRect.GetOriginY());
 				m_pLeafPanel1->PanelRect.SetWidth(m_ParentPanel.PanelRect.GetWidth() - m_pLeafPanel0->PanelRect.GetWidth() - m_iSeparatorThickness);

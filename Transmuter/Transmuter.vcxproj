@@ -129,7 +129,7 @@
     <ClInclude Include="CCommandParser.h" />
     <ClInclude Include="CContextPanel.h" />
     <ClInclude Include="CEditorPanel.h" />
-    <ClInclude Include="CCommandInterface.h" />
+    <ClInclude Include="CCommandPanel.h" />
     <ClInclude Include="CException.h" />
     <ClInclude Include="CMainSession.h" />
     <ClInclude Include="CPreviewPanel.h" />
@@ -150,7 +150,7 @@
   <ItemGroup>
     <ClCompile Include="CTitlePanel.cpp" />
     <ClCompile Include="CTransmuterPanel.cpp" />
-    <ClCompile Include="CCommandInterface.cpp" />
+    <ClCompile Include="CCommandPanel.cpp" />
     <ClCompile Include="CCommandParser.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="CContextPanel.cpp" />

@@ -10,10 +10,10 @@ class CTitlePanel;
 class CTransmuterPanel : public IPanel
 	{
 	public:
-		CTransmuterPanel(CString sPanelName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight);
-		CTransmuterPanel(CString sPanelName, CHumanInterface &HI, CTransmuterModel &model, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight);
+		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iOriginX, int iOriginY, int iWidth, int iHeight);
 
-		void CreateTitlePanel (CString sPanelName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
+		void CreateTitlePanel (CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
 
 		void UpdateTitleText (CString sText);
 		inline CString GetTitleText (void) { if (m_pTitlePanel != NULL) { return m_pTitlePanel->GetText(); } }
@@ -21,11 +21,11 @@ class CTransmuterPanel : public IPanel
 		void UpdateTitleTextColor (CG32bitPixel rgbColor);
 		void UpdateTitleBackgroundColor (CG32bitPixel rgbColor);
 
-		inline CTransmuterModel &GetModel (void) { return m_model; }
+		inline CTransmuterModel &GetModel (void) { return m_Model; }
 
 		virtual void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
 
 	protected:
-		CTransmuterModel &m_model;
+		CTransmuterModel &m_Model;
 		CTitlePanel *m_pTitlePanel;
 	};

@@ -8,7 +8,7 @@ class CLoadingSession;
 class IPanel;
 class CTransmutercontent;
 class CContextPanel;
-class CCommandInterfaceContent;
+class CCommandPanel;
 class CMainSession;
 
 //  =======================================================================
@@ -49,13 +49,14 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		CContextPanel *m_pContextPanelContent;
-		CCommandInterfaceContent *m_pCommandInterfaceContent;
-		TArray <IPanelContent *> m_aContent;
+		IPanel *m_pContextEditorPanel;
+		CContextPanel *m_pContextPanel;
+		CCommandPanel *m_pCommandPanel;
+		TArray <IPanel *> m_aPanels;
 
-		IPanelContent *m_pCapture;
+		IPanel *m_pCapture;
 
-		IPanelContent *m_pFocusContent;
+		IPanel *m_pFocusPanel;
 
 		CTransmuterModel &m_Model;
 		IPanel m_Panel;

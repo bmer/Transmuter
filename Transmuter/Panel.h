@@ -136,7 +136,7 @@ class IPanel : public IHISession
 	friend class CPanelOrganizer;
 
 	public:
-		IPanel (CString sContentName, CHumanInterface &HI);
+		IPanel (CString sName, CHumanInterface &HI);
 		IPanel (CString sName, CHumanInterface &HI, int iWidth, int iHeight);
 		IPanel(CString sName, CHumanInterface & HI, int iOriginX, int iOriginY, int iWidth, int iHeight);
 		~IPanel (void);

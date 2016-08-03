@@ -5,13 +5,21 @@
 
 #include "PreComp.h"
 
-CScrollBarPanel::CScrollBarPanel(CString sID, CHumanInterface &HI, IPanel &AssociatedPanel, CTransmuterModel &model, IPanel &PanelToScroll) : CTransmuterPanel (sID, HI, AssociatedPanel, model),
-	m_PanelToScroll(PanelToScroll)
+CScrollBarPanel::CScrollBarPanel(CString sID, CHumanInterface &HI, CTransmuterModel &model, IPanel &refPanelToScroll, int iThickness, char cScrollDirection) : CTransmuterPanel (sID, HI, model, 0, 0),
+	m_PanelToScroll(refPanelToScroll),
+	m_iThickness(iThickness),
+	m_cScrollDirection(cScrollDirection)
 	{
-	}
-
-void CScrollBarPanel::DetermineVisibility(void)
-	{
+	if (m_cScrollDirection == 'h')
+		{
+		PanelRect.SetWidth(m_PanelToScroll.PanelRect.GetWidth());
+		PanelRect.SetHeight(iThickness);
+		}
+	if (m_cScrollDirection == 'v')
+		{
+		PanelRect.SetWidth(iThickness);
+		PanelRect.SetHeight(m_PanelToScroll.PanelRect.GetHeight());
+		}
 	}
 
 void CScrollBarPanel::CalculateBarRect(void)

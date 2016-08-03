@@ -26,60 +26,46 @@ void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_Panel(0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
+	m_Panel(CONSTLIT("Main"), HI, 0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
 	m_pCapture(NULL),
 	m_iSeparatorWidth(5)
 	//	CMainSession constructor
 	{
+	// main background panel is m_Panel
+
 	int iContextPanelWidth = 300;
 	int iContextPanelHeight = 600;
 
-	// main background panel is m_Panel
+	// Initializing ContextEditor panel
+	m_pContextEditorPanel = new IPanel(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
+	m_Panel.PanelOrganizer.PlacePanel(m_pContextEditorPanel, 'h', 0);
 
 	//  Initializing context panel
-	IPanel *pEmptyPanelForContextContent = m_Panel.InternalPanels.AddPanel(0, 0, iContextPanelWidth, iContextPanelHeight, false);
-	m_pContextPanelContent = new CContextPanel(CONSTLIT("Context"), HI, *pEmptyPanelForContextContent, m_Model);
-	m_aContent.Insert(m_pContextPanelContent);
-
-	IPanel *pEmptyPanelForContextEditorSeparator = m_Panel.InternalPanels.AddPanel(iContextPanelWidth, 0, 10, iContextPanelHeight, false);
-	m_pContextEditorSeparatorContent = new CSeparatorContent(CONSTLIT("ConextSeparator"), HI, *pEmptyPanelForContextEditorSeparator, true);
-	m_aContent.Insert(m_pContextEditorSeparatorContent);
-	m_pContextPanelContent->SetRightSeparator(m_pContextEditorSeparatorContent);
-
-	int iCommandLineWidth = m_Panel.PanelRect.GetWidth();
-	int iCommandLineHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight - 10;
-
-	IPanel *pEmptyPanelForCLISeparator = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight, iCommandLineWidth, 10, false);
-	m_pCLISeparator = new CSeparatorContent(CONSTLIT("CLISeparator"), HI, *pEmptyPanelForCLISeparator, false);
-	m_aContent.Insert(m_pCLISeparator);
+	m_pContextPanel = new CContextPanel(CONSTLIT("Context"), HI, m_Model, iContextPanelWidth, iContextPanelHeight);
+	m_pContextEditorPanel->PanelOrganizer.PlacePanel(m_pContextPanel, 'v', 0);
+	m_aPanels.Insert(m_pContextPanel);
 
 	//  Initializing command line interface
-	
-	IPanel *pEmptyPanelForCLI = m_Panel.InternalPanels.AddPanel(0, iContextPanelHeight + 10, iCommandLineWidth, iCommandLineHeight, false);
-	m_pCommandInterfaceContent = new CCommandInterfaceContent(CONSTLIT("Command Line Interface"), HI, *pEmptyPanelForCLI, m_Model);
-	m_aContent.Insert(m_pCommandInterfaceContent);
-	m_pCommandInterfaceContent->SetTopSeparator(m_pCLISeparator);
-	m_pContextPanelContent->SetBottomSeparator(m_pCLISeparator);
-
-	CTextContent *pInputContent = m_pCommandInterfaceContent->GetInputContent();
-	pInputContent->SetController(this);
-
-	// Initializing text editor 
+	int iCommandPanelWidth = m_Panel.PanelRect.GetWidth();
+	int iCommandPanelHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight;
+	m_pCommandPanel = new CCommandPanel(CONSTLIT("CLI"), HI, m_Model, iCommandPanelWidth, iCommandPanelHeight);
+	m_Panel.PanelOrganizer.PlacePanel(m_pCommandPanel, 'h', 1);
+	m_aPanels.Insert(m_pCommandPanel);
 	}
 
 CMainSession::~CMainSession(void)
 	{
-	//for (int i = 0; i < m_aContent.GetCount(); i++)
+	//for (int i = 0; i < m_aPanels.GetCount(); i++)
 	//	{
-	//	delete m_aContent[i];
+	//	delete m_aPanels[i];
 	//	}
-	delete m_pContextPanelContent;
-	delete m_pCommandInterfaceContent;
+	delete m_pContextPanel;
+	delete m_pCommandPanel;
 	}
 
 ALERROR CMainSession::OnCommand(const CString &sCmd, void *pData)
 	{
-	CTextContent *pOutputContent = m_pCommandInterfaceContent->GetOutputContent();
+	CTextContent *pOutputContent = m_pCommandPanel->GetOutputContent();
 	pOutputContent->WriteText(strCat(">> ", sCmd));
 
 	TArray <CString> aParsedCmd = CCommandParser::ParseStr(sCmd);
@@ -87,7 +73,7 @@ ALERROR CMainSession::OnCommand(const CString &sCmd, void *pData)
 
 	if (strEquals(*pCommandToken, CONSTLIT("open")))
 		{										                 
-		// m_pContextPanelContent->m_Context.ApplyQuery(aParsedCmd[1]);
+		// m_pContextPanel->m_Context.ApplyQuery(aParsedCmd[1]);
 		}
 	else
 		{
@@ -98,15 +84,16 @@ ALERROR CMainSession::OnCommand(const CString &sCmd, void *pData)
 
 void CMainSession::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
-	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
+	TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
 
-	if (pRelevantContent != NULL)
+	if (aRelevantPanels.GetCount() != 0)
 		{
-		if (pRelevantContent->GetCaptureStatus())
+		IPanel *pRelevantPanel = aRelevantPanels[aRelevantPanels.GetCount() - 1];
+		if (pRelevantPanel->GetCaptureStatus())
 			{
-			m_pCapture = pRelevantContent;
+			m_pCapture = pRelevantPanel;
 			}
-		pRelevantContent->OnLButtonDown(x, y, dwFlags, retbCapture);
+		pRelevantPanel->OnLButtonDown(x, y, dwFlags, retbCapture);
 		}
 	}
 
@@ -119,19 +106,20 @@ void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 		}
 	else
 		{
-		IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
+		TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
 
-		if (pRelevantContent != NULL)
+		if (aRelevantPanels.GetCount() != 0)
 			{
-			pRelevantContent->OnLButtonUp(x, y, dwFlags);
+			IPanel *pRelevantPanel = aRelevantPanels[aRelevantPanels.GetCount() - 1];
+			pRelevantPanel->OnLButtonUp(x, y, dwFlags);
 
-			if (pRelevantContent->IsLClicked())
+			if (pRelevantPanel->IsLClicked())
 				{
-				if (m_pFocusContent != NULL)
+				if (m_pFocusPanel != NULL)
 					{
-					m_pFocusContent->RemoveFocus();
+					m_pFocusPanel->RemoveFocus();
 					}
-				m_pFocusContent = pRelevantContent->SetFocus();
+				m_pFocusPanel = pRelevantPanel->SetFocus();
 				}
 			}
 		}
@@ -139,54 +127,57 @@ void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 
 void CMainSession::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
+	TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
 
-	if (pRelevantContent != NULL)
+	if (aRelevantPanels.GetCount() != NULL)
 		{
-		pRelevantContent->OnRButtonDown(x, y, dwFlags);
+		IPanel *pRelevantPanel = aRelevantPanels[aRelevantPanels.GetCount() - 1];
+		pRelevantPanel->OnRButtonDown(x, y, dwFlags);
 		}
 	}
 
 void CMainSession::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	IPanelContent *pRelevantContent = m_Panel.GetContentContainingPoint(x, y);
+	TArray <IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
 
-	if (pRelevantContent != NULL)
+	if (aRelevantPanels.GetCount() != 0)
 		{
-		pRelevantContent->OnRButtonUp(x, y, dwFlags);
+		IPanel *pRelevantPanel = aRelevantPanels[aRelevantPanels.GetCount() - 1];
 
-		if (pRelevantContent->IsRClicked())
+		pRelevantPanel->OnRButtonUp(x, y, dwFlags);
+
+		if (pRelevantPanel->IsRClicked())
 			{
-			if (m_pFocusContent != NULL)
+			if (m_pFocusPanel != NULL)
 				{
-				m_pFocusContent->RemoveFocus();
+				m_pFocusPanel->RemoveFocus();
 				}
-			m_pFocusContent = pRelevantContent->SetFocus();
+			m_pFocusPanel = pRelevantPanel->SetFocus();
 			}
 		}
 	}
 
 void CMainSession::OnKeyDown(int iVirtKey, DWORD dwKeyData)
 	{
-	if (m_pFocusContent != NULL)
+	if (m_pFocusPanel != NULL)
 		{
-		m_pFocusContent->OnKeyDown(iVirtKey, dwKeyData);
+		m_pFocusPanel->OnKeyDown(iVirtKey, dwKeyData);
 		}
 	}
 
 void CMainSession::OnKeyUp(int iVirtKey, DWORD dwKeyData)
 	{
-	if (m_pFocusContent != NULL)
+	if (m_pFocusPanel != NULL)
 		{
-		m_pFocusContent->OnKeyUp(iVirtKey, dwKeyData);
+		m_pFocusPanel->OnKeyUp(iVirtKey, dwKeyData);
 		}
 	}
 
 void CMainSession::OnChar(char chChar, DWORD dwKeyData)
 	{
-	if (m_pFocusContent != NULL)
+	if (m_pFocusPanel != NULL)
 		{
-		m_pFocusContent->OnChar(chChar, dwKeyData);
+		m_pFocusPanel->OnChar(chChar, dwKeyData);
 		}
 	}
 
@@ -197,14 +188,13 @@ void CMainSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 
 	RECT rcClip;
 	//	call paint functions of all subsessions
-	for (int i = 0; i < m_aContent.GetCount(); i++)
+	for (int i = 0; i < m_aPanels.GetCount(); i++)
 		{
-		IPanelContent *pContent = m_aContent[i];
-		rcClip = (pContent->GetAssociatedPanel()).PanelRect.GetAsRect();
+		IPanel *pPanel = m_aPanels[i];
+		rcClip = pPanel->PanelRect.GetAsRect();
 		Screen.SetClipRect(rcClip);
 		// should only be called if bOverlay
-		pContent->UpdateEdgePositionsFromSeparators();
-		pContent->OnPaint(Screen, rcInvalid);
+		pPanel->OnPaint(Screen, rcInvalid);
 		}
 	Screen.ResetClipRect();
 
