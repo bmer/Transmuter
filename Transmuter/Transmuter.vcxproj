@@ -126,13 +126,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
+    <ClInclude Include="CArrayContainer.h" />
     <ClInclude Include="CCommandParser.h" />
+    <ClInclude Include="CContainer.h" />
     <ClInclude Include="CContextPanel.h" />
     <ClInclude Include="CEditorPanel.h" />
     <ClInclude Include="CCommandPanel.h" />
     <ClInclude Include="CException.h" />
     <ClInclude Include="CMainSession.h" />
     <ClInclude Include="CPreviewPanel.h" />
+    <ClInclude Include="CSplitContainer.h" />
     <ClInclude Include="CTextPanel.h" />
     <ClInclude Include="CScrollBarPanel.h" />
     <ClInclude Include="CTitlePanel.h" />
@@ -148,6 +151,9 @@
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CArrayContainer.cpp" />
+    <ClCompile Include="CContainer.cpp" />
+    <ClCompile Include="CSplitContainer.cpp" />
     <ClCompile Include="CTitlePanel.cpp" />
     <ClCompile Include="CTransmuterPanel.cpp" />
     <ClCompile Include="CCommandPanel.cpp" />

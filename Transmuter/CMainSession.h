@@ -49,7 +49,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		IPanel *m_pContextEditorPanel;
+		CSplitContainer *m_pContextEditorPanel;
 		CContextPanel *m_pContextPanel;
 		CCommandPanel *m_pCommandPanel;
 		TArray <IPanel *> m_aPanels;
@@ -59,7 +59,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		IPanel *m_pFocusPanel;
 
 		CTransmuterModel &m_Model;
-		IPanel m_Panel;
+		CSplitContainer m_Panel;
 
 		int m_iSeparatorWidth;
 	};

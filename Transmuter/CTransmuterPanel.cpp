@@ -14,12 +14,6 @@ m_pTitlePanel(NULL),
 m_Model(model)
 	{
 	}
-CTransmuterPanel::CTransmuterPanel(CString sName, CHumanInterface & HI, CTransmuterModel & model, int iOriginX, int iOriginY, int iWidth, int iHeight) : IPanel(sName, HI, iOriginX, iOriginY, iWidth, iHeight),
-m_pTitlePanel(NULL),
-m_Model(model)
-	{
-	}
-;
 
 void CTransmuterPanel::CreateTitlePanel(CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont * pFont, CG32bitPixel rgbTextColor, CG32bitPixel rgbBackgroundColor)
 	{

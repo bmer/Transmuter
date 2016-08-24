@@ -267,7 +267,7 @@ void CTextContent::OnPanelKeyDown(int iVirtKey, DWORD dwKeyData)
 			}
 		else if (iVirtKey == VK_RETURN)
 			{
-			if (m_pController != NULL)
+			if (GetController() != NULL)
 				{
 				if (m_bCommandInput)
 					{

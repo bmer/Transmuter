@@ -26,7 +26,7 @@ void CLoadingSession::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 
 CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHISession(HI),
 	m_Model(model),
-	m_Panel(CONSTLIT("Main"), HI, 0, 0, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
+	m_Panel(CONSTLIT("Main"), HI, HI.GetScreen().GetWidth(), HI.GetScreen().GetHeight()),
 	m_pCapture(NULL),
 	m_iSeparatorWidth(5)
 	//	CMainSession constructor
@@ -37,19 +37,19 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	int iContextPanelHeight = 600;
 
 	// Initializing ContextEditor panel
-	m_pContextEditorPanel = new IPanel(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
-	m_Panel.PanelOrganizer.PlacePanel(m_pContextEditorPanel, 'h', 0);
+	m_pContextEditorPanel = new CSplitContainer(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
+	m_Panel.PlacePanel(m_pContextEditorPanel, 'h', 0);
 
 	//  Initializing context panel
 	m_pContextPanel = new CContextPanel(CONSTLIT("Context"), HI, m_Model, iContextPanelWidth, iContextPanelHeight);
-	m_pContextEditorPanel->PanelOrganizer.PlacePanel(m_pContextPanel, 'v', 0);
+	m_pContextEditorPanel->PlacePanel(m_pContextPanel, 'v', 0);
 	m_aPanels.Insert(m_pContextPanel);
 
 	//  Initializing command line interface
 	int iCommandPanelWidth = m_Panel.PanelRect.GetWidth();
 	int iCommandPanelHeight = m_Panel.PanelRect.GetHeight() - iContextPanelHeight;
 	m_pCommandPanel = new CCommandPanel(CONSTLIT("CLI"), HI, m_Model, iCommandPanelWidth, iCommandPanelHeight);
-	m_Panel.PanelOrganizer.PlacePanel(m_pCommandPanel, 'h', 1);
+	m_Panel.PlacePanel(m_pCommandPanel, 'h', 1);
 	m_aPanels.Insert(m_pCommandPanel);
 	}
 
@@ -84,7 +84,7 @@ ALERROR CMainSession::OnCommand(const CString &sCmd, void *pData)
 
 void CMainSession::OnLButtonDown(int x, int y, DWORD dwFlags, bool *retbCapture)
 	{
-	TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
+	TArray<IPanel *> aRelevantPanels = m_Panel.GetPanelsContainingPoint(x, y);
 
 	if (aRelevantPanels.GetCount() != 0)
 		{
@@ -106,7 +106,7 @@ void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 		}
 	else
 		{
-		TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
+		TArray<IPanel *> aRelevantPanels = m_Panel.GetPanelsContainingPoint(x, y);
 
 		if (aRelevantPanels.GetCount() != 0)
 			{
@@ -127,7 +127,7 @@ void CMainSession::OnLButtonUp(int x, int y, DWORD dwFlags)
 
 void CMainSession::OnRButtonDown(int x, int y, DWORD dwFlags)
 	{
-	TArray<IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
+	TArray<IPanel *> aRelevantPanels = m_Panel.GetPanelsContainingPoint(x, y);
 
 	if (aRelevantPanels.GetCount() != NULL)
 		{
@@ -138,7 +138,7 @@ void CMainSession::OnRButtonDown(int x, int y, DWORD dwFlags)
 
 void CMainSession::OnRButtonUp(int x, int y, DWORD dwFlags)
 	{
-	TArray <IPanel *> aRelevantPanels = m_Panel.PanelOrganizer.GetPanelsContainingPoint(x, y);
+	TArray <IPanel *> aRelevantPanels = m_Panel.GetPanelsContainingPoint(x, y);
 
 	if (aRelevantPanels.GetCount() != 0)
 		{

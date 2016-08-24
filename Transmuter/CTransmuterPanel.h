@@ -10,8 +10,7 @@ class CTitlePanel;
 class CTransmuterPanel : public IPanel
 	{
 	public:
-		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight);
-		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iOriginX, int iOriginY, int iWidth, int iHeight);
+		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth=0, int iHeight=0);
 
 		void CreateTitlePanel (CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
 
@@ -22,8 +21,6 @@ class CTransmuterPanel : public IPanel
 		void UpdateTitleBackgroundColor (CG32bitPixel rgbColor);
 
 		inline CTransmuterModel &GetModel (void) { return m_Model; }
-
-		virtual void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid) { ; }
 
 	protected:
 		CTransmuterModel &m_Model;
