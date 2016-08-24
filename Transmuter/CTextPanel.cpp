@@ -271,7 +271,7 @@ void CTextContent::OnPanelKeyDown(int iVirtKey, DWORD dwKeyData)
 				{
 				if (m_bCommandInput)
 					{
-					m_pController->HICommand(m_Document.GetAsPlainText());
+					GetController()->HICommand(m_Document.GetAsPlainText());
 					m_Document.ClearText(m_IOCursor);
 					}
 				// make new line

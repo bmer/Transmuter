@@ -9,16 +9,32 @@
 
 //  =======================================================================
 
-CTransmuterPanel::CTransmuterPanel (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight) : IPanel(sName, HI, iWidth, iHeight),
+CTransmuterPanel::CTransmuterPanel (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight) : CArrayContainer(sName, HI, iWidth, iHeight),
 m_pTitlePanel(NULL),
 m_Model(model)
 	{
 	}
 
-void CTransmuterPanel::CreateTitlePanel(CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont * pFont, CG32bitPixel rgbTextColor, CG32bitPixel rgbBackgroundColor)
+void CTransmuterPanel::CreateTitlePanel(CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, const CG16bitFont * pFont, CG32bitPixel rgbTextColor, CG32bitPixel rgbBackgroundColor)
 	{
-	m_pTitlePanel = new CTitlePanel(sName, *g_pHI, iWidth, iHeight, sTitleText);
-	PanelOrganizer.PlacePanel(m_pTitlePanel, iRelativeOriginX, iRelativeOriginY);
+	m_pTitlePanel = new CTitlePanel(sName, *g_pHI, PanelRect.GetWidth(), 40, sTitleText);
+	PlacePanel(m_pTitlePanel, iRelativeOriginX, iRelativeOriginY);
+	}
+
+void CTransmuterPanel::SetTitleWidth(int iWidth)
+	{
+	if (m_pTitlePanel != NULL)
+		{
+		m_pTitlePanel->PanelRect.SetWidth(iWidth);
+		}
+	}
+
+void CTransmuterPanel::SetTitleHeight(int iHeight)
+	{
+	if (m_pTitlePanel != NULL)
+		{
+		m_pTitlePanel->PanelRect.SetHeight(iHeight);
+		}
 	}
 
 void CTransmuterPanel::UpdateTitleText(CString sHeaderText)

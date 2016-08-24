@@ -49,7 +49,8 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		void OnPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 
 	private:
-		CSplitContainer *m_pContextEditorPanel;
+		//CSplitContainer *m_pContextEditorPanel;
+		CArrayContainer *m_pContextEditorPanel;
 		CContextPanel *m_pContextPanel;
 		CCommandPanel *m_pCommandPanel;
 		TArray <IPanel *> m_aPanels;

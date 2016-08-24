@@ -7,13 +7,15 @@
 class IPanel;
 class CTitlePanel;
 
-class CTransmuterPanel : public IPanel
+class CTransmuterPanel : public CArrayContainer
 	{
 	public:
 		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth=0, int iHeight=0);
 
-		void CreateTitlePanel (CString sName, CString sTitleText, int iRelativeOriginX, int iRelativeOriginY, int iWidth, int iHeight, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
-
+		inline CTitlePanel *GetTitlePanel (void) { return m_pTitlePanel; }
+		void CreateTitlePanel (CString sName, CString sTitleText, int iRelativeOriginX=0, int iRelativeOriginY=0, const CG16bitFont *pFont=&(g_pHI->GetVisuals().GetFont(fontConsoleMediumHeavy)), CG32bitPixel rgbTextColor=CG32bitPixel(255,255,255), CG32bitPixel rgbBackgroundColor=CG32bitPixel(140,140,140));
+		void SetTitleWidth (int iWidth);
+		void SetTitleHeight (int iHeight);
 		void UpdateTitleText (CString sText);
 		inline CString GetTitleText (void) { if (m_pTitlePanel != NULL) { return m_pTitlePanel->GetText(); } }
 		void UpdateTitleFont (const CG16bitFont *pFont);

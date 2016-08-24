@@ -26,7 +26,6 @@ class CArrayContainer : public CContainer
 		void ShowAll (void);
 	private:
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
-
 		TArray <IPanel *> m_Panels;
 
 	};

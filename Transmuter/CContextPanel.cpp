@@ -84,7 +84,7 @@ CContextPanel::CContextPanel(CString sID, CHumanInterface &HI, CTransmuterModel 
 	m_rgbFontColor(CG32bitPixel(255, 255, 255)),
 	m_Contextualizer(CContextualizer(HI, m_ExtensionCollection.GetAllExtensions()))
 	{
-	CreateTitlePanel (CreateSubPanelName(CONSTLIT("TitlePanel")), CONSTLIT("Context"), 0, 0, PanelRect.GetWidth(), 40);
+	CreateTitlePanel(CreateSubPanelName(CONSTLIT("TitlePanel")), CONSTLIT("Context"));
 	}
 
 // ===============================================================
@@ -109,7 +109,7 @@ void CContextPanel::LoadContext (void)
 		//delete refAssociatedPanel.PanelOrganizer.GetPanel(iThisPanelIndex)->GetAssociatedSession();
 
 		// now we can delete the panel itself
-		PanelOrganizer.DeletePanel(i);
+		DeletePanel(i);
 		}
 	// deleting all the old stored panel indices
 	m_bLoadedContextObjectPanelIndices.DeleteAll();
@@ -135,8 +135,8 @@ void CContextPanel::LoadContext (void)
 		// create new internal panels, content
 		CContextEntry *pEntry = pContextEntryList->GetAt(i);
 		pEntryPanel = new CContextEntryPanel(CreateSubPanelName(pEntry->GetUNIDAsString()), m_HI, m_Model, *pEntry, iParentPanelWidth, iEntryHeight);
-		PanelOrganizer.PlacePanel(pEntryPanel, 0, iBottomOfTitle + i*iEntryHeight);
-		m_bLoadedContextObjectPanelIndices[i] = PanelOrganizer.GetPanelIndex(pEntryPanel);
+		PlacePanel(pEntryPanel, 0, iBottomOfTitle + i*iEntryHeight);
+		m_bLoadedContextObjectPanelIndices[i] = GetPanelIndex(pEntryPanel);
 		}
 	}
 
@@ -144,17 +144,6 @@ void CContextPanel::LoadContext (void)
 
 void CContextPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	bool bFocusStatus = GetFocusStatus();
-	if (GetFocusStatus() == true)
-		{
-		UpdateOutlineColor(CG32bitPixel(255, 0, 0));
-		}
-	else
-		{
-		UpdateOutlineColor(CG32bitPixel(255, 255, 255));
-		}
-	PaintOutline(Screen);
-
 	if (m_pTitlePanel != NULL)
 		{
 		m_pTitlePanel->OnPaint(Screen, rcInvalid);
