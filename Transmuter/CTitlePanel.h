@@ -17,7 +17,7 @@ class CTitlePanel : public IPanel
 		inline void SetTextColor (CG32bitPixel rgbColor) { m_rgbTextColor = rgbColor; }
 		inline void SetBackgroundColor (CG32bitPixel rgbColor) { m_rgbBackgroundColor = rgbColor; }
 
-		void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		void OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid) override;
 
 	private:
 		CString m_sTitleText;

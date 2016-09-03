@@ -36,7 +36,7 @@ void CSplitContainer::SmoothOut (void)
 			}
 		else
 			{
-			if (m_cSplitDirn == 'h')
+			if (m_SplitDirn == H)
 				{
 				m_iSeparatorPos = int(m_fSeparatorPosFactor*PanelRect.GetWidth());
 
@@ -48,7 +48,7 @@ void CSplitContainer::SmoothOut (void)
 				m_pLeafPanel1->PanelRect.SetWidth(PanelRect.GetWidth() - m_pLeafPanel0->PanelRect.GetWidth() - m_iSeparatorThickness);
 				m_pLeafPanel1->PanelRect.SetHeight(PanelRect.GetHeight());
 				}
-			else if (m_cSplitDirn == 'v')
+			else if (m_SplitDirn == V)
 				{
 				m_iSeparatorPos = int(m_fSeparatorPosFactor*PanelRect.GetHeight());
 
@@ -64,9 +64,9 @@ void CSplitContainer::SmoothOut (void)
 		}
 	}
 
-bool CSplitContainer::PlacePanel (IPanel *pPanel, char cSplitDirn, int iInsertIndex)
+bool CSplitContainer::PlacePanel (IPanel *pPanel, ESplitDirns SplitDirn, int iInsertIndex)
 	{
-	if (cSplitDirn != m_cSplitDirn)
+	if (SplitDirn != m_SplitDirn)
 		{
 		return false;
 		}

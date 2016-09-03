@@ -6,8 +6,13 @@
 class CSplitContainer : public CContainer
 	{
 	public:
+		enum ESplitDirns
+			{
+				V,
+				H
+			};
 		CSplitContainer(CString sName, CHumanInterface &HI, int iWidth = 0, int iHeight = 0);
-		bool PlacePanel (IPanel *pPanel, char cSplitDirn, int iPanelIndex);
+		bool PlacePanel (IPanel *pPanel, ESplitDirns SplitDirn, int iPanelIndex);
 
 		void SmoothOut (void);
 
@@ -30,7 +35,7 @@ class CSplitContainer : public CContainer
 		void ShowAll (void);
 
 	private:
-		char m_cSplitDirn;
+		ESplitDirns m_SplitDirn;
 		float m_fSeparatorPosFactor;
 		int m_iSeparatorPos;
 		int m_iSeparatorThickness;

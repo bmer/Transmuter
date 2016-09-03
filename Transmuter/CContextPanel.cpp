@@ -148,50 +148,50 @@ void CContextPanel::OnPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 		{
 		m_pTitlePanel->OnPaint(Screen, rcInvalid);
 		}
-	/*
-	int iBottomOfTitle = 0;
-	if (m_pHeaderContent != NULL)
-		{
-		m_pHeaderContent->OnPaint(Screen, rcInvalid);
-		iBottomOfTitle += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
-		}
 
-	CContextEntryArray *pContextEntries = m_Contextualizer.GetCurrentContextEntries();
-	int iIndentWidth = 10;
-	int iThisPanelLeftEdge = this->GetAssociatedPanel().PanelRect.GetEdgePosition(EDGE_LEFT);
-	if (pContextEntries != NULL)
-		{
-		CContextEntry *CurrentEntry;
-		int iCurrentYOffset = 0;
-		for (int i = 0; i < pContextEntries->GetCount(); i++)
-			{
-			CurrentEntry = pContextEntries->GetAt(i);
+//	int iBottomOfTitle = 0;
+//	if (m_pHeaderContent != NULL)
+//		{
+//		m_pHeaderContent->OnPaint(Screen, rcInvalid);
+//		iBottomOfTitle += m_pHeaderContent->GetAssociatedPanel().PanelRect.GetHeight();
+//		}
+//
+//	CContextEntryArray *pContextEntries = m_Contextualizer.GetCurrentContextEntries();
+//	int iIndentWidth = 10;
+//	int iThisPanelLeftEdge = this->GetAssociatedPanel().PanelRect.GetEdgePosition(EDGE_LEFT);
+//	if (pContextEntries != NULL)
+//		{
+//		CContextEntry *CurrentEntry;
+//		int iCurrentYOffset = 0;
+//		for (int i = 0; i < pContextEntries->GetCount(); i++)
+//			{
+//			CurrentEntry = pContextEntries->GetAt(i);
+//
+//#ifdef DEBUG
+//			int iLevel = CurrentEntry->GetLevel();
+//			CString sDisplayText = CurrentEntry->GetDisplayText();
+//			bool bIsParentCollapsed = CurrentEntry->IsParentCollapsed();
+//			bool bCollapseStatus = CurrentEntry->GetCollapseStatus();
+//
+//			if (bIsParentCollapsed == false && iLevel > 0)
+//				{
+//				if (CurrentEntry->GetParent() != NULL)
+//					{
+//					CString sParentDisplayText = CurrentCtxObj->GetParent()->GetDisplayText();
+//					Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, CG32bitPixel(255, 0, 0), sParentDisplayText);
+//					iCurrentYOffset += 15;
+//					}
+//				}
+//#endif
+//
+//			if (CurrentCtxObj->GetLevel() == 0 || CurrentCtxObj->IsParentCollapsed() == false)
+//				{
+//				Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, m_rgbFontColor, CurrentCtxObj->GetDisplayText());
+//				iCurrentYOffset += 15;
+//				}
+//			}
+//		}
 
-#ifdef DEBUG
-			int iLevel = CurrentEntry->GetLevel();
-			CString sDisplayText = CurrentEntry->GetDisplayText();
-			bool bIsParentCollapsed = CurrentEntry->IsParentCollapsed();
-			bool bCollapseStatus = CurrentEntry->GetCollapseStatus();
-
-			if (bIsParentCollapsed == false && iLevel > 0)
-				{
-				if (CurrentEntry->GetParent() != NULL)
-					{
-					CString sParentDisplayText = CurrentCtxObj->GetParent()->GetDisplayText();
-					Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, CG32bitPixel(255, 0, 0), sParentDisplayText);
-					iCurrentYOffset += 15;
-					}
-				}
-#endif
-
-			if (CurrentCtxObj->GetLevel() == 0 || CurrentCtxObj->IsParentCollapsed() == false)
-				{
-				Screen.DrawText(iThisPanelLeftEdge + (1 + CurrentCtxObj->GetLevel())*iIndentWidth, iBottomOfTitle + iCurrentYOffset, *m_pFont, m_rgbFontColor, CurrentCtxObj->GetDisplayText());
-				iCurrentYOffset += 15;
-				}
-			}
-		}
-*/
 	}
 
 //  =======================================================================

@@ -43,9 +43,9 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	m_Panel.PlacePanel(m_pContextEditorPanel, 0, 0);
 
 	//  Initializing context panel
-	//m_pContextPanel = new CContextPanel(CONSTLIT("Context"), HI, m_Model, iContextPanelWidth, iContextPanelHeight);
-	//m_pContextEditorPanel->PlacePanel(m_pContextPanel, 'v', 0);
-	//m_aPanels.Insert(m_pContextPanel);
+	m_pContextPanel = new CContextPanel(CONSTLIT("Context"), HI, m_Model, iContextPanelWidth, iContextPanelHeight);
+	m_pContextEditorPanel->PlacePanel(m_pContextPanel, 0, 0);
+	m_aPanels.Insert(m_pContextPanel);
 
 	//  Initializing command line interface
 	/*int iCommandPanelWidth = m_Panel.PanelRect.GetWidth();

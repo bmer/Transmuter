@@ -14,7 +14,7 @@ CTitlePanel::CTitlePanel(CString sName, CHumanInterface &HI, int iWidth, int iHe
 	{
 	}
 
-void CTitlePanel::OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CTitlePanel::OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	Screen.Fill(PanelRect.GetOriginX(), PanelRect.GetOriginY(), PanelRect.GetWidth(), PanelRect.GetHeight(), m_rgbBackgroundColor);
 

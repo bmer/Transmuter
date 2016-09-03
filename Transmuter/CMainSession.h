@@ -60,7 +60,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		IPanel *m_pFocusPanel;
 
 		CTransmuterModel &m_Model;
-		CSplitContainer m_Panel;
+		CArrayContainer m_Panel;
 
 		int m_iSeparatorWidth;
 	};

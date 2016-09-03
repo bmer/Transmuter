@@ -247,7 +247,7 @@ CTextContent::~CTextContent(void)
 	{
 	}
 
-void CTextContent::OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid)
+void CTextContent::OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid)
 	{
 	SDocumentPaintCtx PaintCtx = SDocumentPaintCtx();
 	PaintCtx.x = PanelRect.GetOriginX();

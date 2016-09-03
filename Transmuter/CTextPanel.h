@@ -173,7 +173,7 @@ class CTextContent : public CTransmuterPanel
 
 		~CTextContent (void);
 
-		void OnPanelPaint (CG32bitImage &Screen, const RECT &rcInvalid);
+		void OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid);
 		void OnPanelKeyDown (int iVirtKey, DWORD dwKeyData);
 		void OnPanelChar (char chChar, DWORD dwKeyData);
 
