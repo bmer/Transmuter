@@ -39,7 +39,7 @@ CMainSession::CMainSession (CHumanInterface &HI, CTransmuterModel &model) : IHIS
 	// Initializing ContextEditor panel
 	//m_pContextEditorPanel = new CSplitContainer(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
 	//m_Panel.PlacePanel(m_pContextEditorPanel, 'h', 0);
-	m_pContextEditorPanel = new CArrayContainer(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
+	m_pContextEditorPanel = new CFloatContainer(CONSTLIT("ContextEditor"), HI, m_Panel.PanelRect.GetWidth(), iContextPanelHeight);
 	m_Panel.PlacePanel(m_pContextEditorPanel, 0, 0);
 
 	//  Initializing context panel
@@ -185,20 +185,9 @@ void CMainSession::OnChar(char chChar, DWORD dwKeyData)
 
 void CMainSession::OnPaint(CG32bitImage &Screen, const RECT &rcInvalid)
 	{
-	//	paint the background GRAY: 32, 32, 32
+	//	paint the main background GRAY: 32, 32, 32
 	Screen.Fill(0, 0, Screen.GetWidth(), Screen.GetHeight(), CG32bitPixel(32, 32, 32));
 
-	RECT rcClip;
-	//	call paint functions of all subsessions
-	for (int i = 0; i < m_aPanels.GetCount(); i++)
-		{
-		IPanel *pPanel = m_aPanels[i];
-		rcClip = pPanel->PanelRect.GetAsRect();
-		Screen.SetClipRect(rcClip);
-		// should only be called if bOverlay
-		pPanel->OnPaint(Screen, rcInvalid);
-		}
+	m_Panel.OnPaint(Screen, rcInvalid);
 	Screen.ResetClipRect();
-
-	// now do overlay stuff	 -- loop again, but call OnPaint if bOverlay == True
 	} 

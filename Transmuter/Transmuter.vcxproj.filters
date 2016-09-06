@@ -84,7 +84,7 @@
     <ClInclude Include="CSplitContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CArrayContainer.h">
+    <ClInclude Include="CFloatContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -140,7 +140,7 @@
     <ClCompile Include="CSplitContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CArrayContainer.cpp">
+    <ClCompile Include="CFloatContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

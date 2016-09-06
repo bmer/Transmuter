@@ -9,7 +9,7 @@
 
 //  =======================================================================
 
-CTransmuterPanel::CTransmuterPanel (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight) : CArrayContainer(sName, HI, iWidth, iHeight),
+CTransmuterPanel::CTransmuterPanel (CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth, int iHeight) : CFloatContainer(sName, HI, iWidth, iHeight),
 m_pTitlePanel(NULL),
 m_Model(model)
 	{

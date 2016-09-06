@@ -23,7 +23,7 @@
 #include "Panel.h"
 #include "CContainer.h"
 #include "CSplitContainer.h"
-#include "CArrayContainer.h"
+#include "CFloatContainer.h"
 #include "CCommandParser.h"
 #include "CTitlePanel.h"
 #include "CTransmuterPanel.h"

@@ -1,16 +1,81 @@
-//	CArrayContainer.cpp
+//	CFloatContainer.cpp
 //
 //	Copyright (c) 2016 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
-#include "CArrayContainer.h"
+#include "CFloatContainer.h"
 
 CSplitContainer::CSplitContainer(CString sName, CHumanInterface &HI, int iWidth, int iHeight) : CContainer(sName, HI, iWidth, iHeight)
 	{
 	}
 
+bool CSplitContainer::PanelShouldBePainted(int iPanelIndex)
+	{
+	bool bNoZeroDimensions;
+	
+	if (iPanelIndex == 0)
+		{
+		if (m_pLeafPanel0 == NULL)
+			{
+			return false;
+			}
+		
+		CPanelRect &ThisPanelRect = m_pLeafPanel0->PanelRect;
+		bNoZeroDimensions = (ThisPanelRect.GetHeight() != 0) && (ThisPanelRect.GetWidth() != 0);
+		return (!m_pLeafPanel0->IsHidden() && bNoZeroDimensions);
+		}
+	else if (iPanelIndex == 1)
+		{
+		if (m_pLeafPanel1 == NULL)
+			{
+			return false;
+			}
+
+		CPanelRect &ThisPanelRect = m_pLeafPanel1->PanelRect;
+		bNoZeroDimensions = (ThisPanelRect.GetHeight() != 0) && (ThisPanelRect.GetWidth() != 0);
+		return (!m_pLeafPanel1->IsHidden() && bNoZeroDimensions);
+		}
+
+	return false;
+	}
 void CSplitContainer::SmoothOut (void)
 	{
+	bool PaintPanel0 = PanelShouldBePainted(0);
+	bool PaintPanel1 = PanelShouldBePainted(1);
+
+	if (!PaintPanel0 && !PaintPanel1)
+		{
+		// nothing to do
+		return;
+		}
+
+	if (PaintPanel0)
+		{
+		if (PaintPanel1)
+			{
+			if (m_SplitDirn == V)
+				{
+				m_pLeafPanel0->PanelRect.SetWidth(PanelRect.GetWidth());
+				m_pLeafPanel1->PanelRect.SetWidth(PanelRect.GetWidth());
+
+				int iPanel0Height = m_pLeafPanel0->PanelRect.GetHeight();
+				int iPanel1Height = m_pLeafPanel1->PanelRect.GetHeight();
+				float fHeightRatio = float(iPanel0Height) / float(iPanel1Height);
+
+				int iAvailableSpace = PanelRect.GetHeight() - ;
+				}
+			else
+				{
+
+				}
+			}
+		}
+	else
+		{
+
+		}
+
+
 	if (m_pLeafPanel0 == NULL || m_pLeafPanel0->IsHidden())
 		{
 		if (m_pLeafPanel1 == NULL || m_pLeafPanel1->IsHidden())
@@ -71,30 +136,50 @@ bool CSplitContainer::PlacePanel (IPanel *pPanel, ESplitDirns SplitDirn, int iIn
 		return false;
 		}
 
-	if (m_pLeafPanel0 != NULL && m_pLeafPanel1 != NULL)
-		{
-		return false;
-		}
-
 	if (iInsertIndex == 0)
 		{
 		if (m_pLeafPanel0 != NULL)
 			{
-			m_pLeafPanel1 = m_pLeafPanel0;
+			if (m_pLeafPanel1 != NULL)
+				{
+				return false;
+				}
+			else
+				{
+				m_pLeafPanel1 = m_pLeafPanel0;
+				m_pLeafPanel0 = pPanel;
+				}
 			}
-		m_pLeafPanel0 = pPanel;
+		else
+			{
+			m_pLeafPanel0 = pPanel;
+			}
 		}
-	else
+	else if (iInsertIndex == 1)
 		{
 		if (m_pLeafPanel1 != NULL)
 			{
-			m_pLeafPanel0 = m_pLeafPanel1;
+			if (m_pLeafPanel0 != NULL)
+				{
+				return false;
+				}
+			else
+				{
+				m_pLeafPanel0 = m_pLeafPanel1;
+				m_pLeafPanel1 = pPanel;
+				}
 			}
-		m_pLeafPanel1 = pPanel;
+		else
+			{
+			m_pLeafPanel1 = pPanel;
+			}
+		}
+	else
+		{
+		return false;
 		}
 
 	SmoothOut();
-
 	pPanel->ConfirmPlacement();
 
 	return true;
@@ -225,6 +310,36 @@ void CSplitContainer::ShowAll (void)
 		}
 
 	SmoothOut();
+	}
+
+void CSplitContainer::OnContentPaint(CG32bitImage &Screen, const RECT & rcInvalid)
+	{
+	PaintSeparator(Screen, rcInvalid);
+
+	if (m_pLeafPanel0 != NULL)
+		{
+		m_pLeafPanel0->OnPaint(Screen, rcInvalid);
+		}
+
+	if (m_pLeafPanel1 != NULL)
+		{
+		m_pLeafPanel1->OnPaint(Screen, rcInvalid);
+		}
+	}
+
+void CSplitContainer::PaintSeparator(CG32bitImage & Screen, const RECT & rcInvalid)
+	{
+	if (m_iSeparatorPos != -1)
+		{
+		if (m_SplitDirn == V)
+			{
+			Screen.Fill(PanelRect.GetOriginX(), m_iSeparatorPos, PanelRect.GetWidth(), m_iSeparatorThickness, CG32bitPixel(100, 100, 100));
+			}
+		else
+			{
+			Screen.Fill(m_iSeparatorPos, PanelRect.GetOriginY(), m_iSeparatorThickness, PanelRect.GetHeight(), CG32bitPixel(100, 100, 100));
+			}
+		}
 	}
 
 

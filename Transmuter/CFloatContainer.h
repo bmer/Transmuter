@@ -1,4 +1,4 @@
-//	CArrayContainer.h
+//	CFloatContainer.h
 //
 //	Copyright (c) 2016 by Kronosaur Productions, LLC. All Rights Reserved.
 #pragma once
@@ -6,10 +6,10 @@
 #define SMOOTH_VERTICAL		0
 #define SMOOTH_HORIZONTAL	1
 
-class CArrayContainer : public CContainer
+class CFloatContainer : public CContainer
 	{
 	public:
-		CArrayContainer (CString sName, CHumanInterface &HI, int iWidth=0, int iHeight=0);
+		CFloatContainer (CString sName, CHumanInterface &HI, int iWidth=0, int iHeight=0);
 		
 		void SmoothOut (DWORD dwSmoothType);
 		bool PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY);
@@ -24,6 +24,9 @@ class CArrayContainer : public CContainer
 		void HideAll (void);
 		void ShowPanel (int iPanelIndex);
 		void ShowAll (void);
+
+		virtual void OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid) override;
+
 	private:
 		TArray <int> SortByPanelRectEdgeLocation (DWORD dwEdge);
 		TArray <IPanel *> m_Panels;

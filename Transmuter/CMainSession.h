@@ -50,7 +50,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 
 	private:
 		//CSplitContainer *m_pContextEditorPanel;
-		CArrayContainer *m_pContextEditorPanel;
+		CFloatContainer *m_pContextEditorPanel;
 		CContextPanel *m_pContextPanel;
 		CCommandPanel *m_pCommandPanel;
 		TArray <IPanel *> m_aPanels;
@@ -60,7 +60,7 @@ class CMainSession : public IHISession, public CUniverse::INotifications
 		IPanel *m_pFocusPanel;
 
 		CTransmuterModel &m_Model;
-		CArrayContainer m_Panel;
+		CFloatContainer m_Panel;
 
 		int m_iSeparatorWidth;
 	};

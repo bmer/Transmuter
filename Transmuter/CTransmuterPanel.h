@@ -7,7 +7,7 @@
 class IPanel;
 class CTitlePanel;
 
-class CTransmuterPanel : public CArrayContainer
+class CTransmuterPanel : public CFloatContainer
 	{
 	public:
 		CTransmuterPanel(CString sName, CHumanInterface &HI, CTransmuterModel &model, int iWidth=0, int iHeight=0);

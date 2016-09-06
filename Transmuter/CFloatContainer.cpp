@@ -1,20 +1,20 @@
-//	CArrayContainer.cpp
+//	CFloatContainer.cpp
 //
 //	Copyright (c) 2016 by Kronosaur Productions, LLC. All Rights Reserved.
 
 #include "PreComp.h"
-#include "CArrayContainer.h"
+#include "CFloatContainer.h"
 
-CArrayContainer::CArrayContainer(CString sName, CHumanInterface &HI, int iWidth, int iHeight) : CContainer(sName, HI, iWidth, iHeight)
+CFloatContainer::CFloatContainer(CString sName, CHumanInterface &HI, int iWidth, int iHeight) : CContainer(sName, HI, iWidth, iHeight)
 	{
 
 	}
 
-TArray <int> CArrayContainer::SortByPanelRectEdgeLocation (DWORD dwEdge)
+TArray <int> CFloatContainer::SortByPanelRectEdgeLocation (DWORD dwEdge)
 //  SortByPanelRectEdgeLocation
 // 
 //  Return an array of integers whose elements correspond with indices of panels
-//  in CArrayContainer's array of panels. Panel indices are sorted by edge location
+//  in CFloatContainer's array of panels. Panel indices are sorted by edge location
 //  (smallest location value first), where the specific edge is specified by dwEdge .
 	{
 	TArray<int> aSortedPanelIndices;
@@ -42,7 +42,7 @@ TArray <int> CArrayContainer::SortByPanelRectEdgeLocation (DWORD dwEdge)
 	return aSortedPanelIndices;
 	}
 
-void CArrayContainer::SmoothOut (DWORD dwSmoothType)
+void CFloatContainer::SmoothOut (DWORD dwSmoothType)
 /*
 Makes panels fit "smoothly" on the screen: that is, without any gaps or overlaps.
 
@@ -176,7 +176,7 @@ In a vertical smoothing, all the panels will be made to line up bottom edge to t
 		}
 	}
 
-bool CArrayContainer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
+bool CFloatContainer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRelativeOriginY)
 	{
 	int iOriginX = this->PanelRect.GetOriginX() + iRelativeOriginX;
 	int iOriginY = this->PanelRect.GetOriginY() + iRelativeOriginY;
@@ -194,7 +194,7 @@ bool CArrayContainer::PlacePanel (IPanel *pPanel, int iRelativeOriginX, int iRel
 	return true;
 	}
 
-void CArrayContainer::ChangePanelIndex (int iOldPanelIndex, int iNewPanelIndex)
+void CFloatContainer::ChangePanelIndex (int iOldPanelIndex, int iNewPanelIndex)
 	{
 	if (0 <= iOldPanelIndex &&
 		iOldPanelIndex < m_Panels.GetCount() &&
@@ -210,12 +210,12 @@ void CArrayContainer::ChangePanelIndex (int iOldPanelIndex, int iNewPanelIndex)
 		}
 	}
 
-void CArrayContainer::DeletePanel (int iPanelIndex)
+void CFloatContainer::DeletePanel (int iPanelIndex)
 	{
 	m_Panels.Delete(iPanelIndex);
 	}
 
-TArray <IPanel *> CArrayContainer::GetPanelsContainingPoint (int x, int y)
+TArray <IPanel *> CFloatContainer::GetPanelsContainingPoint (int x, int y)
 	{
 	TArray <IPanel *> aRelevantPanels;
 
@@ -227,7 +227,7 @@ TArray <IPanel *> CArrayContainer::GetPanelsContainingPoint (int x, int y)
 	return aRelevantPanels;
 	}
 
-int CArrayContainer::GetPanelIndex (IPanel *pPanel)
+int CFloatContainer::GetPanelIndex (IPanel *pPanel)
 	{
 	for (int i = 0; i < m_Panels.GetCount(); i++)
 		{
@@ -240,7 +240,7 @@ int CArrayContainer::GetPanelIndex (IPanel *pPanel)
 	return -1;
 	}
 
-void CArrayContainer::HidePanel (int iPanelIndex)
+void CFloatContainer::HidePanel (int iPanelIndex)
 	{
 	//  hide the panel first so other panels can take its space during rearrangement
 	m_Panels[iPanelIndex]->SetHiddenFlag(true);
@@ -249,7 +249,7 @@ void CArrayContainer::HidePanel (int iPanelIndex)
 	SmoothOut(SMOOTH_VERTICAL);
 	}
 
-void CArrayContainer::HideAll (void)
+void CFloatContainer::HideAll (void)
 	{
 	for (int i = 0; i < m_Panels.GetCount(); i++)
 		{
@@ -261,7 +261,7 @@ void CArrayContainer::HideAll (void)
 	}
 
 
-void CArrayContainer::ShowPanel (int iPanelIndex)
+void CFloatContainer::ShowPanel (int iPanelIndex)
 	{
 	IPanel *FocusPanel = m_Panels[iPanelIndex];
 
@@ -272,7 +272,7 @@ void CArrayContainer::ShowPanel (int iPanelIndex)
 	SmoothOut(SMOOTH_VERTICAL);
 	}
 
-void CArrayContainer::ShowAll (void)
+void CFloatContainer::ShowAll (void)
 	{
 	for (int i = 0; i < m_Panels.GetCount(); i++)
 		{
@@ -281,6 +281,23 @@ void CArrayContainer::ShowAll (void)
 
 	SmoothOut(SMOOTH_HORIZONTAL);
 	SmoothOut(SMOOTH_VERTICAL);
+	}
+
+void CFloatContainer::OnContentPaint(CG32bitImage & Screen, const RECT & rcInvalid)
+	{
+	RECT rcClip;
+	//	call paint functions of all subsessions
+	for (int i = 0; i < m_Panels.GetCount(); i++)
+		{
+		IPanel *pPanel = m_Panels[i];
+		rcClip = pPanel->PanelRect.GetAsRect();
+		Screen.SetClipRect(rcClip);
+		// should only be called if bOverlay
+		pPanel->OnPaint(Screen, rcInvalid);
+		}
+	Screen.ResetClipRect();
+
+	// now do overlay stuff	 -- loop again, but call OnPaint if bOverlay == True
 	}
 
 

@@ -108,7 +108,7 @@ bool CTransmuterModel::LoadUniverse (CString *retsError)
 
 		CUniverse::SInitDesc Ctx;
 		// Ctx.sFilespec = CONSTLIT("");
-		Ctx.sFilespec = CONSTLIT("C:\\Users\\Brian Merchant\\Documents\\Visual Studio 2015\\Projects\\Transcendence\\TransCore\\Transcendence.xml");
+		Ctx.sFilespec = CONSTLIT("A:\\transdev\\Transcendence\\TransCore\\Transcendence.xml");
 		Ctx.sCollectionFolder = m_sCollectionFolder;
 		Ctx.ExtensionFolders = m_ExtensionFolders;
 		Ctx.pHost = m_pController;

@@ -11,10 +11,11 @@ class CSplitContainer : public CContainer
 				V,
 				H
 			};
+
 		CSplitContainer(CString sName, CHumanInterface &HI, int iWidth = 0, int iHeight = 0);
 		bool PlacePanel (IPanel *pPanel, ESplitDirns SplitDirn, int iPanelIndex);
 
-		void SmoothOut (void);
+		void SmoothOut(void);
 
 		void FlipPanelLocation (void);
 
@@ -33,6 +34,10 @@ class CSplitContainer : public CContainer
 		void HideAll (void);
 		void ShowPanel (int iPanelIndex);
 		void ShowAll (void);
+
+		virtual void OnContentPaint (CG32bitImage &Screen, const RECT &rcInvalid) override;
+		void PaintSeparator (CG32bitImage &Scren, const RECT &rcInvalid);
+		bool PanelShouldBePainted (int iPanelIndex);
 
 	private:
 		ESplitDirns m_SplitDirn;

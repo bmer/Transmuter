@@ -126,7 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundTasks.h" />
-    <ClInclude Include="CArrayContainer.h" />
+    <ClInclude Include="CFloatContainer.h" />
     <ClInclude Include="CCommandParser.h" />
     <ClInclude Include="CContainer.h" />
     <ClInclude Include="CContextPanel.h" />
@@ -151,7 +151,7 @@
     <ClInclude Include="UserSettingsDef.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CArrayContainer.cpp" />
+    <ClCompile Include="CFloatContainer.cpp" />
     <ClCompile Include="CContainer.cpp" />
     <ClCompile Include="CSplitContainer.cpp" />
     <ClCompile Include="CTitlePanel.cpp" />
