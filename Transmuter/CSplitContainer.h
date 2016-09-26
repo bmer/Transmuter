@@ -9,7 +9,8 @@ class CSplitContainer : public CContainer
 		enum ESplitDirns
 			{
 				V,
-				H
+				H,
+				N
 			};
 
 		CSplitContainer(CString sName, CHumanInterface &HI, int iWidth = 0, int iHeight = 0);
@@ -19,8 +20,8 @@ class CSplitContainer : public CContainer
 
 		void FlipPanelLocation (void);
 
-		void inline SetSeparatorPosition (int iSeparatorPos) { m_iSeparatorPos = iSeparatorPos; }
-		void inline SetSeparatorPositionFactor (float fSeparatorPosFactor) { m_fSeparatorPosFactor = fSeparatorPosFactor; }
+		void SetSeparatorPosition (int iSeparatorPos);
+		void SetSeparatorPositionFactor (float fSeparatorPosFactor);
 		void inline SetSeparatorThickness (int iSeparatorThickness) { m_iSeparatorThickness = iSeparatorThickness; }
 		inline int GetSeparatorPosition (void) { return m_iSeparatorPos; }
 		inline float GetSeparatorPositionFactor (void) { return m_fSeparatorPosFactor; }

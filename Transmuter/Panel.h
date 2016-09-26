@@ -50,6 +50,8 @@ class CPanelRect
 		inline void SetHeight (int iHeight) { m_iHeight = iHeight; }
 		inline void ChangeHeightBy (int iChange) { m_iHeight += iChange;  }
 
+		inline bool HasZeroDimension (void) { return (m_iWidth == 0 || m_iHeight == 0); }
+
 	private:
 		IPanel &m_AssociatedPanel;
 		int m_iOriginX;

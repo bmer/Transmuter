@@ -7,6 +7,7 @@
 
 CSplitContainer::CSplitContainer(CString sName, CHumanInterface &HI, int iWidth, int iHeight) : CContainer(sName, HI, iWidth, iHeight)
 	{
+	SetSeparatorPositionFactor(-1.0);
 	}
 
 bool CSplitContainer::PanelShouldBePainted(int iPanelIndex)
@@ -21,7 +22,7 @@ bool CSplitContainer::PanelShouldBePainted(int iPanelIndex)
 			}
 		
 		CPanelRect &ThisPanelRect = m_pLeafPanel0->PanelRect;
-		bNoZeroDimensions = (ThisPanelRect.GetHeight() != 0) && (ThisPanelRect.GetWidth() != 0);
+		bNoZeroDimensions = ThisPanelRect.HasZeroDimension();
 		return (!m_pLeafPanel0->IsHidden() && bNoZeroDimensions);
 		}
 	else if (iPanelIndex == 1)
@@ -32,7 +33,7 @@ bool CSplitContainer::PanelShouldBePainted(int iPanelIndex)
 			}
 
 		CPanelRect &ThisPanelRect = m_pLeafPanel1->PanelRect;
-		bNoZeroDimensions = (ThisPanelRect.GetHeight() != 0) && (ThisPanelRect.GetWidth() != 0);
+		bNoZeroDimensions = ThisPanelRect.HasZeroDimension();
 		return (!m_pLeafPanel1->IsHidden() && bNoZeroDimensions);
 		}
 
@@ -49,28 +50,48 @@ void CSplitContainer::SmoothOut (void)
 		return;
 		}
 
-	if (PaintPanel0)
+	if (PaintPanel0 && PaintPanel1)
 		{
-		if (PaintPanel1)
+		// we have to paint two panels
+		SetSeparatorPositionFactor(m_fSeparatorPosFactor);
+		if (m_SplitDirn == V)
 			{
-			if (m_SplitDirn == V)
-				{
-				m_pLeafPanel0->PanelRect.SetWidth(PanelRect.GetWidth());
-				m_pLeafPanel1->PanelRect.SetWidth(PanelRect.GetWidth());
+			int iPanel0Height = m_pLeafPanel0->PanelRect.GetHeight();
+			int iPanel1Height = m_pLeafPanel1->PanelRect.GetHeight();
+			float fHeightRatio = float(iPanel0Height) / float(iPanel1Height);
 
-				int iPanel0Height = m_pLeafPanel0->PanelRect.GetHeight();
-				int iPanel1Height = m_pLeafPanel1->PanelRect.GetHeight();
-				float fHeightRatio = float(iPanel0Height) / float(iPanel1Height);
+			int iAvailableSpace = PanelRect.GetHeight() - m_iSeparatorThickness;
 
-				int iAvailableSpace = PanelRect.GetHeight() - ;
-				}
-			else
-				{
+			int iNewPanel0Height = int(iAvailableSpace*fHeightRatio);
 
-				}
+			m_pLeafPanel0->PanelRect.SetHeight(iNewPanel0Height);
+			m_pLeafPanel0->PanelRect.SetWidth(PanelRect.GetWidth());
+			m_pLeafPanel0->PanelRect.SetOrigin(PanelRect.GetOriginX(), PanelRect.GetOriginY());
+
+			m_pLeafPanel1->PanelRect.SetHeight(iAvailableSpace - iNewPanel0Height);
+			m_pLeafPanel1->PanelRect.SetWidth(PanelRect.GetWidth());
+			m_pLeafPanel1->PanelRect.SetOrigin(PanelRect.GetOriginX(), m_iSeparatorPos + m_iSeparatorThickness);
+			}
+		else
+			{
+			int iPanel0Width = m_pLeafPanel0->PanelRect.GetWidth();
+			int iPanel1Width = m_pLeafPanel1->PanelRect.GetWidth();
+			float fWidthRatio = float(iPanel0Width) / float(iPanel1Width);
+
+			int iAvailableSpace = PanelRect.GetWidth() - m_iSeparatorThickness;
+
+			int iNewPanel0Width = int(iAvailableSpace*fWidthRatio);
+
+			m_pLeafPanel0->PanelRect.SetHeight(iNewPanel0Width);
+			m_pLeafPanel0->PanelRect.SetWidth(PanelRect.GetHeight());
+			m_pLeafPanel0->PanelRect.SetOrigin(PanelRect.GetOriginX(), PanelRect.GetOriginY());
+
+			m_pLeafPanel1->PanelRect.SetHeight(iAvailableSpace - iNewPanel0Width);
+			m_pLeafPanel1->PanelRect.SetWidth(PanelRect.GetHeight());
+			m_pLeafPanel1->PanelRect.SetOrigin(m_iSeparatorPos + m_iSeparatorThickness, PanelRect.GetOriginY());
 			}
 		}
-	else
+	else if (PaintPanel0)
 		{
 
 		}
@@ -192,6 +213,56 @@ void CSplitContainer::FlipPanelLocation(void)
 	m_pLeafPanel0 = m_pLeafPanel1;
 
 	SmoothOut();
+	}
+
+void CSplitContainer::SetSeparatorPosition(int iSeparatorPos)
+	{
+	if (m_SplitDirn != N)
+		{
+		int iSepPosLowerBound;
+		int iSepPosUpperBound;
+		float fSepPosFactorDenominator;
+
+		if (m_SplitDirn == V)
+			{
+			iSepPosLowerBound = PanelRect.GetOriginY();
+			iSepPosUpperBound = PanelRect.GetEdgePosition(EDGE_BOTTOM) - m_iSeparatorThickness;
+			fSepPosFactorDenominator = float(PanelRect.GetHeight() - m_iSeparatorThickness);
+			}
+		else
+			{
+			int iSepPosLowerBound = PanelRect.GetOriginX();
+			iSepPosUpperBound = PanelRect.GetEdgePosition(EDGE_RIGHT) - m_iSeparatorThickness;
+			fSepPosFactorDenominator = float(PanelRect.GetWidth() - m_iSeparatorThickness);
+			}
+
+		if (iSepPosLowerBound <= iSeparatorPos && iSeparatorPos <= iSepPosUpperBound)
+			{
+			m_iSeparatorPos = iSeparatorPos;
+			m_fSeparatorPosFactor = float(iSeparatorPos) / fSepPosFactorDenominator;
+			}
+		}
+	}
+
+void CSplitContainer::SetSeparatorPositionFactor(float fSeparatorPosFactor)
+	{
+	m_fSeparatorPosFactor = fSeparatorPosFactor;
+
+	if (m_fSeparatorPosFactor > 0.0)
+		{
+		if (m_SplitDirn == V)
+			{
+			m_iSeparatorPos = PanelRect.GetHeight()*m_fSeparatorPosFactor + PanelRect.GetOriginY();
+			}
+		else if (m_SplitDirn == H)
+			{
+			m_iSeparatorPos = PanelRect.GetWidth()*m_fSeparatorPosFactor + PanelRect.GetOriginX();
+			}
+		else
+			{
+			m_iSeparatorPos = -1;
+			}
+		}
 	}
 
 void CSplitContainer::DeletePanel (int iPanelIndex)
